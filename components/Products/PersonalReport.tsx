@@ -72,8 +72,8 @@ const PersonalReport: React.FC<Props> = ({ data }) => {
         const courses = await coursesService.getVisibleCourses();
         // Take first 3 courses as recommended courses
         setRecommendedCourses(courses.slice(0, 3));
-      } catch (error) {
-        console.error("Error fetching courses:", error);
+      } catch {
+        // Failed to fetch courses
       } finally {
         setLoading(false);
       }
@@ -86,9 +86,7 @@ const PersonalReport: React.FC<Props> = ({ data }) => {
     if (user) {
       // Check if user owns this course
       if (user?.purchasedCourses?.includes(course.id)) {
-        // User owns the course, navigate to course content
-        console.log("User owns course, navigating to content");
-        // You can implement navigation to course content here
+        // User owns the course - implement navigation to course content here
       } else {
         // User doesn't own the course, trigger purchase
         handlePurchase(course);
@@ -113,7 +111,7 @@ const PersonalReport: React.FC<Props> = ({ data }) => {
 
       // Create Stripe checkout session
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/stripe/checkout`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/stripe/checkout`,
         {
           method: "POST",
           headers: {
@@ -134,11 +132,9 @@ const PersonalReport: React.FC<Props> = ({ data }) => {
       if (data.success && data.url) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
-      } else {
-        console.error("Error creating checkout session:", data.error);
       }
-    } catch (error) {
-      console.error("Error handling purchase:", error);
+    } catch {
+      // Purchase handling failed
     }
   };
 

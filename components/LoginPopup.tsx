@@ -76,17 +76,17 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
           setError("Proszę wypełnić wszystkie pola");
         }
       }
-    } catch (error: any) {
-      console.error("Auth error:", error);
-      if (error.code === "auth/user-not-found") {
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (err.code === "auth/user-not-found") {
         setError("Użytkownik nie został znaleziony");
-      } else if (error.code === "auth/wrong-password") {
+      } else if (err.code === "auth/wrong-password") {
         setError("Nieprawidłowe hasło");
-      } else if (error.code === "auth/email-already-in-use") {
+      } else if (err.code === "auth/email-already-in-use") {
         setError("Email jest już używany");
-      } else if (error.code === "auth/weak-password") {
+      } else if (err.code === "auth/weak-password") {
         setError("Hasło jest za słabe (minimum 6 znaków)");
-      } else if (error.code === "auth/invalid-email") {
+      } else if (err.code === "auth/invalid-email") {
         setError("Nieprawidłowy format email");
       } else {
         setError("Wystąpił błąd podczas logowania");
@@ -125,11 +125,11 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
         onClose();
         router.push("/dashboard");
       }
-    } catch (error: any) {
-      console.error("Google auth error:", error);
-      if (error.code === "auth/popup-closed-by-user") {
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (err.code === "auth/popup-closed-by-user") {
         setError("Logowanie zostało anulowane");
-      } else if (error.code === "auth/popup-blocked") {
+      } else if (err.code === "auth/popup-blocked") {
         setError(
           "Wyskakujące okno zostało zablokowane. Sprawdź ustawienia przeglądarki."
         );

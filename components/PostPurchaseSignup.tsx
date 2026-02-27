@@ -121,10 +121,9 @@ export default function PostPurchaseSignup({
         });
 
         if (!response.ok) {
-          console.error("Failed to transfer purchase to user account");
+          // Transfer failed, continue anyway
         }
-      } catch (transferError) {
-        console.error("Error transferring purchase:", transferError);
+      } catch {
         // Don't fail the entire process if transfer fails
       }
 
@@ -139,14 +138,13 @@ export default function PostPurchaseSignup({
         onComplete();
         router.push("/dashboard");
       }, 2000);
-    } catch (error: any) {
-      console.error("Signup error:", error);
-
-      if (error.code === "auth/email-already-in-use") {
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (err.code === "auth/email-already-in-use") {
         setError("Ten adres email jest już używany. Spróbuj się zalogować.");
-      } else if (error.code === "auth/weak-password") {
+      } else if (err.code === "auth/weak-password") {
         setError("Hasło jest zbyt słabe. Użyj co najmniej 6 znaków.");
-      } else if (error.code === "auth/invalid-email") {
+      } else if (err.code === "auth/invalid-email") {
         setError("Nieprawidłowy adres email.");
       } else {
         setError("Wystąpił błąd podczas tworzenia konta. Spróbuj ponownie.");

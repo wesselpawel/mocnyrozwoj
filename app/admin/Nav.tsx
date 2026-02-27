@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   FaArrowLeft,
   FaChevronDown,
@@ -25,9 +26,22 @@ export default function Nav({
   isNavOpen: boolean;
   setNavOpen: Function;
 }) {
-  const [expandedItems, setExpandedItems] = useState([]);
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
 
-  const navItems: any = [
+  interface NavSubItem {
+    title: string;
+    href: string;
+    icon: ReactNode;
+  }
+  interface NavItem {
+    title: string;
+    href: string;
+    icon: ReactNode;
+    expandable?: boolean;
+    subItems?: NavSubItem[];
+  }
+
+  const navItems: NavItem[] = [
     { title: "Przegląd", href: `/admin`, icon: <FaHome /> },
     {
       title: "Kursy",
@@ -154,7 +168,7 @@ export default function Nav({
         </div>
         <div className="mt-12">
           <ul className="flex flex-col flex-wrap justify-between w-full px-2">
-            {navItems.map((item: any, index: any) => (
+            {navItems.map((item: NavItem, index: number) => (
               <li
                 key={index}
                 className={`w-full ${item.expandable ? "relative" : ""}  `}
@@ -163,12 +177,12 @@ export default function Nav({
                   <button
                     onClick={() => {
                       if (item.expandable) {
-                        if (expandedItems.includes(index as never)) {
+                        if (expandedItems.includes(index)) {
                           setExpandedItems(
                             expandedItems.filter((i) => i !== index)
                           );
                         } else {
-                          setExpandedItems([...expandedItems, index as never]);
+                          setExpandedItems([...expandedItems, index]);
                         }
                       }
                     }}
@@ -186,14 +200,14 @@ export default function Nav({
                           event.preventDefault();
                           event.stopPropagation();
                           if (item.expandable) {
-                            if (expandedItems.includes(index as never)) {
+                            if (expandedItems.includes(index)) {
                               setExpandedItems(
                                 expandedItems.filter((i) => i !== index)
                               );
                             } else {
                               setExpandedItems([
                                 ...expandedItems,
-                                index as never,
+                                index,
                               ]);
                             }
                           }
@@ -202,7 +216,7 @@ export default function Nav({
                       >
                         <FaChevronDown
                           className={`duration-300 ${
-                            expandedItems.includes(index as never)
+                            expandedItems.includes(index)
                               ? "rotate-180"
                               : "rotate-0"
                           }`}
@@ -212,9 +226,9 @@ export default function Nav({
                   </button>
                 </Link>
 
-                {item.expandable && expandedItems.includes(index as never) && (
+                {item.expandable && expandedItems.includes(index) && (
                   <ul className=" bg-[#222430]  py-2 px-4 w-full">
-                    {item.subItems.map((subItem: any, subIndex: any) => (
+                    {(item.subItems ?? []).map((subItem: NavSubItem, subIndex: number) => (
                       <li key={subIndex}>
                         <Link href={subItem.href}>
                           <button className="flex items-center py-2 px-4 rounded-md hover:bg-[#2F313C] w-full">

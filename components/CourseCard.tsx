@@ -40,16 +40,13 @@ const DietPlanCard: React.FC<DietPlanCardProps> = ({
 
   // Placeholder for future functionality
   const handleBuyClick = () => {
-    console.log("Buy button clicked");
+    // Buy button click handler
   };
 
   const handlePlayClick = () => {
     if (user) {
       // Check if user owns this diet plan
       if (user?.purchasedCourses?.includes(course.id)) {
-        // User owns the diet plan, navigate to diet plan content
-        console.log("User owns diet plan, navigating to content");
-        // You can implement navigation to diet plan content here
         if (onClick) onClick();
       } else {
         // User doesn't own the diet plan, trigger purchase
@@ -74,7 +71,7 @@ const DietPlanCard: React.FC<DietPlanCardProps> = ({
 
       // Create Stripe checkout session
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/stripe/checkout`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/stripe/checkout`,
         {
           method: "POST",
           headers: {
@@ -95,11 +92,9 @@ const DietPlanCard: React.FC<DietPlanCardProps> = ({
       if (data.success && data.url) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
-      } else {
-        console.error("Error creating checkout session:", data.error);
       }
-    } catch (error) {
-      console.error("Error handling purchase:", error);
+    } catch {
+      // Purchase handling failed
     }
   };
   const getLevelColor = (level: string) => {

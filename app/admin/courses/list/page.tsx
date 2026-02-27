@@ -19,8 +19,7 @@ export default function CoursesListPage() {
       try {
         const fetchedCourses = await coursesService.getAllCourses();
         setCourses(fetchedCourses);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -52,8 +51,7 @@ export default function CoursesListPage() {
       await coursesService.deleteCourse(courseId);
       setCourses(courses.filter((course) => course.id !== courseId));
       setDeleteConfirm(null);
-    } catch (error) {
-      console.error("Error deleting course:", error);
+    } catch {
     }
   };
 

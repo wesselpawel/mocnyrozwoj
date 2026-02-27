@@ -35,10 +35,13 @@ export default function AdminFAQ() {
 
   const loadFAQItems = async () => {
     try {
-      const items: any = await getDocuments("faq");
-      setFaqItems(items?.sort((a: FAQItem, b: FAQItem) => a.order - b.order));
-    } catch (error) {
-      console.error("Error loading FAQ items:", error);
+      const items = await getDocuments("faq");
+      setFaqItems(
+        Array.isArray(items)
+          ? (items as FAQItem[]).sort((a, b) => a.order - b.order)
+          : []
+      );
+    } catch {
     } finally {
       setIsLoading(false);
     }
@@ -66,8 +69,7 @@ export default function AdminFAQ() {
       setFormData({ question: "", answer: "", category: "general" });
       setIsAdding(false);
       loadFAQItems();
-    } catch (error) {
-      console.error("Error adding FAQ item:", error);
+    } catch {
       alert("Błąd podczas dodawania pytania");
     }
   };
@@ -94,8 +96,7 @@ export default function AdminFAQ() {
       setFormData({ question: "", answer: "", category: "general" });
       setEditingId(null);
       loadFAQItems();
-    } catch (error) {
-      console.error("Error updating FAQ item:", error);
+    } catch {
       alert("Błąd podczas aktualizacji pytania");
     }
   };
@@ -106,8 +107,7 @@ export default function AdminFAQ() {
     try {
       await removeDocument("faq", itemId);
       loadFAQItems();
-    } catch (error) {
-      console.error("Error deleting FAQ item:", error);
+    } catch {
       alert("Błąd podczas usuwania pytania");
     }
   };

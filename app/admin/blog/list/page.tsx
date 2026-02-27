@@ -20,8 +20,7 @@ export default function BlogListPage() {
       setLoading(true);
       const allPosts = await blogService.getAllBlogPosts();
       setPosts(allPosts);
-    } catch (error) {
-      console.error("Error loading posts:", error);
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -32,8 +31,7 @@ export default function BlogListPage() {
       try {
         await blogService.deleteBlogPost(postId);
         await loadPosts(); // Reload posts after deletion
-      } catch (error) {
-        console.error("Error deleting post:", error);
+      } catch {
         alert("Błąd podczas usuwania posta");
       }
     }

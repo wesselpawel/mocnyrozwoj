@@ -10,10 +10,10 @@ export default function ProjectImages({
   setImageOpen,
   isImageOpen,
 }: {
-  service: any;
+  service: { images: { src: string }[] };
   currentIndex: number;
-  setCurrentIndex: Function;
-  setImageOpen: Function;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
+  setImageOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isImageOpen: boolean;
 }) {
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
@@ -77,13 +77,13 @@ export default function ProjectImages({
           ✕
         </button>
         <div
-          onClick={(e: any) => {
+          onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
           }}
           className="fixed flex flex-col items-center justify-center top-1/2 -translate-y-1/2 mx-auto p-4"
         >
           <div className="flex justify-center relative group h-full items-center">
-            {service.images.map((image: any, i: number) => (
+            {service.images.map((image: { src: string }, i: number) => (
               <div
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
@@ -126,7 +126,7 @@ export default function ProjectImages({
             </button>
             {service.images && (
               <div className="z-50 w-full h-max absolute bottom-0 left-1/2 -translate-x-1/2 max-w-full overflow-x-auto whitespace-nowrap space-x-2 pt-2 group-hover:bg-black/50 opacity-0 group-hover:opacity-100 bg-transparent duration-500 px-3 scrollbar">
-                {service.images.map((image: any, i: number) => (
+                {service.images.map((image: { src: string }, i: number) => (
                   <button
                     onClick={() => setCurrentIndex(i)}
                     key={i}

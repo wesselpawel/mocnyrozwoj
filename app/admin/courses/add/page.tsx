@@ -44,7 +44,10 @@ export default function AddCoursePage() {
 
   const levels = ["Początkujący", "Średniozaawansowany", "Zaawansowany"];
 
-  const handleInputChange = (field: keyof Course, value: any) => {
+  const handleInputChange = (
+    field: keyof Course,
+    value: Course[keyof Course]
+  ) => {
     setCourseData((prev) => ({
       ...prev,
       [field]: value,
@@ -138,9 +141,8 @@ export default function AddCoursePage() {
       setTimeout(() => {
         router.push("/admin/courses/list");
       }, 2000);
-    } catch (error) {
+    } catch {
       setErrorMessage("Wystąpił błąd podczas dodawania kursu");
-      console.error("Error adding course:", error);
     } finally {
       setIsLoading(false);
     }

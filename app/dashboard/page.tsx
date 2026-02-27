@@ -39,7 +39,9 @@ function DashboardContent() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
-      router.push(`${process.env.NEXT_PUBLIC_URL}/login?redirect=/dashboard`);
+      router.push(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/login?redirect=/dashboard`,
+      );
     }
   }, [user, router]);
 
@@ -50,11 +52,12 @@ function DashboardContent() {
 
       try {
         const userDoc = await userPurchasesService.getUserDocument(user.id);
-        const purchasedDiets = userDoc?.purchasedCourses || [];
+        const purchasedCourses = userDoc?.purchasedCourses;
+        const purchasedDiets = Array.isArray(purchasedCourses)
+          ? purchasedCourses.filter((item): item is string => typeof item === "string")
+          : [];
         setUserPurchasedDiets(purchasedDiets);
-        console.log("User purchased diet plans:", purchasedDiets);
-      } catch (error) {
-        console.error("Error loading user purchased diet plans:", error);
+      } catch {
       }
     };
 
@@ -70,15 +73,6 @@ function DashboardContent() {
       const purchasedDietId = sessionStorage.getItem("purchasedCourseId");
 
       if (paymentSuccess === "true" || sessionId) {
-        console.log(
-          "Dashboard: Payment success detected, refreshing user diet plans...",
-          {
-            paymentSuccess,
-            sessionId,
-            purchasedDietId,
-          }
-        );
-
         // Clear the flags
         sessionStorage.removeItem("paymentSuccess");
         sessionStorage.removeItem("purchasedCourseId");
@@ -99,32 +93,16 @@ function DashboardContent() {
           const loadUserPurchasedDiets = async () => {
             try {
               const userDoc = await userPurchasesService.getUserDocument(
-                user.id
+                user.id,
               );
-              const purchasedDiets = userDoc?.purchasedCourses || [];
+              const purchasedCourses = userDoc?.purchasedCourses;
+              const purchasedDiets = Array.isArray(purchasedCourses)
+                ? purchasedCourses.filter(
+                    (item): item is string => typeof item === "string",
+                  )
+                : [];
               setUserPurchasedDiets(purchasedDiets);
-              console.log(
-                "Refreshed user purchased diet plans:",
-                purchasedDiets
-              );
-
-              // Check if the purchased diet is now in the array
-              if (purchasedDietId && purchasedDiets.includes(purchasedDietId)) {
-                console.log(
-                  "✅ Purchased diet plan confirmed in user's plans:",
-                  purchasedDietId
-                );
-              } else if (purchasedDietId) {
-                console.log(
-                  "❌ Purchased diet plan not found in user's plans:",
-                  purchasedDietId
-                );
-              }
-            } catch (error) {
-              console.error(
-                "Error refreshing user purchased diet plans:",
-                error
-              );
+            } catch {
             }
           };
           loadUserPurchasedDiets();
@@ -151,8 +129,7 @@ function DashboardContent() {
         ]);
         setAllDietPlans(allDietPlansData);
         setAllDiets(allDietsData);
-      } catch (error) {
-        console.error("Error loading data:", error);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -351,25 +328,22 @@ function ShopSection({
           };
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}${endpoint}`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}${endpoint}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-        }
+        },
       );
 
       const data = await response.json();
 
       if (data.success && data.url) {
         window.location.href = data.url;
-      } else {
-        console.error("Error creating checkout session:", data.error);
       }
-    } catch (error) {
-      console.error("Error handling purchase:", error);
+    } catch {
     }
   };
 
@@ -626,8 +600,7 @@ function MyDietsSection({
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
+    } catch {
       alert("Błąd podczas pobierania PDF.");
     }
   };
@@ -660,26 +633,11 @@ function MyDietsSection({
 
   // Filter only items that user owns
   const ownedDiets = dietPlans.filter((dietPlan) =>
-    userPurchasedDiets.includes(dietPlan.id)
+    userPurchasedDiets.includes(dietPlan.id),
   );
   const ownedDietPlans = diets.filter((diet) =>
-    userPurchasedDiets.includes(diet.id)
+    userPurchasedDiets.includes(diet.id),
   );
-
-  console.log("MyDietsSection Debug:", {
-    totalDietPlans: dietPlans.length,
-    totalDiets: diets.length,
-    ownedDiets: ownedDiets.length,
-    ownedDietPlans: ownedDietPlans.length,
-    userOwnedDiets: ownedDiets.map((d) => ({ id: d.id, title: d.title })),
-    userOwnedDietPlans: ownedDietPlans.map((d) => ({
-      id: d.id,
-      title: d.title,
-    })),
-    currentUserId: user?.id,
-    userPurchasedDietsCount: userPurchasedDiets.length,
-    userPurchasedDiets: userPurchasedDiets,
-  });
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-lg">

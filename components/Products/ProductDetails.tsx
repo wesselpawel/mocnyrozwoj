@@ -15,13 +15,20 @@ import mug from "../../public/mug.svg";
 import pc from "../../public/pc.svg";
 import clock from "../../public/clock.svg";
 
+import { IProduct, Diet } from "@/types";
+
 export default function ProductDetails({
   product,
   setTest,
 }: {
-  product: any;
-  setTest: (product: any) => void | Promise<void>;
+  product: IProduct | Diet;
+  setTest: (product: IProduct | Diet) => void | Promise<void>;
 }) {
+  const imageSrc =
+    "mainImage" in product
+      ? product.mainImage || product.images[0]?.src || "/logo.png"
+      : product.image;
+
   const features = [
     { icon: pc, text: "100% ONLINE", color: "from-blue-400 to-purple-400" },
     {
@@ -52,7 +59,7 @@ export default function ProductDetails({
         {/* Background Image with Overlay */}
         <div className="absolute inset-0">
           <Image
-            src={product?.mainImage}
+            src={imageSrc}
             width={1024}
             height={1024}
             alt={product?.title}

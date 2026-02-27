@@ -4,6 +4,86 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET);
 import { userPurchasesService } from "@/lib/userPurchasesService";
 import { updateDocument, getDocument } from "@/firebase";
 
+type StripeSubscriptionSnapshot = {
+  status?: string;
+  current_period_end?: number;
+};
+
+async function updateUserSubscriptionData(
+  userId: string,
+  subscriptionId: string | null,
+  customerId: string | null,
+  paymentData: { amount: number | null; date: number; result: string | null },
+  sessionId: string
+) {
+  const userDoc = await getDocument("users", userId);
+
+  if (!userDoc) {
+    throw new Error(`User ${userId} not found`);
+  }
+
+  let subscriptionData: StripeSubscriptionSnapshot | null = null;
+
+  if (subscriptionId) {
+    try {
+      subscriptionData = await stripe.subscriptions.retrieve(subscriptionId);
+    } catch {}
+  }
+
+  const subscriptionStatus =
+    subscriptionData?.status === "active" ||
+    subscriptionData?.status === "trialing"
+      ? "premium"
+      : "free";
+
+  const subscriptionEndDate = subscriptionData?.current_period_end
+    ? new Date(subscriptionData.current_period_end * 1000).toISOString()
+    : null;
+
+  await updateDocument(
+    [
+      "subscriptionStatus",
+      "subscriptionEndDate",
+      "stripeSubscriptionId",
+      "stripeCustomerId",
+      "lastSubscriptionPayment",
+      "updatedAt",
+    ],
+    [
+      subscriptionStatus,
+      subscriptionEndDate,
+      subscriptionId,
+      customerId,
+      paymentData,
+      new Date().toISOString(),
+    ],
+    "users",
+    userId
+  );
+
+  // Prevent duplicate purchase writes for the same Stripe checkout session.
+  const existingPurchases = await userPurchasesService.getUserPurchases(userId);
+  const alreadySaved = existingPurchases.some(
+    (purchase) => purchase.transactionId === sessionId
+  );
+
+  if (!alreadySaved) {
+    await userPurchasesService.addPurchase({
+      userId,
+      courseId: subscriptionId || "subscription",
+      courseTitle: "Subskrypcja premium",
+      purchaseDate: new Date().toISOString(),
+      amount: (paymentData.amount ?? 0) / 100,
+      currency: "PLN",
+      transactionId: sessionId,
+      status: paymentData.result === "paid" ? "completed" : "pending",
+      type: "subscription",
+      expiresAt: subscriptionEndDate || undefined,
+    });
+    await userPurchasesService.updateUserPurchaseStats(userId);
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { session_id } = await req.json();
@@ -21,245 +101,139 @@ export async function POST(req: Request) {
     const isCoursePurchase = session.metadata?.type === "course_purchase";
     const isDietPurchase = session.metadata?.type === "diet_purchase";
 
-    if (isCoursePurchase) {
-      // Handle course purchase
-      const courseId = session.metadata.courseId;
-      const userId = session.metadata.userId;
-      const courseTitle = session.metadata.courseTitle;
-      const isGuestPurchase = session.metadata.isGuestPurchase === "true";
+    if (isCoursePurchase || isDietPurchase) {
+      const purchaseType = isDietPurchase ? "diet" : "course";
+      const itemId = isDietPurchase
+        ? session.metadata?.dietId
+        : session.metadata?.courseId;
+      const itemTitle = isDietPurchase
+        ? session.metadata?.dietTitle
+        : session.metadata?.courseTitle;
+      const userId = session.metadata?.userId;
+      const isGuestPurchase = session.metadata?.isGuestPurchase === "true";
 
-      console.log("Processing course purchase:", {
-        courseId,
-        userId,
-        courseTitle,
-        sessionId: session.id,
-        amount: session.amount_total / 100,
-        currency: session.currency,
-        isGuestPurchase,
-      });
-
-      // Only record the purchase in the database for authenticated users
-      if (!isGuestPurchase && userId) {
-        try {
-          const purchaseId = await userPurchasesService.addPurchase({
-            userId,
-            courseId,
-            courseTitle,
-            purchaseDate: new Date().toISOString(),
-            amount: session.amount_total / 100, // Convert from cents
-            currency: session.currency.toUpperCase(),
-            transactionId: session.id,
-            status: "completed",
-          });
-
-          console.log(
-            `Course purchase saved to database with ID: ${purchaseId}`
-          );
-
-          // Update user purchase statistics in users collection
-          try {
-            await userPurchasesService.updateUserPurchaseStats(userId);
-            console.log(`User ${userId} purchase stats updated`);
-
-            // Add the purchased course to user's purchasedCourses array
-            const userDoc = await getDocument("users", userId);
-            const currentPurchasedCourses = userDoc?.purchasedCourses || [];
-
-            if (!currentPurchasedCourses.includes(courseId)) {
-              await updateDocument(
-                ["purchasedCourses", "updatedAt"],
-                [
-                  [...currentPurchasedCourses, courseId],
-                  new Date().toISOString(),
-                ],
-                "users",
-                userId
-              );
-              console.log(
-                `Added course ${courseId} to user ${userId} purchasedCourses`
-              );
-            } else {
-              console.log(
-                `Course ${courseId} already exists in user ${userId} purchasedCourses`
-              );
-            }
-          } catch (userUpdateError) {
-            console.error(
-              "Error updating user purchase stats:",
-              userUpdateError
-            );
-            // Don't fail the entire process if user update fails
-          }
-
-          // Verify the purchase was saved
-          const userPurchases = await userPurchasesService.getUserPurchases(
-            userId
-          );
-          console.log(
-            `User ${userId} now has ${userPurchases.length} purchases:`,
-            userPurchases.map((p) => ({
-              courseId: p.courseId,
-              courseTitle: p.courseTitle,
-            }))
-          );
-        } catch (error) {
-          console.error("Error saving purchase to database:", error);
-          throw error;
-        }
-      } else {
-        console.log(
-          `Guest course purchase successful: Course ${courseId}, session ${session.id}`
+      if (!itemId || !itemTitle) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Missing ${purchaseType} metadata`,
+          },
+          { status: 400 }
         );
       }
 
-      console.log(
-        `Course purchase processed: Course ${courseId} for ${
-          isGuestPurchase ? "guest" : "user " + userId
-        }`
-      );
+      // Guest purchases are intentionally not persisted as user purchases.
+      if (isGuestPurchase) {
+        return NextResponse.json({
+          success: true,
+          purchaseType,
+          ...(isDietPurchase ? { dietId: itemId } : { courseId: itemId }),
+          userId: null,
+          session,
+        });
+      }
 
-      return NextResponse.json({
-        success: true,
-        purchaseType: "course",
-        courseId,
-        userId,
-        session,
-      });
-    } else if (isDietPurchase) {
-      // Handle diet purchase
-      const dietId = session.metadata.dietId;
-      const userId = session.metadata.userId;
-      const dietTitle = session.metadata.dietTitle;
-      const isGuestPurchase = session.metadata.isGuestPurchase === "true";
-
-      console.log("Processing diet purchase:", {
-        dietId,
-        userId,
-        dietTitle,
-        sessionId: session.id,
-        amount: session.amount_total / 100,
-        currency: session.currency,
-        isGuestPurchase,
-      });
-
-      // Only record the diet purchase in the database for authenticated users
-      if (!isGuestPurchase && userId) {
-        try {
-          const purchaseId = await userPurchasesService.addPurchase({
-            userId,
-            courseId: dietId, // Reuse courseId field for diet purchases
-            courseTitle: dietTitle,
-            purchaseDate: new Date().toISOString(),
-            amount: session.amount_total / 100, // Convert from cents
-            currency: session.currency.toUpperCase(),
-            transactionId: session.id,
-            status: "completed",
-            type: "diet", // Add type to distinguish from courses
-          });
-
-          console.log(`Diet purchase saved to database with ID: ${purchaseId}`);
-
-          // Update user purchase statistics in users collection
-          try {
-            await userPurchasesService.updateUserPurchaseStats(userId);
-            console.log(`User ${userId} purchase stats updated`);
-
-            // Add the purchased diet to user's purchasedCourses array
-            const userDoc = await getDocument("users", userId);
-            const currentPurchasedCourses = userDoc?.purchasedCourses || [];
-
-            if (!currentPurchasedCourses.includes(dietId)) {
-              await updateDocument(
-                ["purchasedCourses", "updatedAt"],
-                [
-                  [...currentPurchasedCourses, dietId],
-                  new Date().toISOString(),
-                ],
-                "users",
-                userId
-              );
-              console.log(
-                `Added diet ${dietId} to user ${userId} purchasedCourses`
-              );
-            } else {
-              console.log(
-                `Diet ${dietId} already exists in user ${userId} purchasedCourses`
-              );
-            }
-
-            // Verify the purchase was saved
-            const userPurchases = await userPurchasesService.getUserPurchases(
-              userId
-            );
-            console.log(
-              `User ${userId} now has ${userPurchases.length} purchases:`,
-              userPurchases.map((p) => ({
-                courseId: p.courseId,
-                courseTitle: p.courseTitle,
-              }))
-            );
-          } catch (userUpdateError) {
-            console.error(
-              "Error updating user purchase stats:",
-              userUpdateError
-            );
-            // Don't fail the entire process if user update fails
-          }
-        } catch (error) {
-          console.error("Error saving diet purchase to database:", error);
-          throw error;
-        }
-      } else {
-        console.log(
-          `Guest diet purchase successful: Diet ${dietId}, session ${session.id}`
+      if (!userId) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "User not found",
+          },
+          { status: 400 }
         );
       }
 
-      console.log(
-        `Diet purchase processed: Diet ${dietId} for ${
-          isGuestPurchase ? "guest" : "user " + userId
-        }`
-      );
+      try {
+        const userDoc = await getDocument("users", userId);
+        const currentPurchasedCourses: string[] = userDoc?.purchasedCourses || [];
 
-      return NextResponse.json({
-        success: true,
-        purchaseType: "diet",
-        dietId,
-        userId,
-        session,
-      });
+        if (currentPurchasedCourses.includes(itemId)) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `${
+                isDietPurchase ? "Diet" : "Course"
+              } already purchased`,
+            },
+            { status: 409 }
+          );
+        }
+
+        await userPurchasesService.addPurchase({
+          userId,
+          courseId: itemId, // Reused field for both course and diet purchases
+          courseTitle: itemTitle,
+          purchaseDate: new Date().toISOString(),
+          amount: (session.amount_total ?? 0) / 100, // Convert cents to currency units
+          currency: (session.currency || "pln").toUpperCase(),
+          transactionId: session.id,
+          status: "completed",
+          ...(isDietPurchase ? { type: "diet" as const } : {}),
+        });
+
+        await userPurchasesService.updateUserPurchaseStats(userId);
+        await updateDocument(
+          ["purchasedCourses", "updatedAt"],
+          [[...currentPurchasedCourses, itemId], new Date().toISOString()],
+          "users",
+          userId
+        );
+
+        return NextResponse.json({
+          success: true,
+          purchaseType,
+          ...(isDietPurchase ? { dietId: itemId } : { courseId: itemId }),
+          userId,
+          session,
+        });
+      } catch {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Error saving ${purchaseType} purchase`,
+          },
+          { status: 500 }
+        );
+      }
     } else {
       // Handle subscription (existing logic)
-      const subscriptionId = session.subscription;
-      const customerId = session.customer;
+      const subscriptionId =
+        typeof session.subscription === "string" ? session.subscription : null;
+      const customerId =
+        typeof session.customer === "string" ? session.customer : null;
+      const userId = session.metadata?.userId || session.metadata?.uid || null;
 
       const paymentData = {
-        amount: session.amount_total,
+        amount: session.amount_total ?? null,
         date: Date.now(),
-        result: session.payment_status,
+        result: session.payment_status ?? null,
       };
 
-      // Update user subscription data (you'll need to implement this)
-      // await updateUserSubscriptionData(
-      //   session.metadata.uid,
-      //   subscriptionId,
-      //   customerId,
-      //   paymentData
-      // );
+      if (userId) {
+        try {
+          await updateUserSubscriptionData(
+            userId,
+            subscriptionId,
+            customerId,
+            paymentData,
+            session.id
+          );
+        } catch {}
+      }
 
       return NextResponse.json({
         success: true,
         purchaseType: "subscription",
+        userId,
         subscriptionId,
         customerId,
         session,
       });
     }
-  } catch (error: any) {
-    console.error("Error retrieving session:", error.message);
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

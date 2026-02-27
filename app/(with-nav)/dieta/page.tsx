@@ -222,14 +222,14 @@ export default function DietaPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/#shop"
+                href="/#dieta"
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <FaCreditCard />
                 Kup Dietę
               </Link>
               <Link
-                href="/#courses"
+                href="/#rozwoj-osobisty"
                 className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <FaUser />

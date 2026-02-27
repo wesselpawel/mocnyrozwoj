@@ -1,5 +1,18 @@
 "use server";
-export async function createCheckout(cartItems: any[], customerInfo: any) {
+
+interface CartItem {
+  id: string;
+  title: string;
+  price: number;
+  quantity?: number;
+}
+
+interface CustomerInfo {
+  email?: string;
+  name?: string;
+}
+
+export async function createCheckout(cartItems: CartItem[], customerInfo: CustomerInfo) {
   const req = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/stripe/checkout`,
     {

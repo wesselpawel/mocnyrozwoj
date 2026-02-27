@@ -25,8 +25,7 @@ export default function AdminProfilePage() {
     try {
       await signOut(auth);
       router.push("/admin");
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
     }
   };
 

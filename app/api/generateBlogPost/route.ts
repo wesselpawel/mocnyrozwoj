@@ -72,8 +72,7 @@ export async function GET(req: NextRequest) {
       }
     );
     return NextResponse.json(response.content);
-  } catch (error) {
-    console.error("Error generating blog post:", error);
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: "Failed to generate blog post",

@@ -19,9 +19,8 @@ export default function AdminDietPage() {
       setIsLoading(true);
       const dietsData = await dietService.getAllDiets();
       setDiets(dietsData);
-    } catch (err) {
+    } catch {
       setError("Błąd podczas ładowania diet");
-      console.error("Error loading diets:", err);
     } finally {
       setIsLoading(false);
     }
@@ -32,9 +31,8 @@ export default function AdminDietPage() {
       try {
         await dietService.deleteDiet(id);
         setDiets(diets.filter(diet => diet.id !== id));
-      } catch (err) {
+      } catch {
         setError("Błąd podczas usuwania diety");
-        console.error("Error deleting diet:", err);
       }
     }
   };

@@ -1,4 +1,6 @@
 import { updateDocument } from "@/firebase";
+const out = (message = "") => process.stdout.write(`${message}\n`);
+const err = (message = "") => process.stderr.write(`${message}\n`);
 
 // Sample questions for a diet plan
 const sampleQuestions = [
@@ -64,9 +66,10 @@ async function addQuestionsToDiet(dietId) {
       "courses",
       dietId
     );
-    console.log(`Successfully added questions to diet plan ${dietId}`);
+    out(`Successfully added questions to diet plan ${dietId}`);
   } catch (error) {
-    console.error(`Error adding questions to diet plan ${dietId}:`, error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    err(`Error adding questions to diet plan ${dietId}: ${errorMessage}`);
   }
 }
 

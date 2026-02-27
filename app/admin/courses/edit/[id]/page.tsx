@@ -59,9 +59,8 @@ export default function EditCoursePage() {
         } else {
           setErrorMessage("Kurs nie został znaleziony");
         }
-      } catch (error) {
+      } catch {
         setErrorMessage("Błąd podczas ładowania kursu");
-        console.error("Error fetching course:", error);
       } finally {
         setLoading(false);
       }
@@ -72,7 +71,10 @@ export default function EditCoursePage() {
     }
   }, [courseId]);
 
-  const handleInputChange = (field: keyof Course, value: any) => {
+  const handleInputChange = (
+    field: keyof Course,
+    value: Course[keyof Course]
+  ) => {
     setCourseData((prev) => ({
       ...prev,
       [field]: value,
@@ -164,9 +166,8 @@ export default function EditCoursePage() {
       setTimeout(() => {
         router.push("/admin/courses/list");
       }, 2000);
-    } catch (error) {
+    } catch {
       setErrorMessage("Wystąpił błąd podczas aktualizacji kursu");
-      console.error("Error updating course:", error);
     } finally {
       setIsLoading(false);
     }

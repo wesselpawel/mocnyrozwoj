@@ -91,7 +91,7 @@ export default function AddDietPage() {
 
   const difficulties = ["Łatwy", "Średni", "Trudny"];
 
-  const handleInputChange = (field: keyof Diet, value: any) => {
+  const handleInputChange = (field: keyof Diet, value: Diet[keyof Diet]) => {
     setDietData((prev) => ({
       ...prev,
       [field]: value,
@@ -193,8 +193,7 @@ export default function AddDietPage() {
       setDietData(generatedDiet);
       setTopic("");
       setSuccessMessage("Dieta została wygenerowana pomyślnie!");
-    } catch (error) {
-      console.error("Error generating diet:", error);
+    } catch {
       setErrorMessage("Błąd podczas generowania diety");
     } finally {
       setGenerating(false);
@@ -222,8 +221,7 @@ export default function AddDietPage() {
       }));
 
       setSuccessMessage(`Sekcja "${section}" została wygenerowana pomyślnie!`);
-    } catch (error) {
-      console.error("Error generating detailed section:", error);
+    } catch {
       setErrorMessage(`Błąd podczas generowania sekcji ${section}`);
     }
   };
@@ -318,9 +316,8 @@ export default function AddDietPage() {
       setTimeout(() => {
         router.push("/admin/diet");
       }, 2000);
-    } catch (error) {
+    } catch {
       setErrorMessage("Wystąpił błąd podczas dodawania diety");
-      console.error("Error adding diet:", error);
     } finally {
       setIsLoading(false);
     }

@@ -11,8 +11,13 @@ export default function ProductCard({
   setOpenedProduct: React.Dispatch<
     React.SetStateAction<IProduct | Diet | null>
   >;
-  product: any;
+  product: IProduct | Diet;
 }) {
+  const imageSrc =
+    "mainImage" in product
+      ? product.mainImage || product.images[0]?.src || "/logo.png"
+      : product.image;
+
   return (
     <div
       className="group relative cursor-pointer"
@@ -32,7 +37,7 @@ export default function ProductCard({
                 </div>
               </div>
               <Image
-                src={product.mainImage || product.images[0].src}
+                src={imageSrc}
                 alt={product.title}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

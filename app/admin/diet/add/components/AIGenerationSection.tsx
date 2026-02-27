@@ -75,8 +75,7 @@ export default function AIGenerationSection({
       if (onGenerateDetailed) {
         await onGenerateDetailed(sectionId);
       }
-    } catch (error) {
-      console.error("Error generating detailed section:", error);
+    } catch {
     } finally {
       setIsGeneratingDetailed(false);
     }

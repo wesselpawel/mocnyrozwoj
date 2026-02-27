@@ -80,9 +80,8 @@ function LoginForm() {
           router.push(redirectTo);
         }, 1000);
       }
-    } catch (error: any) {
-      console.error("Auth error:", error);
-      setError(getErrorMessage(error.code));
+    } catch (error: unknown) {
+      setError(getErrorMessage((error as { code?: string })?.code ?? ""));
     } finally {
       setLoading(false);
     }
@@ -118,9 +117,8 @@ function LoginForm() {
           router.push(redirectTo);
         }, 1000);
       }
-    } catch (error: any) {
-      console.error("Google auth error:", error);
-      setError(getErrorMessage(error.code));
+    } catch (error: unknown) {
+      setError(getErrorMessage((error as { code?: string })?.code ?? ""));
     } finally {
       setLoading(false);
     }

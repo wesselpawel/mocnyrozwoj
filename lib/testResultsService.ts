@@ -4,8 +4,8 @@ export interface TestResult {
   id: string;
   userId: string | null;
   testName: string;
-  answers: any;
-  report: any;
+  answers: { question: string; answer: string }[];
+  report: Record<string, unknown>;
   createdAt: string;
 }
 

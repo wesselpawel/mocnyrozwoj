@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Make sure your .env contains OPENAI_API_KEY
-});
+const getOpenAIClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  return new OpenAI({ apiKey });
+};
 
 export async function POST(req: Request) {
   try {
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json(
+        { error: "OPENAI_API_KEY is missing" },
+        { status: 500 }
+      );
+    }
+
     const { prompt, testName } = await req.json();
     if (!prompt || !testName) {
       return NextResponse.json(
@@ -211,8 +223,7 @@ export async function POST(req: Request) {
     const result = JSON.parse(response.output_text);
 
     return NextResponse.json(result);
-  } catch (error) {
-    console.error("Błąd generowania raportu:", error);
+  } catch {
     return NextResponse.json(
       { error: "Nie udało się wygenerować raportu" },
       { status: 500 }

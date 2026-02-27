@@ -13,12 +13,6 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("Simulating course purchase:", {
-      userId,
-      courseId,
-      courseTitle,
-    });
-
     // Add the purchase to user_purchases collection
     const purchaseId = await userPurchasesService.addPurchase({
       userId,
@@ -31,11 +25,8 @@ export async function POST(req: Request) {
       status: "completed",
     });
 
-    console.log("Purchase added with ID:", purchaseId);
-
     // Update user purchase statistics
     await userPurchasesService.updateUserPurchaseStats(userId);
-    console.log("User purchase stats updated");
 
     // Add course to user's purchasedCourses array
     const userDoc = await getDocument("users", userId);
@@ -48,9 +39,6 @@ export async function POST(req: Request) {
         "users",
         userId
       );
-      console.log("Added course to user's purchasedCourses array");
-    } else {
-      console.log("Course already exists in user's purchasedCourses array");
     }
 
     // Verify the update
@@ -64,11 +52,10 @@ export async function POST(req: Request) {
       updatedUser: updatedUserDoc,
       purchasedCourses: updatedUserDoc?.purchasedCourses || [],
     });
-  } catch (error: any) {
-    console.error("Error simulating purchase:", error);
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

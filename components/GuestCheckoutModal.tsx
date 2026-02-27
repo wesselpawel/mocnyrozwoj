@@ -45,9 +45,8 @@ export default function GuestCheckoutModal({
     try {
       setIsLoading(true);
       await onPurchase(email);
-    } catch (error) {
+    } catch {
       setError("Wystąpił błąd podczas procesu zakupu");
-      console.error("Purchase error:", error);
     } finally {
       setIsLoading(false);
     }

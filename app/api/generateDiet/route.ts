@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
 export const revalidate = 0;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: NextRequest) {
   const topic = req.nextUrl.searchParams.get("topic");
   const tubylytylkofigi = req.nextUrl.searchParams.get("tubylytylkofigi");
@@ -30,6 +26,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const prompt = `Create a Polish comprehensive diet plan for: ${topic}. Generate a complete, detailed diet with all the following information:
 
     {
@@ -104,8 +104,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(response);
-  } catch (error) {
-    console.error("Error", error);
+  } catch {
     return NextResponse.json({ error: "Error" }, { status: 500 });
   }
 }

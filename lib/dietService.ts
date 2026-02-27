@@ -12,7 +12,7 @@ import { v4 as uuid } from "uuid";
 export const dietService = {
   // Add a new diet
   async addDiet(
-    dietData: Omit<Diet, "id" | "createdAt" | "updatedAt">
+    dietData: Omit<Diet, "id" | "createdAt" | "updatedAt">,
   ): Promise<void> {
     const id = uuid();
     const now = new Date().toISOString();
@@ -53,15 +53,15 @@ export const dietService = {
   // Get unique categories from diets
   async getDietCategories(): Promise<string[]> {
     const diets = await getDocuments("diets");
-    const categories = diets.map((diet: any) => diet.category);
+    const categories = (diets as Diet[]).map((diet) => diet.category);
     const uniqueCategories = [...new Set(categories)].filter(Boolean);
     return uniqueCategories;
   },
 
   // Get a single diet by ID
   async getDietById(id: string): Promise<Diet | null> {
-    const diets: any = await getDocuments("diets");
-    const diet = diets.find((d: Diet) => d.id === id);
+    const diets = (await getDocuments("diets")) as Diet[];
+    const diet = diets.find((d) => d.id === id);
     return diet || null;
   },
 
@@ -89,10 +89,12 @@ export const dietService = {
 
   // Generate a new diet using the API
   async generateDiet(
-    topic: string
+    topic: string,
   ): Promise<Omit<Diet, "id" | "createdAt" | "updatedAt" | "pdfFile">> {
     try {
-      const url = new URL(`${process.env.NEXT_PUBLIC_URL}/api/generateDiet`);
+      const url = new URL(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/generateDiet`,
+      );
       url.searchParams.set("topic", topic);
 
       // Only add secret key in production
@@ -108,7 +110,6 @@ export const dietService = {
       });
 
       const generatedData = await response.json();
-      console.log("Generated diet data:", generatedData);
 
       // Check if the response contains the expected data structure
       if (
@@ -123,8 +124,7 @@ export const dietService = {
       let parsedResponse;
       try {
         parsedResponse = JSON.parse(generatedData.choices[0].text.trim());
-      } catch (parseError) {
-        console.error("Error parsing AI response:", parseError);
+      } catch {
         throw new Error("Failed to parse AI response");
       }
 
@@ -159,7 +159,7 @@ export const dietService = {
         : [];
 
       const scientificReferences = Array.isArray(
-        parsedResponse.scientificReferences
+        parsedResponse.scientificReferences,
       )
         ? parsedResponse.scientificReferences
         : [];
@@ -175,7 +175,7 @@ export const dietService = {
         : [];
 
       const beforeAfterStories = Array.isArray(
-        parsedResponse.beforeAfterStories
+        parsedResponse.beforeAfterStories,
       )
         ? parsedResponse.beforeAfterStories
         : [];
@@ -252,7 +252,6 @@ export const dietService = {
         beforeAfterStories: beforeAfterStories,
       };
     } catch (error) {
-      console.error("Error generating diet:", error);
       throw error;
     }
   },
@@ -261,15 +260,11 @@ export const dietService = {
   async generateDetailedDietSection(
     topic: string,
     section: string,
-    currentDiet?: Partial<Diet>
-  ): Promise<any> {
+    currentDiet?: Partial<Diet>,
+  ): Promise<Partial<Diet>> {
     try {
-      console.log(
-        `Generating detailed diet section: ${section} for topic: ${topic}`
-      );
-
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/generateDietDetailed`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/generateDietDetailed`,
         {
           method: "POST",
           headers: {
@@ -280,11 +275,10 @@ export const dietService = {
             section,
             currentDiet,
           }),
-        }
+        },
       );
 
       const generatedData = await response.json();
-      console.log("Generated detailed diet section:", generatedData);
 
       // Check if the response contains an error
       if (generatedData.error) {
@@ -292,7 +286,7 @@ export const dietService = {
       }
 
       // Parse JSON strings to arrays/objects based on section
-      const parsedData: any = {};
+      const parsedData: Record<string, unknown> = {};
 
       switch (section) {
         case "nutritionist":
@@ -308,36 +302,33 @@ export const dietService = {
             parsedData.benefits = Array.isArray(generatedData.benefits)
               ? generatedData.benefits
               : typeof generatedData.benefits === "string"
-              ? JSON.parse(generatedData.benefits)
-              : [];
-          } catch (error) {
-            console.error("Error parsing benefits:", error);
+                ? JSON.parse(generatedData.benefits)
+                : [];
+          } catch {
             parsedData.benefits = [];
           }
 
           try {
             parsedData.contraindications = Array.isArray(
-              generatedData.contraindications
+              generatedData.contraindications,
             )
               ? generatedData.contraindications
               : typeof generatedData.contraindications === "string"
-              ? JSON.parse(generatedData.contraindications)
-              : [];
-          } catch (error) {
-            console.error("Error parsing contraindications:", error);
+                ? JSON.parse(generatedData.contraindications)
+                : [];
+          } catch {
             parsedData.contraindications = [];
           }
 
           try {
             parsedData.targetAudience = Array.isArray(
-              generatedData.targetAudience
+              generatedData.targetAudience,
             )
               ? generatedData.targetAudience
               : typeof generatedData.targetAudience === "string"
-              ? JSON.parse(generatedData.targetAudience)
-              : [];
-          } catch (error) {
-            console.error("Error parsing targetAudience:", error);
+                ? JSON.parse(generatedData.targetAudience)
+                : [];
+          } catch {
             parsedData.targetAudience = [];
           }
           break;
@@ -348,22 +339,20 @@ export const dietService = {
             parsedData.shoppingList = Array.isArray(generatedData.shoppingList)
               ? generatedData.shoppingList
               : typeof generatedData.shoppingList === "string"
-              ? JSON.parse(generatedData.shoppingList)
-              : [];
-          } catch (error) {
-            console.error("Error parsing shoppingList:", error);
+                ? JSON.parse(generatedData.shoppingList)
+                : [];
+          } catch {
             parsedData.shoppingList = [];
           }
           try {
             parsedData.preparationTips = Array.isArray(
-              generatedData.preparationTips
+              generatedData.preparationTips,
             )
               ? generatedData.preparationTips
               : typeof generatedData.preparationTips === "string"
-              ? JSON.parse(generatedData.preparationTips)
-              : [];
-          } catch (error) {
-            console.error("Error parsing preparationTips:", error);
+                ? JSON.parse(generatedData.preparationTips)
+                : [];
+          } catch {
             parsedData.preparationTips = [];
           }
           break;
@@ -371,26 +360,24 @@ export const dietService = {
         case "scientific":
           try {
             parsedData.scientificReferences = Array.isArray(
-              generatedData.scientificReferences
+              generatedData.scientificReferences,
             )
               ? generatedData.scientificReferences
               : typeof generatedData.scientificReferences === "string"
-              ? JSON.parse(generatedData.scientificReferences)
-              : [];
-          } catch (error) {
-            console.error("Error parsing scientificReferences:", error);
+                ? JSON.parse(generatedData.scientificReferences)
+                : [];
+          } catch {
             parsedData.scientificReferences = [];
           }
           try {
             parsedData.clinicalStudies = Array.isArray(
-              generatedData.clinicalStudies
+              generatedData.clinicalStudies,
             )
               ? generatedData.clinicalStudies
               : typeof generatedData.clinicalStudies === "string"
-              ? JSON.parse(generatedData.clinicalStudies)
-              : [];
-          } catch (error) {
-            console.error("Error parsing clinicalStudies:", error);
+                ? JSON.parse(generatedData.clinicalStudies)
+                : [];
+          } catch {
             parsedData.clinicalStudies = [];
           }
           parsedData.averageWeightLoss = generatedData.averageWeightLoss || "";
@@ -404,41 +391,36 @@ export const dietService = {
             parsedData.testimonials = Array.isArray(generatedData.testimonials)
               ? generatedData.testimonials
               : typeof generatedData.testimonials === "string"
-              ? JSON.parse(generatedData.testimonials)
-              : [];
-          } catch (error) {
-            console.error("Error parsing testimonials:", error);
+                ? JSON.parse(generatedData.testimonials)
+                : [];
+          } catch {
             parsedData.testimonials = [];
           }
           try {
             parsedData.beforeAfterStories = Array.isArray(
-              generatedData.beforeAfterStories
+              generatedData.beforeAfterStories,
             )
               ? generatedData.beforeAfterStories
               : typeof generatedData.beforeAfterStories === "string"
-              ? JSON.parse(generatedData.beforeAfterStories)
-              : [];
-          } catch (error) {
-            console.error("Error parsing beforeAfterStories:", error);
+                ? JSON.parse(generatedData.beforeAfterStories)
+                : [];
+          } catch {
             parsedData.beforeAfterStories = [];
           }
           try {
             parsedData.faq = Array.isArray(generatedData.faq)
               ? generatedData.faq
               : typeof generatedData.faq === "string"
-              ? JSON.parse(generatedData.faq)
-              : [];
-          } catch (error) {
-            console.error("Error parsing faq:", error);
+                ? JSON.parse(generatedData.faq)
+                : [];
+          } catch {
             parsedData.faq = [];
           }
           break;
       }
 
-      console.log("Parsed data:", parsedData);
-      return parsedData;
+      return parsedData as Partial<Diet>;
     } catch (error) {
-      console.error("Error generating detailed diet section:", error);
       throw error;
     }
   },

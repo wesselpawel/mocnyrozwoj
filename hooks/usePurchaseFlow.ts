@@ -38,7 +38,7 @@ export const usePurchaseFlow = () => {
           item.title,
           item.price,
           item.type,
-          guestEmail
+          guestEmail,
         );
       }
 
@@ -71,14 +71,14 @@ export const usePurchaseFlow = () => {
 
       // Create Stripe checkout session
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}${endpoint}`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}${endpoint}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-        }
+        },
       );
 
       const data = await response.json();
@@ -87,11 +87,9 @@ export const usePurchaseFlow = () => {
         // Redirect to Stripe checkout
         window.location.href = data.url;
       } else {
-        console.error("Error creating checkout session:", data.error);
         throw new Error(data.error || "Failed to create checkout session");
       }
     } catch (error) {
-      console.error("Error handling purchase:", error);
       throw error;
     } finally {
       setIsLoading(false);

@@ -39,19 +39,18 @@ export async function POST(req: Request) {
         type: "course_purchase",
         isGuestPurchase: !userId ? "true" : "false",
       },
-      success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
     });
 
     return NextResponse.json({
       success: true,
       url: session.url,
     });
-  } catch (error: any) {
-    console.error("Error creating Stripe Checkout Session:", error.message);
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

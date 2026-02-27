@@ -57,8 +57,7 @@ export default function Contact() {
         message: "",
         subject: "general",
       });
-    } catch (error) {
-      console.error("Error submitting lead:", error);
+    } catch {
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

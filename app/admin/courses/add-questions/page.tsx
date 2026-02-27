@@ -21,8 +21,7 @@ export default function AddQuestionsPage() {
       try {
         const allCourses = await coursesService.getAllCourses();
         setCourses(allCourses);
-      } catch (error) {
-        console.error("Error loading courses:", error);
+      } catch {
         setErrorMessage("Błąd podczas ładowania kursów");
       }
     };
@@ -45,17 +44,13 @@ export default function AddQuestionsPage() {
     ]);
   };
 
-  const updateQuestion = (
+  const updateQuestion = <K extends keyof IQuestion>(
     index: number,
-    field: keyof IQuestion,
-    value: any
+    field: K,
+    value: IQuestion[K]
   ) => {
     const updatedQuestions = [...questions];
-    if (field === "question") {
-      updatedQuestions[index].question = value;
-    } else if (field === "answers") {
-      updatedQuestions[index].answers = value;
-    }
+    updatedQuestions[index][field] = value;
     setQuestions(updatedQuestions);
   };
 
@@ -123,9 +118,8 @@ export default function AddQuestionsPage() {
       setTimeout(() => {
         router.push("/admin/courses/list");
       }, 2000);
-    } catch (error) {
+    } catch {
       setErrorMessage("Wystąpił błąd podczas zapisywania pytań");
-      console.error("Error saving questions:", error);
     } finally {
       setIsLoading(false);
     }

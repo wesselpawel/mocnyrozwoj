@@ -47,8 +47,7 @@ export const leadsService = {
         (a: Lead, b: Lead) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-    } catch (error) {
-      console.error("Error fetching leads:", error);
+    } catch {
       return [];
     }
   },
@@ -58,8 +57,7 @@ export const leadsService = {
     try {
       const lead = await getDocument("leads", leadId);
       return lead as Lead;
-    } catch (error) {
-      console.error("Error fetching lead:", error);
+    } catch {
       return null;
     }
   },
@@ -70,7 +68,7 @@ export const leadsService = {
     status: Lead["status"],
     notes?: string
   ): Promise<void> {
-    const updateData: any = {
+    const updateData: { status: Lead["status"]; updatedAt: string; notes?: string } = {
       status,
       updatedAt: new Date().toISOString(),
     };

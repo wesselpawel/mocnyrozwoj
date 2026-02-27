@@ -8,7 +8,7 @@ interface PurchaseButtonProps {
     title: string;
     price: number;
     type: "course" | "diet";
-    data?: any;
+    data?: Record<string, unknown>;
   };
   variant?: "primary" | "secondary";
   className?: string;

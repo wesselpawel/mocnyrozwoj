@@ -80,15 +80,14 @@ export default function EditDietPage() {
       } else {
         setErrorMessage("Dieta nie została znaleziona");
       }
-    } catch (error) {
+    } catch {
       setErrorMessage("Błąd podczas ładowania danych diety");
-      console.error("Error loading diet:", error);
     } finally {
       setIsLoadingData(false);
     }
   };
 
-  const handleInputChange = (field: keyof Diet, value: any) => {
+  const handleInputChange = (field: keyof Diet, value: Diet[keyof Diet]) => {
     setDietData((prev) => ({
       ...prev,
       [field]: value,
@@ -190,8 +189,7 @@ export default function EditDietPage() {
       setDietData(generatedDiet);
       setTopic("");
       setSuccessMessage("Dieta została wygenerowana pomyślnie!");
-    } catch (error) {
-      console.error("Error generating diet:", error);
+    } catch {
       setErrorMessage("Błąd podczas generowania diety");
     } finally {
       setGenerating(false);
@@ -257,9 +255,8 @@ export default function EditDietPage() {
       setTimeout(() => {
         router.push("/admin/diet");
       }, 2000);
-    } catch (error) {
+    } catch {
       setErrorMessage("Wystąpił błąd podczas aktualizacji diety");
-      console.error("Error updating diet:", error);
     } finally {
       setIsLoading(false);
     }

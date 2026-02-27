@@ -41,13 +41,13 @@ export const blogService = {
   // Get a blog post by URL slug
   async getBlogPostByUrl(url: string): Promise<BlogPost | null> {
     const posts = await getDocuments(COLLECTION_NAME);
-    const post = posts.find((post: any) => post.url === url);
+    const post = (posts as BlogPost[]).find((p) => p.url === url);
     return post as BlogPost | null;
   },
 
   // Add a new blog post
   async addBlogPost(
-    postData: Omit<BlogPost, "id" | "createdAt" | "updatedAt">
+    postData: Omit<BlogPost, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     const id = Date.now().toString();
     const now = new Date().toISOString();
@@ -84,23 +84,22 @@ export const blogService = {
 
   // Generate a new blog post using the API
   async generateBlogPost(
-    topic: string
+    topic: string,
   ): Promise<Omit<BlogPost, "id" | "createdAt" | "updatedAt">> {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_URL
+          process.env.NEXT_PUBLIC_SITE_URL
         }/api/generateBlogPost?topic=${encodeURIComponent(topic)}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const generatedData = await response.json();
-      console.log("Generated data:", generatedData);
 
       // Return generated data without adding to database
       return {
@@ -115,7 +114,6 @@ export const blogService = {
         tags: generatedData.tags || "",
       };
     } catch (error) {
-      console.error("Error generating blog post:", error);
       throw error;
     }
   },

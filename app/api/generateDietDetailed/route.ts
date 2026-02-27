@@ -135,11 +135,6 @@ export async function POST(req: NextRequest) {
 
     // Ensure jsonContent is a string
     if (typeof response.content !== "string") {
-      console.error(
-        "Response content is not a string:",
-        typeof response.content,
-        response.content
-      );
       // If it's already an object, return it directly
       if (typeof response.content === "object" && response.content !== null) {
         return NextResponse.json(response.content);
@@ -173,9 +168,7 @@ export async function POST(req: NextRequest) {
     let responseData;
     try {
       responseData = JSON.parse(jsonContent);
-    } catch (error) {
-      console.error("Error parsing response content:", error);
-      console.error("Raw response content:", response.content);
+    } catch {
       // If parsing fails, return a structured error response
       return NextResponse.json(
         {
@@ -188,8 +181,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(responseData);
-  } catch (error) {
-    console.error("Error generating detailed diet section:", error);
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: "Failed to generate detailed diet section",

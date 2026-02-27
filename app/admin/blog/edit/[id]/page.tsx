@@ -28,13 +28,16 @@ export default function EditBlogPostPage() {
     const fetchPost = async () => {
       setLoading(true);
       try {
-        const fetchedPost: any = await blogService.getBlogPostById(id);
-        setPost(fetchedPost);
+        const fetchedPost = await blogService.getBlogPostById(id);
+        const fetchedPostWithContent = fetchedPost as
+          | (BlogPost & { text1Desc?: string })
+          | null;
+        setPost(fetchedPost ?? {});
         setSections([
           {
             id: "1",
             title: "Treść posta",
-            content: fetchedPost.text1Desc || "",
+            content: fetchedPostWithContent?.text1Desc || "",
           },
         ]);
       } catch (error) {

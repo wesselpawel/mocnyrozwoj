@@ -77,13 +77,13 @@ export default async function Home() {
             </p>
             <div className="flex flex-col lg:flex-row gap-4 justify-center lg:justify-start mt-8">
               <Link
-                href="/#shop"
+                href="/#rozwoj-osobisty"
                 className="mx-auto lg:mx-0 w-max max-w-full sm:text-base px-4 py-2 bg-white text-green-600 border-2 border-green-600 rounded-full hover:bg-green-50 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
               >
                 Rozwój osobisty
               </Link>
               <Link
-                href="/#courses"
+                href="/#dieta"
                 className="mx-auto lg:mx-0 w-max max-w-full sm:text-base px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-full hover:from-green-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
               >
                 Kup dietę
@@ -154,13 +154,13 @@ export default async function Home() {
           </div>
           <div className="flex flex-row gap-4 justify-center mt-8">
             <a
-              href="/#shop"
+              href="/#dieta"
               className="w-max text-xs max-w-full sm:text-base px-4 py-2 bg-white text-green-600 border-2 border-green-600 rounded-full hover:bg-green-50 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
             >
               Kup dietę
             </a>
             <a
-              href="/#courses"
+              href="/#rozwoj-osobisty"
               className="w-max text-xs max-w-full sm:text-base px-4 py-2 bg-white text-green-600 border-2 border-green-600 rounded-full hover:bg-green-50 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
             >
               Rozwój osobisty

@@ -118,8 +118,7 @@ export class PurchaseSessionManager {
         localStorage.removeItem(this.SESSION_KEY);
 
         return guestPurchases;
-      } catch (error) {
-        console.error("Error transferring guest purchases:", error);
+      } catch {
         return [];
       }
     }

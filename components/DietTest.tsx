@@ -10,15 +10,16 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "@/components/AuthContext";
 import LoginPopup from "@/components/LoginPopup";
+import { Course, Diet } from "@/types";
 
 async function getDietPlanResults({
   prompt,
   dietPlanName,
 }: {
   prompt: { question: string; answer: string }[];
-  dietPlanName: string;
+  dietPlanName?: string;
 }) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/test`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/test`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,9 +38,9 @@ export default function DietTest({
   dietPlan,
   onPurchase,
 }: {
-  setShowTest: Function;
-  dietPlan: any;
-  onPurchase: Function;
+  setShowTest: (value: boolean) => void;
+  dietPlan: Course | Diet;
+  onPurchase: (dietPlan: Course | Diet) => void | Promise<void>;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<
@@ -51,6 +52,7 @@ export default function DietTest({
   const [results, setResults] = useState(null);
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const questions = dietPlan.questions ?? [];
 
   // Keyboard event listeners
   useEffect(() => {
@@ -58,11 +60,9 @@ export default function DietTest({
       // 'E' key to jump to last question
       if (
         event.key.toLowerCase() === "e" &&
-        dietPlan &&
-        dietPlan.questions &&
-        currentIndex < dietPlan.questions.length - 1
+        currentIndex < questions.length - 1
       ) {
-        setCurrentIndex(dietPlan.questions.length - 1);
+        setCurrentIndex(questions.length - 1);
       }
 
       // 'Escape' key to close test
@@ -95,12 +95,11 @@ export default function DietTest({
           prompt: selected,
           dietPlanName: dietPlan?.title,
         });
-        console.log("Diet Plan Results:", results);
         setResults(results);
       };
 
       fetchResults()
-        .catch((err) => console.error(err))
+        .catch(() => {})
         .finally(() => {
           setLoading(false);
         });
@@ -121,7 +120,7 @@ export default function DietTest({
   };
 
   // If no questions are available, show a message and purchase option
-  if (!dietPlan?.questions || dietPlan.questions.length === 0) {
+  if (questions.length === 0) {
     return (
       <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <div className="w-full max-w-2xl bg-white rounded-3xl flex flex-col overflow-hidden">
@@ -230,9 +229,7 @@ export default function DietTest({
                   </span>
                 </div>
 
-                {dietPlan &&
-                  dietPlan.questions &&
-                  currentIndex < dietPlan.questions.length - 1 && (
+                {dietPlan && currentIndex < questions.length - 1 && (
                     <div className="text-white/80 text-xs lg:text-sm">
                       Naciśnij{" "}
                       <span className="bg-white/20 px-2 py-1 rounded font-mono">
@@ -255,7 +252,7 @@ export default function DietTest({
                 initial={{ width: 0 }}
                 animate={{
                   width: `${
-                    ((currentIndex + 1) / dietPlan?.questions?.length) * 100
+                    ((currentIndex + 1) / questions.length) * 100
                   }%`,
                 }}
                 transition={{ duration: 0.5 }}
@@ -269,7 +266,7 @@ export default function DietTest({
           {dietPlan && (
             <div className="relative">
               <AnimatePresence mode="wait">
-                {dietPlan && dietPlan.questions[currentIndex] && (
+                {dietPlan && questions[currentIndex] && (
                   <motion.div
                     key={currentIndex}
                     initial={{ opacity: 0, x: 50 }}
@@ -281,19 +278,19 @@ export default function DietTest({
                     {/* Question */}
                     <div className="text-center">
                       <h2 className="text-base lg:text-xl xl:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 leading-relaxed">
-                        {dietPlan.questions[currentIndex].question}
+                        {questions[currentIndex].question}
                       </h2>
                     </div>
 
                     {/* Answers */}
                     <div className="space-y-3 lg:space-y-4">
-                      {dietPlan.questions[currentIndex].answers.map(
+                      {questions[currentIndex].answers.map(
                         (answer: string, i: number) => {
                           const isSelected = selected.some(
                             (item: { question: string; answer: string }) =>
                               item.question ===
-                                dietPlan.questions[currentIndex].question &&
-                              item.answer === answer
+                                questions[currentIndex].question &&
+                              item.answer === answer,
                           );
 
                           return (
@@ -307,8 +304,8 @@ export default function DietTest({
                                       answer: string;
                                     }) =>
                                       item.question ===
-                                        dietPlan.questions[currentIndex]
-                                          .question && item.answer === answer
+                                        questions[currentIndex].question &&
+                                      item.answer === answer,
                                   );
                                   if (isAlreadySelected) {
                                     return prev.filter(
@@ -318,10 +315,9 @@ export default function DietTest({
                                       }) =>
                                         !(
                                           item.question ===
-                                            dietPlan.questions[currentIndex]
-                                              .question &&
+                                            questions[currentIndex].question &&
                                           item.answer === answer
-                                        )
+                                        ),
                                     );
                                   } else {
                                     return [
@@ -331,13 +327,10 @@ export default function DietTest({
                                           answer: string;
                                         }) =>
                                           item.question !==
-                                          dietPlan.questions[currentIndex]
-                                            .question
+                                          questions[currentIndex].question,
                                       ),
                                       {
-                                        question:
-                                          dietPlan.questions[currentIndex]
-                                            .question,
+                                        question: questions[currentIndex].question,
                                         answer,
                                       },
                                     ];
@@ -379,7 +372,7 @@ export default function DietTest({
                               </div>
                             </motion.button>
                           );
-                        }
+                        },
                       )}
                     </div>
                   </motion.div>
@@ -392,7 +385,7 @@ export default function DietTest({
                   <motion.button
                     onClick={() => {
                       setCurrentIndex((prev) =>
-                        Math.min(prev + 1, dietPlan.questions.length)
+                        Math.min(prev + 1, questions.length),
                       );
                     }}
                     disabled={currentIndex + 1 !== selected.length}
@@ -454,7 +447,11 @@ export default function DietTest({
                       <div
                         dangerouslySetInnerHTML={{
                           __html:
-                            (results as any).report || (results as string),
+                            (results && typeof results === "object" && "report" in results
+                              ? String((results as { report?: string }).report ?? "")
+                              : typeof results === "string"
+                                ? results
+                                : ""),
                         }}
                       />
                     </div>

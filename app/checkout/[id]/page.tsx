@@ -54,7 +54,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     }
   ).then((res) => res.json());
   const order = orders?.data?.find(
-    (order: any) => order.metadata.id === params.id
+    (o: { metadata?: { id?: string } }) => o.metadata?.id === params.id
   );
   if (!order) {
     return (

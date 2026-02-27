@@ -34,8 +34,8 @@ export default function Courses() {
         setDietPlans(fetchedDietPlans);
         setDiets(fetchedDiets);
         setCategories(["Wszystkie", ...fetchedCategories]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch {
+        // Failed to fetch data
       } finally {
         setLoading(false);
       }
@@ -104,13 +104,11 @@ export default function Courses() {
         // Redirect to Stripe Checkout
         window.location.href = data.url;
       } else {
-        console.error("Checkout error:", data.error);
         alert(
-          "Wystąpił błąd podczas przetwarzania płatności. Spróbuj ponownie."
+          "Wystąpił błąd podczas przetwarzania płatności. Spróbuj ponownie.",
         );
       }
-    } catch (error) {
-      console.error("Checkout error:", error);
+    } catch {
       alert("Wystąpił błąd podczas przetwarzania płatności. Spróbuj ponownie.");
     } finally {
       setCheckoutLoading(null);
@@ -119,7 +117,7 @@ export default function Courses() {
 
   if (loading) {
     return (
-      <div id="courses" className="bg-white py-16 px-6 lg:px-12">
+      <div id="dieta" className="bg-white py-16 px-6 lg:px-12">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className=" text-3xl sm:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
@@ -139,7 +137,7 @@ export default function Courses() {
   }
 
   return (
-    <div id="courses" className="bg-white py-16 px-6 lg:px-12">
+    <div id="dieta" className="bg-white py-16 px-6 lg:px-12">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -263,7 +261,7 @@ export default function Courses() {
 
         {/* Courses Grid */}
         {dietPlans.length > 0 && (
-          <div id="shop">
+          <div id="rozwoj-osobisty">
             <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
               Kursy rozwoju osobistego
             </h3>
@@ -279,7 +277,6 @@ export default function Courses() {
                     course={dietPlan}
                     onClick={() => {
                       // Handle diet plan click - could open diet plan details or redirect
-                      console.log("Diet plan clicked:", dietPlan.title);
                     }}
                   />
                 </motion.div>

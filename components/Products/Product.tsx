@@ -28,11 +28,15 @@ export default function Product({
 }) {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isImageOpen, setImageOpen] = useState(false);
+  const imageService =
+    "images" in product
+      ? product
+      : { images: [{ src: product.image || "/logo.png" }] };
 
   return (
     <>
       <ProjectImages
-        service={product}
+        service={imageService}
         currentIndex={currentIndex}
         setCurrentIndex={setCurrentIndex}
         setImageOpen={setImageOpen}

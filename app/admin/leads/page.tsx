@@ -44,8 +44,7 @@ export default function AdminLeads() {
 
       setLeads(leadsData);
       setStats(statsData);
-    } catch (error) {
-      console.error("Error loading leads:", error);
+    } catch {
     } finally {
       setIsLoading(false);
     }
@@ -55,8 +54,7 @@ export default function AdminLeads() {
     try {
       await leadsService.updateLeadStatus(leadId, status);
       loadLeads();
-    } catch (error) {
-      console.error("Error updating lead status:", error);
+    } catch {
       alert("Błąd podczas aktualizacji statusu");
     }
   };
@@ -67,8 +65,7 @@ export default function AdminLeads() {
     try {
       await leadsService.deleteLead(leadId);
       loadLeads();
-    } catch (error) {
-      console.error("Error deleting lead:", error);
+    } catch {
       alert("Błąd podczas usuwania leada");
     }
   };

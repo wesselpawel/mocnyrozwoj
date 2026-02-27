@@ -44,8 +44,7 @@ export default function NewsletterSignup() {
 
       setSubmitStatus("success");
       setEmail("");
-    } catch (error) {
-      console.error("Error submitting newsletter signup:", error);
+    } catch {
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

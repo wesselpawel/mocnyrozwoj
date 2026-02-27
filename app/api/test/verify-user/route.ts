@@ -14,15 +14,11 @@ export async function GET(req: Request) {
       });
     }
 
-    console.log("Verifying user data for:", userId);
-
     // Get user document
     const userDoc = await getDocument("users", userId);
-    console.log("User document:", userDoc);
 
     // Get user purchases
     const userPurchases = await userPurchasesService.getUserPurchases(userId);
-    console.log("User purchases:", userPurchases);
 
     // Check ownership using both methods
     const purchasedCourses = userDoc?.purchasedCourses || [];
@@ -36,11 +32,10 @@ export async function GET(req: Request) {
       userPurchases,
       ownershipMatch: purchasedCourses.length === purchaseCourseIds.length,
     });
-  } catch (error: any) {
-    console.error("Error verifying user:", error);
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

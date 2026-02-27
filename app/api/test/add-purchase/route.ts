@@ -12,12 +12,6 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("Test: Adding purchase manually:", {
-      userId,
-      courseId,
-      courseTitle,
-    });
-
     // Add the purchase
     const purchaseId = await userPurchasesService.addPurchase({
       userId,
@@ -30,22 +24,18 @@ export async function POST(req: Request) {
       status: "completed",
     });
 
-    console.log("Test: Purchase added with ID:", purchaseId);
-
     // Verify the purchase was added
     const userPurchases = await userPurchasesService.getUserPurchases(userId);
-    console.log("Test: User purchases after adding:", userPurchases);
 
     return NextResponse.json({
       success: true,
       purchaseId,
       userPurchases,
     });
-  } catch (error: any) {
-    console.error("Test: Error adding purchase:", error);
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

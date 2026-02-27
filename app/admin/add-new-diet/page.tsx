@@ -94,7 +94,7 @@ export default function AddNewDietPage() {
 
   const difficulties = ["Łatwy", "Średni", "Trudny"];
 
-  const handleInputChange = (field: keyof Diet, value: any) => {
+  const handleInputChange = (field: keyof Diet, value: Diet[keyof Diet]) => {
     setDietData((prev) => ({
       ...prev,
       [field]: value,
@@ -168,9 +168,8 @@ export default function AddNewDietPage() {
       setSuccessMessage(
         "Dieta została wygenerowana pomyślnie! Możesz teraz dodać zdjęcie i plik PDF, a następnie zapisać."
       );
-    } catch (error) {
+    } catch {
       setErrorMessage("Błąd podczas generowania diety. Spróbuj ponownie.");
-      console.error("Error generating diet:", error);
     } finally {
       setGenerating(false);
     }
@@ -222,9 +221,8 @@ export default function AddNewDietPage() {
       setTimeout(() => {
         router.push("/admin/diet");
       }, 2000);
-    } catch (error) {
+    } catch {
       setErrorMessage("Wystąpił błąd podczas dodawania diety");
-      console.error("Error adding diet:", error);
     } finally {
       setIsLoading(false);
     }

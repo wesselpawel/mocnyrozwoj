@@ -45,8 +45,7 @@ export default function NewBlogPostPage() {
       // Update post data with generated content (but not sections)
       setPost(generatedPost);
       setTopic("");
-    } catch (error) {
-      console.error("Error generating post:", error);
+    } catch {
       alert("Błąd podczas generowania posta");
     } finally {
       setGenerating(false);
@@ -84,8 +83,7 @@ export default function NewBlogPostPage() {
         postData as Omit<BlogPost, "id" | "createdAt" | "updatedAt">
       );
       router.push("/admin/blog");
-    } catch (error) {
-      console.error("Error saving post:", error);
+    } catch {
       alert("Błąd podczas zapisywania posta");
     } finally {
       setLoading(false);

@@ -52,8 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Ensure user exists in Firestore
         try {
           await createUserInFirestore(userData);
-        } catch (error) {
-          console.error("Error creating user in Firestore:", error);
+        } catch {
+          // Failed to create user in Firestore
         }
 
         setUser(userData);
@@ -73,8 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await logout();
       setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // Logout failed
     }
   };
 

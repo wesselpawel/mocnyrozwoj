@@ -13,8 +13,8 @@ export function ImageWithSkeleton({
 }: {
   src: string;
   index: number;
-  setCurrentIndex: any;
-  setImageOpen: any;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
+  setImageOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [loading, setLoading] = useState(true);
 

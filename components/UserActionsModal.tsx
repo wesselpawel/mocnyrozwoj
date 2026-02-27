@@ -30,8 +30,8 @@ export default function UserActionsModal({
           // Here you would typically check the user's subscription status from your database
           // For now, we'll use the user's subscriptionStatus from AuthContext
           setSubscriptionStatus(user.subscriptionStatus);
-        } catch (error) {
-          console.error("Error checking subscription status:", error);
+        } catch {
+          // Subscription status check failed
         }
       }
     };
@@ -44,8 +44,8 @@ export default function UserActionsModal({
       await logout();
       onClose();
       router.push("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // Logout failed
     }
   };
 

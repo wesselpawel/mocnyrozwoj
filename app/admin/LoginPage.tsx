@@ -35,12 +35,10 @@ export default function LoginPage() {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Success - user will be redirected by the layout
-        console.log("Login successful:", userCredential.user.email);
         router.push("/admin");
       })
-      .catch((error) => {
+      .catch((error: { code?: string }) => {
         setIsLoading(false);
-        console.error("Login error:", error);
 
         switch (error.code) {
           case "auth/user-not-found":
@@ -52,17 +50,17 @@ export default function LoginPage() {
             break;
           case "auth/too-many-requests":
             setGeneralError(
-              "Zbyt wiele prób logowania. Spróbuj ponownie później."
+              "Zbyt wiele prób logowania. Spróbuj ponownie później.",
             );
             break;
           case "auth/network-request-failed":
             setGeneralError(
-              "Problem z połączeniem. Sprawdź połączenie internetowe."
+              "Problem z połączeniem. Sprawdź połączenie internetowe.",
             );
             break;
           default:
             setGeneralError(
-              "Wystąpił błąd podczas logowania. Spróbuj ponownie."
+              "Wystąpił błąd podczas logowania. Spróbuj ponownie.",
             );
         }
 

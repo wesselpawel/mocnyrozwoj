@@ -9,15 +9,16 @@ import { useAuth } from "@/components/AuthContext";
 import LoginPopup from "@/components/LoginPopup";
 import { testResultsService } from "@/lib/testResultsService";
 import { useRouter } from "next/navigation";
+import { IProduct, Diet } from "@/types";
 
 async function getDietPlanResults({
   prompt,
   dietPlanName,
 }: {
   prompt: { question: string; answer: string }[];
-  dietPlanName: string;
+  dietPlanName?: string;
 }) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/test`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/test`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,22 +36,23 @@ export default function DietPlan({
   setTest,
   test,
 }: {
-  setTest: Function;
-  test: any;
+  setTest: (value: IProduct | Diet | null) => void;
+  test: IProduct | Diet | null;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<any>([]);
-  const [selected, setSelected] = useState<any>([]);
+  const [userAnswers, setUserAnswers] = useState<{ question: string; answer: string }[]>([]);
+  const [selected, setSelected] = useState<{ question: string; answer: string }[]>([]);
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [finished, setFinished] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<Record<string, unknown> | null>(null);
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [saveStatus, setSaveStatus] = useState<
     null | "success" | "error" | "saving"
   >(null);
   const router = useRouter();
+  const questions = test?.questions ?? [];
 
   // Keyboard event listeners
   useEffect(() => {
@@ -58,11 +60,9 @@ export default function DietPlan({
       // 'E' key to jump to last question
       if (
         event.key.toLowerCase() === "e" &&
-        test &&
-        test.questions &&
-        currentIndex < test.questions.length - 1
+        currentIndex < questions.length - 1
       ) {
-        setCurrentIndex(test.questions.length - 1);
+        setCurrentIndex(questions.length - 1);
       }
 
       // 'Escape' key to close diet plan
@@ -78,7 +78,7 @@ export default function DietPlan({
   }, [currentIndex, test]);
 
   const handleClose = () => {
-    setTest(false);
+    setTest(null);
     setUserAnswers([]);
     setSelected([]);
     setCurrentIndex(0);
@@ -94,14 +94,13 @@ export default function DietPlan({
       const fetchResults = async () => {
         const results = await getDietPlanResults({
           prompt: selected,
-          dietPlanName: test?.title,
+          dietPlanName: test?.title ?? "Plan dietetyczny",
         });
-        console.log("Diet Plan Results:", results);
         setResults(results);
       };
 
       fetchResults()
-        .catch((err) => console.error(err))
+        .catch(() => {})
         .finally(() => {
           setLoading(false);
         });
@@ -123,7 +122,7 @@ export default function DietPlan({
     try {
       await testResultsService.saveTestResult({
         userId: user?.id || null,
-        testName: test?.title,
+        testName: test?.title ?? "Plan dietetyczny",
         answers: selected,
         report: results,
       });
@@ -197,13 +196,11 @@ export default function DietPlan({
                 <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-2 text-sm">
                   <FaPlay className="text-xs" />
                   <span className="font-medium">
-                    Pytanie {currentIndex + 1} z {test?.questions?.length}
+                    Pytanie {currentIndex + 1} z {questions.length}
                   </span>
                 </div>
 
-                {test &&
-                  test.questions &&
-                  currentIndex < test.questions.length - 1 && (
+                {test && currentIndex < questions.length - 1 && (
                     <div className="text-white/80 text-xs lg:text-sm">
                       Naciśnij{" "}
                       <span className="bg-white/20 px-2 py-1 rounded font-mono">
@@ -226,7 +223,7 @@ export default function DietPlan({
                 initial={{ width: 0 }}
                 animate={{
                   width: `${
-                    ((currentIndex + 1) / test?.questions?.length) * 100
+                    ((currentIndex + 1) / questions.length) * 100
                   }%`,
                 }}
                 transition={{ duration: 0.5 }}
@@ -240,7 +237,7 @@ export default function DietPlan({
           {test && (
             <div className="relative">
               <AnimatePresence mode="wait">
-                {test && test.questions[currentIndex] && (
+                {test && questions[currentIndex] && (
                   <motion.div
                     key={currentIndex}
                     initial={{ opacity: 0, x: 50 }}
@@ -252,52 +249,50 @@ export default function DietPlan({
                     {/* Question */}
                     <div className="text-center">
                       <h2 className="text-base lg:text-xl xl:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 leading-relaxed">
-                        {test.questions[currentIndex].question}
+                        {questions[currentIndex].question}
                       </h2>
                     </div>
 
                     {/* Answers */}
                     <div className="space-y-3 lg:space-y-4">
-                      {test.questions[currentIndex].answers.map(
+                      {questions[currentIndex].answers.map(
                         (answer: string, i: number) => {
                           const isSelected = selected.some(
-                            (item: any) =>
+                            (item: { question: string; answer: string }) =>
                               item.question ===
-                                test.questions[currentIndex].question &&
-                              item.answer === answer
+                                questions[currentIndex].question &&
+                              item.answer === answer,
                           );
 
                           return (
                             <motion.button
                               key={i}
                               onClick={() => {
-                                setSelected((prev: any) => {
+                                setSelected((prev: { question: string; answer: string }[]) => {
                                   const isAlreadySelected = prev.some(
-                                    (item: any) =>
+                                    (item: { question: string; answer: string }) =>
                                       item.question ===
-                                        test.questions[currentIndex].question &&
-                                      item.answer === answer
+                                        questions[currentIndex].question &&
+                                      item.answer === answer,
                                   );
                                   if (isAlreadySelected) {
                                     return prev.filter(
-                                      (item: any) =>
+                                      (item: { question: string; answer: string }) =>
                                         !(
                                           item.question ===
-                                            test.questions[currentIndex]
-                                              .question &&
+                                            questions[currentIndex].question &&
                                           item.answer === answer
-                                        )
+                                        ),
                                     );
                                   } else {
                                     return [
                                       ...prev.filter(
-                                        (item: any) =>
+                                        (item: { question: string; answer: string }) =>
                                           item.question !==
-                                          test.questions[currentIndex].question
+                                          questions[currentIndex].question,
                                       ),
                                       {
-                                        question:
-                                          test.questions[currentIndex].question,
+                                        question: questions[currentIndex].question,
                                         answer,
                                       },
                                     ];
@@ -340,7 +335,7 @@ export default function DietPlan({
                               </div>
                             </motion.button>
                           );
-                        }
+                        },
                       )}
                     </div>
                   </motion.div>
@@ -353,7 +348,7 @@ export default function DietPlan({
                   <motion.button
                     onClick={() => {
                       setCurrentIndex((prev) =>
-                        Math.min(prev + 1, test.questions.length)
+                        Math.min(prev + 1, questions.length),
                       );
                     }}
                     disabled={currentIndex + 1 !== selected.length}
@@ -435,8 +430,8 @@ export default function DietPlan({
                         {saveStatus === "saving"
                           ? "Zapisywanie..."
                           : saveStatus === "success"
-                          ? "Plan zapisany!"
-                          : "Zapisz plan"}
+                            ? "Plan zapisany!"
+                            : "Zapisz plan"}
                       </button>
                     )}
                     {saveStatus === "error" && (

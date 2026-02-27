@@ -13,13 +13,6 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("Transferring guest purchase to user:", {
-      userId,
-      guestSessionId,
-      productId: purchaseData.productId,
-      productTitle: purchaseData.productTitle,
-    });
-
     // Create a purchase record for the new user
     try {
       const purchaseId = await userPurchasesService.addPurchase({
@@ -33,8 +26,6 @@ export async function POST(req: Request) {
         status: "completed",
         transferredFromGuest: true,
       });
-
-      console.log(`Guest purchase transferred to user with ID: ${purchaseId}`);
 
       // Update user purchase statistics
       await userPurchasesService.updateUserPurchaseStats(userId);
@@ -53,9 +44,6 @@ export async function POST(req: Request) {
           "users",
           userId
         );
-        console.log(
-          `Added ${purchaseData.productType} ${purchaseData.productId} to user ${userId} purchasedCourses`
-        );
       }
 
       return NextResponse.json({
@@ -63,18 +51,16 @@ export async function POST(req: Request) {
         message: "Guest purchase transferred successfully",
         purchaseId,
       });
-    } catch (error) {
-      console.error("Error transferring guest purchase:", error);
+    } catch {
       return NextResponse.json({
         success: false,
         error: "Failed to transfer purchase",
       });
     }
-  } catch (error: any) {
-    console.error("Error in transfer-guest-purchase API:", error.message);
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

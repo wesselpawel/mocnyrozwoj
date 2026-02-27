@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const out = (message = "") => process.stdout.write(`${message}\n`);
 
 // Required environment variables
 const requiredVars = {
@@ -22,18 +23,18 @@ const requiredVars = {
 
   // Site URLs (client-side)
   NEXT_PUBLIC_SITE_URL: "Site URL",
-  NEXT_PUBLIC_URL: "Alternative URL",
+  NEXT_PUBLIC_SITE_URL: "Alternative URL",
 };
 
-console.log("🔍 Validating environment variables...\n");
+out("🔍 Validating environment variables...\n");
 
 // Check if .env.local exists
 const envLocalPath = path.join(process.cwd(), ".env.local");
 
 if (!fs.existsSync(envLocalPath)) {
-  console.log("❌ .env.local file not found!");
-  console.log("   Run: npm run setup-env");
-  console.log("   Or copy env.local.template to .env.local manually");
+  out("❌ .env.local file not found!");
+  out("   Run: npm run setup-env");
+  out("   Or copy env.local.template to .env.local manually");
   process.exit(1);
 }
 
@@ -55,7 +56,7 @@ let allValid = true;
 const missing = [];
 const placeholder = [];
 
-console.log("📋 Environment Variables Status:\n");
+out("📋 Environment Variables Status:\n");
 
 // Check each required variable
 Object.entries(requiredVars).forEach(([varName, description]) => {
@@ -63,7 +64,7 @@ Object.entries(requiredVars).forEach(([varName, description]) => {
 
   if (!value) {
     missing.push(varName);
-    console.log(`❌ ${varName} - ${description} (MISSING)`);
+    out(`❌ ${varName} - ${description} (MISSING)`);
     allValid = false;
   } else if (
     value.includes("your_") ||
@@ -71,35 +72,35 @@ Object.entries(requiredVars).forEach(([varName, description]) => {
     value === ""
   ) {
     placeholder.push(varName);
-    console.log(`⚠️  ${varName} - ${description} (PLACEHOLDER)`);
+    out(`⚠️  ${varName} - ${description} (PLACEHOLDER)`);
     allValid = false;
   } else {
-    console.log(`✅ ${varName} - ${description}`);
+    out(`✅ ${varName} - ${description}`);
   }
 });
 
-console.log("\n" + "=".repeat(50));
+out("\n" + "=".repeat(50));
 
 if (missing.length > 0) {
-  console.log("\n❌ Missing required environment variables:");
+  out("\n❌ Missing required environment variables:");
   missing.forEach((varName) => {
-    console.log(`   - ${varName}`);
+    out(`   - ${varName}`);
   });
 }
 
 if (placeholder.length > 0) {
-  console.log("\n⚠️  Environment variables with placeholder values:");
+  out("\n⚠️  Environment variables with placeholder values:");
   placeholder.forEach((varName) => {
-    console.log(`   - ${varName}`);
+    out(`   - ${varName}`);
   });
 }
 
 if (allValid) {
-  console.log("\n✅ All environment variables are properly configured!");
-  console.log("🚀 You can now run: npm run dev");
+  out("\n✅ All environment variables are properly configured!");
+  out("🚀 You can now run: npm run dev");
 } else {
-  console.log("\n📖 For setup instructions, see: ENVIRONMENT_SETUP.md");
-  console.log("🔧 Run: npm run setup-env to create a fresh .env.local file");
+  out("\n📖 For setup instructions, see: ENVIRONMENT_SETUP.md");
+  out("🔧 Run: npm run setup-env to create a fresh .env.local file");
 }
 
-console.log("\n🔒 Security check: .env.local is in .gitignore ✓");
+out("\n🔒 Security check: .env.local is in .gitignore ✓");

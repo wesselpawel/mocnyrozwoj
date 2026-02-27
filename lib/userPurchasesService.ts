@@ -43,14 +43,10 @@ export const userPurchasesService = {
       id,
     };
 
-    console.log("Adding purchase to database:", purchase);
-
     try {
       await addDocument(COLLECTION_NAME, id, purchase);
-      console.log(`Purchase saved successfully with ID: ${id}`);
       return id;
     } catch (error) {
-      console.error("Error saving purchase to Firestore:", error);
       throw error;
     }
   },
@@ -58,18 +54,9 @@ export const userPurchasesService = {
   // Get all purchases for a user
   async getUserPurchases(userId: string): Promise<UserPurchase[]> {
     const purchases = await getDocuments(COLLECTION_NAME);
-    const userPurchases = (purchases as UserPurchase[]).filter(
+    return (purchases as UserPurchase[]).filter(
       (purchase) => purchase.userId === userId
     );
-    if (userPurchases.length > 0) {
-      console.log(
-        "User purchases found for user:",
-        userId,
-        "Count:",
-        userPurchases.length
-      );
-    }
-    return userPurchases;
   },
 
   // Update user purchase statistics
@@ -106,20 +93,17 @@ export const userPurchasesService = {
       const values = Object.values(updateData);
 
       await updateDocument(keys, values, "users", userId);
-      console.log(`Updated user ${userId} purchase stats:`, updateData);
     } catch (error) {
-      console.error("Error updating user purchase stats:", error);
       throw error;
     }
   },
 
   // Get user document from users collection
-  async getUserDocument(userId: string): Promise<any> {
+  async getUserDocument(userId: string): Promise<Record<string, unknown> | null> {
     try {
       const userDoc = await getDocument("users", userId);
-      return userDoc;
-    } catch (error) {
-      console.error("Error getting user document:", error);
+      return userDoc as Record<string, unknown> | null;
+    } catch {
       return null;
     }
   },

@@ -10,8 +10,8 @@ export default function MoreProducts({
   setOpenedProduct,
   setTest,
 }: {
-  product: any;
-  products: any;
+  product: IProduct | Diet;
+  products: (IProduct | Diet)[];
   setOpenedProduct: React.Dispatch<
     React.SetStateAction<IProduct | Diet | null>
   >;
@@ -30,7 +30,7 @@ export default function MoreProducts({
         Wypróbuj inne testy
       </h3>
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {displayedProducts?.map((item: any, i: any) => (
+        {displayedProducts?.map((item: IProduct | Diet, i: number) => (
           <div
             className={`${item.title === product.title && "hidden"}`}
             key={item.title}
@@ -48,9 +48,8 @@ export default function MoreProducts({
                     "products",
                     item.id
                   );
-                } catch (e) {
-                  // Optionally handle error
-                  console.error("Failed to increment clickCount", e);
+                } catch {
+                  // Failed to increment clickCount
                 }
               }}
               className="flex flex-col relative overflow-hidden rounded-2xl group drop-shadow-sm shadow-black"
@@ -64,13 +63,21 @@ export default function MoreProducts({
                 </div>
               </div>
               <div className="overflow-hidden rounded-2xl">
+                {(() => {
+                  const imageSrc =
+                    "mainImage" in item
+                      ? item.mainImage || item.images[0]?.src || "/logo.png"
+                      : item.image;
+                  return (
                 <Image
                   width={800}
                   height={800}
-                  src={item.mainImage || item.images[0].src}
+                  src={imageSrc}
                   alt={item.title}
                   className="w-full h-full group-hover:scale-110 duration-1000 group-hover:rotate-3"
                 />
+                  );
+                })()}
               </div>
             </button>
           </div>

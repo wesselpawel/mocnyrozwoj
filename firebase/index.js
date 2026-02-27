@@ -44,27 +44,16 @@ const auth = getAuth(app);
 const analytics = isSupported().then((yes) => (yes ? getAnalytics(app) : null));
 
 async function getDocuments(collectionName) {
-  console.log(`Getting documents from collection: ${collectionName}`);
   const ref = collection(db, collectionName);
   const response = await getDocs(ref);
   const res = response.docs.map((doc) => doc.data());
-  console.log(`Retrieved ${res.length} documents from ${collectionName}:`, res);
   return res;
 }
 
 async function addDocument(collectionName, uniqueId, data) {
-  console.log(
-    `Adding document to ${collectionName} with ID: ${uniqueId}`,
-    data
-  );
   try {
     await setDoc(doc(db, collectionName, uniqueId), data);
-    console.log(`Document saved successfully to ${collectionName}/${uniqueId}`);
   } catch (error) {
-    console.error(
-      `Error saving document to ${collectionName}/${uniqueId}:`,
-      error
-    );
     throw error;
   }
 }
@@ -128,7 +117,6 @@ async function createUserInFirestore(userData) {
   const userDoc = await getDocument("users", id);
 
   if (userDoc) {
-    console.log("User already exists in Firestore:", id);
     return userDoc; // Return existing user data
   }
 
@@ -147,7 +135,6 @@ async function createUserInFirestore(userData) {
   };
 
   await addDocument("users", id, newUserData);
-  console.log("User created in Firestore:", id);
   return newUserData;
 }
 

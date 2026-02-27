@@ -369,7 +369,7 @@ export default async function JakSzybkoSchudnac() {
       </div>
 
       {/* Products Section */}
-      <div className="bg-white py-24" id="shop">
+      <div className="bg-white py-24" id="dieta">
         <div className="relative">
           <Image
             src={brain}

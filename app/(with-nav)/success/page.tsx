@@ -33,11 +33,11 @@ function SuccessPageContent() {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/stripe/success`,
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/stripe/success`,
           {
             method: "POST",
             body: JSON.stringify({ session_id }),
-          }
+          },
         );
 
         const data = await response.json();
@@ -71,7 +71,7 @@ function SuccessPageContent() {
               "zwzzCNHu7ZUaELKQzqYo",
               "course_purchase",
               data.session?.amount_total / 100,
-              "PLN"
+              "PLN",
             );
             trackPurchase(
               transactionId,
@@ -84,27 +84,17 @@ function SuccessPageContent() {
                   price: data.session?.amount_total / 100,
                   quantity: 1,
                 },
-              ]
+              ],
             );
-
-            console.log("Course purchase successful:", {
-              courseId: data.courseId,
-              courseTitle: data.session?.metadata?.courseTitle,
-              userId: data.userId,
-              sessionId: session_id,
-            });
 
             // Redirect to dashboard after a short delay
             setTimeout(() => {
               // Set a flag to indicate successful payment
               sessionStorage.setItem("paymentSuccess", "true");
               sessionStorage.setItem("purchasedCourseId", data.courseId);
-              console.log(
-                "Payment successful, redirecting to dashboard with session_id:",
-                session_id
-              );
+
               router.push(
-                `${process.env.NEXT_PUBLIC_URL}/dashboard?session_id=${session_id}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?session_id=${session_id}`,
               );
             }, 3000);
           } else if (data.purchaseType === "diet") {
@@ -119,7 +109,7 @@ function SuccessPageContent() {
               "diet_purchase_conversion",
               "diet_purchase",
               data.session?.amount_total / 100,
-              "PLN"
+              "PLN",
             );
             trackPurchase(
               transactionId,
@@ -132,27 +122,17 @@ function SuccessPageContent() {
                   price: data.session?.amount_total / 100,
                   quantity: 1,
                 },
-              ]
+              ],
             );
-
-            console.log("Diet purchase successful:", {
-              dietId: data.dietId,
-              dietTitle: data.session?.metadata?.dietTitle,
-              userId: data.userId,
-              sessionId: session_id,
-            });
 
             // Redirect to dashboard after a short delay
             setTimeout(() => {
               // Set a flag to indicate successful payment
               sessionStorage.setItem("paymentSuccess", "true");
               sessionStorage.setItem("purchasedDietId", data.dietId);
-              console.log(
-                "Payment successful, redirecting to dashboard with session_id:",
-                session_id
-              );
+
               router.push(
-                `${process.env.NEXT_PUBLIC_URL}/dashboard?session_id=${session_id}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?session_id=${session_id}`,
               );
             }, 3000);
           } else {
@@ -164,16 +144,15 @@ function SuccessPageContent() {
               "subscription_conversion",
               "subscription_purchase",
               data.session?.amount_total / 100,
-              "PLN"
+              "PLN",
             );
           }
         } else {
           setErrorMessage(
-            data.error || "Wystąpił błąd podczas procesu płatności."
+            data.error || "Wystąpił błąd podczas procesu płatności.",
           );
         }
-      } catch (error) {
-        console.error("Error fetching session data:", error);
+      } catch {
         setErrorMessage("Wystąpił nieoczekiwany błąd. Spróbuj ponownie.");
       } finally {
         setLoading(false);

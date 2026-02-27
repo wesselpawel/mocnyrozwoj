@@ -236,7 +236,7 @@ export default function DietDetailModal({
                 Często zadawane pytania
               </h3>
               <div className="space-y-4">
-                {diet.faq.map((faq: any, index: number) => (
+                {diet.faq.map((faq: { question: string; answer?: string; answers?: string[] }, index: number) => (
                   <div key={index} className="bg-gray-50 p-4 rounded-lg">
                     <h4 className="font-semibold mb-2 text-gray-800">
                       {faq.question}

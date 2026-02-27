@@ -23,8 +23,8 @@ export default function Products({ products }: { products: (IProduct | Diet)[] }
       try {
         const fetchedCategories = await dietService.getDietCategories();
         setCategories(["Wszystkie", ...fetchedCategories]);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+      } catch {
+        // Failed to fetch categories
       }
     };
 
@@ -63,20 +63,23 @@ export default function Products({ products }: { products: (IProduct | Diet)[] }
     try {
       await updateDocument(
         ["clickCount"],
-        [((product as any).clickCount || 0) + 1],
+        [(("clickCount" in product ? product.clickCount : undefined) ?? 0) + 1],
         "products",
-        (product as any).id
+        product.id
       );
-    } catch (e) {
-      // Optionally handle error
-      console.error("Failed to increment clickCount", e);
+    } catch {
+      // Failed to increment clickCount
     }
   };
 
   // Filter products based on selected category
-  const filteredProducts = selectedCategory === "Wszystkie" 
-    ? products 
-    : products.filter((product: any) => product.category === selectedCategory);
+  const filteredProducts =
+    selectedCategory === "Wszystkie"
+      ? products
+      : products.filter(
+          (product: IProduct | Diet) =>
+            "category" in product && product.category === selectedCategory,
+        );
 
   if (!isClient) {
     return null;
@@ -119,7 +122,7 @@ export default function Products({ products }: { products: (IProduct | Diet)[] }
       <Suspense fallback={<div>Loading...</div>}>
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredProducts.length > 0 ? (
-            filteredProducts.map((product: any, i: number) => (
+            filteredProducts.map((product: IProduct | Diet, i: number) => (
               <Product
                 product={product}
                 key={i}
