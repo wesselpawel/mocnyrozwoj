@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import logo from "@/public/logo.png";
+import logo from "@/public/logoNew.png";
 import {
   FaShoppingCart,
   FaBook,
@@ -54,11 +54,12 @@ function DashboardContent() {
         const userDoc = await userPurchasesService.getUserDocument(user.id);
         const purchasedCourses = userDoc?.purchasedCourses;
         const purchasedDiets = Array.isArray(purchasedCourses)
-          ? purchasedCourses.filter((item): item is string => typeof item === "string")
+          ? purchasedCourses.filter(
+              (item): item is string => typeof item === "string",
+            )
           : [];
         setUserPurchasedDiets(purchasedDiets);
-      } catch {
-      }
+      } catch {}
     };
 
     loadUserPurchasedDiets();
@@ -102,8 +103,7 @@ function DashboardContent() {
                   )
                 : [];
               setUserPurchasedDiets(purchasedDiets);
-            } catch {
-            }
+            } catch {}
           };
           loadUserPurchasedDiets();
         }, 1000); // Small delay to ensure the purchase is fully processed
@@ -216,7 +216,7 @@ function DashboardContent() {
                 src={logo}
                 width={512}
                 height={512}
-                alt="Mocny Rozwój Osobisty Logo"
+                alt="Mocny Rozwój Osobisty logo"
                 className="h-12 w-12"
               />
               <h1 className="font-bold text-xl ml-3 text-black">
@@ -343,8 +343,7 @@ function ShopSection({
       if (data.success && data.url) {
         window.location.href = data.url;
       }
-    } catch {
-    }
+    } catch {}
   };
 
   if (loading) {

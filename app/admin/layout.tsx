@@ -25,7 +25,7 @@ export default function AdminLayout({
             <div
               className={`${
                 isNavOpen ? "pl-[300px]" : "pl-[0px]"
-              } duration-500 min-w-full min-h-screen bg-white font-pt`}
+              } duration-500 min-w-full min-h-screen bg-white font-montserrat`}
             >
               {children}
             </div>

@@ -133,7 +133,7 @@ export default function Nav({
       icon: <FaUsers />,
     },
     {
-      title: "Logout",
+      title: "logout",
       href: `/admin/logout`,
       icon: <FaSignOutAlt />,
     },
@@ -141,7 +141,7 @@ export default function Nav({
 
   return (
     <div
-      className={`fixed z-[51] scrollbar font-ubuntu font-light !text-white duration-500 ${
+      className={`fixed z-[51] scrollbar font-montserrat font-light !text-white duration-500 ${
         isNavOpen ? "translate-x-[0]" : "-translate-x-[300px]"
       }`}
     >
@@ -149,7 +149,7 @@ export default function Nav({
         <div className="text-white py-4 px-3 relative">
           <h1 className="text-base font-bold  flex flex-row items-center ">
             <Image
-              src="/logo.png"
+              src="/logoNew.png"
               width={36}
               height={36}
               alt=""

@@ -57,7 +57,7 @@ export default function MoreProducts({
               <div className="absolute z-[5] inset-0 bg-gradient-to-t from-black/30 to-black/70 group-hover:from-black/50 group-hover:to-black/50" />
               <div className="absolute z-[6] inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <h2 className="font-cardo text-white font-bold line-clamp-2">
+                  <h2 className="font-anton text-white font-bold line-clamp-2">
                     {item.title}
                   </h2>
                 </div>
@@ -66,7 +66,7 @@ export default function MoreProducts({
                 {(() => {
                   const imageSrc =
                     "mainImage" in item
-                      ? item.mainImage || item.images[0]?.src || "/logo.png"
+                      ? item.mainImage || item.images[0]?.src || "/logoNew.png"
                       : item.image;
                   return (
                 <Image

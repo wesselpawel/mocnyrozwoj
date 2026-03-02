@@ -65,6 +65,16 @@ export const dietService = {
     return diet || null;
   },
 
+  // Get a single diet by slug (id or title-based slug)
+  async getDietBySlug(slug: string): Promise<Diet | null> {
+    const diets = (await getDocuments("diets")) as Diet[];
+    const byId = diets.find((d) => d.id === slug);
+    if (byId) return byId;
+    const { polishToEnglish } = await import("@/lib/polishToEnglish");
+    const bySlug = diets.find((d) => polishToEnglish(d.title) === slug);
+    return bySlug || null;
+  },
+
   // Upload diet image
   async uploadDietImage(file: File): Promise<string> {
     const randId = uuid();

@@ -115,7 +115,7 @@ export default function ProductEditor({
     }
   }
   return (
-    <div className="font-ubuntu relative p-3 lg:p-16 bg-white min-h-screen">
+    <div className="font-montserrat relative p-3 lg:p-16 bg-white min-h-screen">
       {isUploading && (
         <div className="z-[50] bg-black/70 text-white text-3xl font-light fixed left-0 top-0 w-full h-screen flex items-center justify-center text-center">
           Dodawanie {uploadCount} obrazów...

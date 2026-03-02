@@ -21,12 +21,11 @@ export default function AdminProfilePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
 
-  const handleLogout = async () => {
+  const handlelogout = async () => {
     try {
       await signOut(auth);
       router.push("/admin");
-    } catch {
-    }
+    } catch {}
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -159,7 +158,7 @@ export default function AdminProfilePage() {
                   Wyloguj się z panelu administracyjnego.
                 </p>
                 <button
-                  onClick={handleLogout}
+                  onClick={handlelogout}
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center"
                 >
                   <FaSignOutAlt className="mr-2" />

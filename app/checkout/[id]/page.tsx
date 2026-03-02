@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     url: "https://mocnyrozwoj.pl/checkout",
     images: [
       {
-        url: "/logo.png",
+        url: "/logoNew.png",
         width: 512,
         height: 512,
         alt: "Kasa - Finalizuj zakup",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     title: "Kasa - Finalizuj zakup | MocnyRozwój.pl",
     description:
       "Finalizuj swój zakup kursu lub produktu rozwojowego. Bezpieczna płatność przez Stripe.",
-    images: ["/logo.png"],
+    images: ["/logoNew.png"],
   },
   robots: {
     index: false,
@@ -58,7 +58,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   );
   if (!order) {
     return (
-      <div className="flex flex-col items-center justify-center text-white h-screen absolute left-0 top-0 w-screen">
+      <div className="flex flex-col items-center justify-center text-white h-screen absolute left-0 top-0 w-full">
         <h1 className="text-3xl font-bold text-center">
           Nie znaleziono zamówienia
         </h1>
@@ -84,11 +84,11 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
       <div className="text-white text-2xl mt-4">
         {order.metadata.productName}
       </div>
-      <div className="flex flex-col items-center justify-center text-white h-screen absolute left-0 top-0 w-screen">
+      <div className="flex flex-col items-center justify-center text-white h-screen absolute left-0 top-0 w-full">
         {order.payment_status === "paid" && (
           <div className="mx-4 border border-gray-300 p-6 bg-gray-700">
             <ClearCache order={order.metadata} price={order.amount_total} />
-            <h1 className="text-3xl font-bold text-center font-cardo">
+            <h1 className="text-3xl font-bold text-center font-anton">
               Dziękuję za zakupy!
             </h1>
             <h2 className="text-center mt-2">Twój numer zamówienia</h2>

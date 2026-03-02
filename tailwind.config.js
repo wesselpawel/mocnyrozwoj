@@ -8,11 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        calistoga: ["var(--)", "serif"],
-        "pt-serif": ["var(--font-pt-serif)", "serif"],
-        ubuntu: ["Ubuntu", "sans-serif"],
-        cardo: ["Cardo", "serif"],
-        pt: ["PT Sans", "sans-serif"],
+        montserrat: ["var(--font-montserrat)", "sans-serif"],
+        anton: ["var(--font-anton)", "sans-serif"],
       },
       colors: {
         primary: {

@@ -5,7 +5,7 @@ export default async function Page() {
   const products = await getShopProducts();
   return (
     <div className="p-6 lg:p-16">
-      <h1 className="text-3xl font-cardo text-black">Produkty</h1>
+      <h1 className="text-3xl font-anton text-black">Produkty</h1>
       <AdminProducts productData={products} />
     </div>
   );

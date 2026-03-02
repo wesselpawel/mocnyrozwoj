@@ -78,10 +78,6 @@ export default function DietaPage() {
               <FaStar className="text-lg" />
               Profesjonalne Diety
             </div>
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2">
-              <FaShieldAlt className="text-lg" />
-              Rozwój Osobisty
-            </div>
           </div>
         </div>
       </div>
@@ -181,14 +177,6 @@ export default function DietaPage() {
             </div>
 
             <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-100">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-4">
-                  <FaShieldAlt className="text-white text-xl" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800">
-                  Rozwój Osobisty
-                </h3>
-              </div>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center">
                   <FaCheck className="text-green-500 mr-3" />
@@ -227,13 +215,6 @@ export default function DietaPage() {
               >
                 <FaCreditCard />
                 Kup Dietę
-              </Link>
-              <Link
-                href="/#rozwoj-osobisty"
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <FaUser />
-                Rozwój Osobisty
               </Link>
             </div>
           </div>

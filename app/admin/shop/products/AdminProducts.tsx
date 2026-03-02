@@ -22,7 +22,7 @@ export default function AdminProducts({
       {currentlyDeletingProduct && (
         <div
           onClick={() => setCurrentlyDeletingProduct(null)}
-          className="font-ubuntu z-[150] fixed left-0 top-0 w-screen h-screen overflow-y-scroll flex items-center justify-center bg-black/50"
+          className="font-montserrat z-[150] fixed left-0 top-0 w-full h-screen overflow-y-scroll flex items-center justify-center bg-black/50"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -69,7 +69,7 @@ export default function AdminProducts({
       {currentlyEditingProduct && (
         <div
           onClick={() => setCurrentlyEditingProduct(null)}
-          className="z-[150] fixed left-0 top-0 w-screen h-screen overflow-y-scroll bg-black/50 p-0 lg:p-24"
+          className="z-[150] fixed left-0 top-0 w-full h-screen overflow-y-scroll bg-black/50 p-0 lg:p-24"
         >
           <div onClick={(e) => e.stopPropagation()}>
             <ProductEditor
@@ -86,7 +86,7 @@ export default function AdminProducts({
           products.map((product: IProduct) => (
             <div key={product.title} className="relative">
               <div
-                className={`font-ubuntu absolute bottom-0 left-0 w-full h-12 text-white grid grid-cols-2`}
+                className={`font-montserrat absolute bottom-0 left-0 w-full h-12 text-white grid grid-cols-2`}
               >
                 <button
                   onClick={() => setCurrentlyEditingProduct(product)}

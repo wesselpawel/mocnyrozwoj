@@ -2,14 +2,85 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import logo from "@/public/logo.png";
+import { useState, useEffect, useRef } from "react";
+import logo from "@/public/logoNew.png";
+
+// Array for main navigation links
+const NAV_ITEMS = [
+  {
+    label: "Dieta",
+    href: "/dieta",
+    className:
+      "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
+    mobileClass:
+      "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
+    show: true,
+  },
+  // Uncomment to enable blog/faq
+  // {
+  //   label: "Blog",
+  //   href: "/blog",
+  //   className: "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
+  //   mobileClass:
+  //     "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
+  //   show: false,
+  // },
+  // {
+  //   label: "FAQ",
+  //   href: "/faq",
+  //   className: "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
+  //   mobileClass:
+  //     "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
+  //   show: false,
+  // },
+  {
+    label: "Kontakt",
+    href: "/contact",
+    className:
+      "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
+    mobileClass:
+      "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
+    show: true,
+  },
+  {
+    label: "Logowanie",
+    href: "/login",
+    className:
+      "border-2 border-[#e77503] text-[#e77503] px-6 py-2 rounded-full hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium",
+    mobileClass:
+      "block px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-center",
+    show: true,
+  },
+];
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScroll = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const current = window.scrollY;
+      // Show when scrolling up, hide when scrolling down
+      if (current <= 0) {
+        setVisible(true);
+      } else if (current > lastScroll.current && current > 50) {
+        // Scrolling down
+        setVisible(false);
+      } else if (current < lastScroll.current) {
+        // Scrolling up
+        setVisible(true);
+      }
+      lastScroll.current = current;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileMenuOpen((open) => !open);
   };
 
   const closeMobileMenu = () => {
@@ -17,10 +88,15 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="bg-white backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+    <nav
+      className={`z-[100] fixed top-0 left-0 w-full bg-white transition-transform duration-300 ${
+        visible ? "translate-y-0" : "-translate-y-full"
+      }`}
+      style={{ willChange: "transform" }}
+    >
       <div className="max-w-6xl mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+        <div className="flex items-center justify-between">
+          {/* logo */}
           <Link
             href="/"
             className="flex items-center space-x-3"
@@ -30,53 +106,23 @@ export default function Navigation() {
               src={logo}
               width={512}
               height={512}
-              alt="Mocny Rozwój Osobisty Logo"
-              className="h-10 w-10"
+              alt="Mocny Rozwój Osobisty logo"
+              className="w-24 h-auto"
             />
-            <span className="font-bold text-xl text-gray-900">
-              MocnyRozwój.pl
-            </span>
           </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/dieta"
-              className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium"
-            >
-              Dieta
-            </Link>
-            <Link
-              href="/#courses"
-              className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium"
-            >
-              Kursy
-            </Link>
-
-            {/* <Link
-              href="/blog"
-              className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium"
-            >
-              Blog
-            </Link> */}
-            <Link
-              href="/faq"
-              className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium"
-            >
-              FAQ
-            </Link>
-            <Link
-              href="/contact"
-              className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium"
-            >
-              Kontakt
-            </Link>
-            <Link
-              href="/login"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-full hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium"
-            >
-              Logowanie
-            </Link>
+            {NAV_ITEMS.filter((i) => i.show).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={item.className}
+                onClick={closeMobileMenu}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
           {/* Mobile Menu Button */}
@@ -123,49 +169,16 @@ export default function Navigation() {
         {isMobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
-              <Link
-                href="/dieta"
-                className="block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200"
-                onClick={closeMobileMenu}
-              >
-                Dieta
-              </Link>
-              <Link
-                href="/#courses"
-                className="block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200"
-                onClick={closeMobileMenu}
-              >
-                Kursy
-              </Link>
-
-              <Link
-                href="/blog"
-                className="block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200"
-                onClick={closeMobileMenu}
-              >
-                Blog
-              </Link>
-              <Link
-                href="/faq"
-                className="block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200"
-                onClick={closeMobileMenu}
-              >
-                FAQ
-              </Link>
-              <Link
-                href="/contact"
-                className="block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200"
-                onClick={closeMobileMenu}
-              >
-                Kontakt
-              </Link>
-              <Link
-                href="/login"
-                className="block px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-center"
-                onClick={closeMobileMenu}
-              >
-                Logowanie
-              </Link>
+              {NAV_ITEMS.filter((i) => i.show).map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={item.mobileClass}
+                  onClick={closeMobileMenu}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
         )}

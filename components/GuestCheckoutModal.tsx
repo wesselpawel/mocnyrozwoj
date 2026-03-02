@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { FaTimes, FaShoppingCart, FaEnvelope, FaLock } from "react-icons/fa";
+import Image from "next/image";
+import { modalStyles } from "./modalStyles";
 
 interface GuestCheckoutModalProps {
   isOpen: boolean;
@@ -55,28 +57,36 @@ export default function GuestCheckoutModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-auto">
+    <div className={modalStyles.backdrop} onClick={onClose}>
+      <div
+        className={`${modalStyles.panel} max-w-md mx-auto max-h-[90vh] flex flex-col`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div
+          className={`${modalStyles.gradientHeader} flex items-center justify-between p-5 sm:p-6`}
+        >
           <div className="flex items-center">
-            <FaShoppingCart className="text-purple-600 text-xl mr-3" />
-            <h3 className="text-lg font-semibold text-gray-800">
+            <div className="mr-3 rounded-full bg-white/20 p-2">
+              <FaShoppingCart className="text-white text-base" />
+            </div>
+            <h3 className="text-lg font-semibold text-white">
               Szybki zakup
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className={modalStyles.closeButton}
+            aria-label="Zamknij szybki zakup"
           >
-            <FaTimes size={20} />
+            <FaTimes size={16} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-5 sm:p-6 overflow-y-auto">
           {/* Product Info */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg mb-6">
+          <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 p-4 rounded-xl mb-6 border border-violet-100/80">
             <h4 className="font-semibold text-gray-800 mb-1">{item.title}</h4>
             <p className="text-sm text-gray-600 mb-2">
               {item.type === "course" ? "Kurs" : "Plan dietetyczny"}
@@ -128,7 +138,7 @@ export default function GuestCheckoutModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white py-3 px-4 rounded-xl font-medium hover:from-violet-700 hover:to-fuchsia-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -144,12 +154,19 @@ export default function GuestCheckoutModal({
             </button>
           </form>
 
-          {/* Security Notice */}
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-xs text-green-700 text-center">
-              🔒 Bezpieczna płatność przez Stripe. Nie przechowujemy danych
-              karty.
-            </p>
+          {/* Security Image */}
+          <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/80 p-3 sm:p-4">
+            <div className="mx-auto w-full max-w-[280px] sm:max-w-[340px]">
+              <Image
+                src="/blik.webp"
+                alt="Bezpieczna płatność BLIK i Stripe"
+                width={900}
+                height={240}
+                className="w-full h-auto object-contain"
+                sizes="(max-width: 640px) 280px, 340px"
+                priority
+              />
+            </div>
           </div>
         </div>
       </div>

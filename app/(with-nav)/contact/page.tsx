@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import { leadsService } from "@/lib/leadsService";
-import {
-  FaEnvelope,
-  FaClock,
-  FaComments,
-  FaCheck,
-  FaQuestion,
-} from "react-icons/fa";
+import { FaEnvelope, FaClock, FaComments, FaCheck } from "react-icons/fa";
+import FAQ from "@/components/FAQ";
+import { defaultFAQItems } from "@/lib/faqData";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -289,23 +285,16 @@ export default function Contact() {
         </div>
       </div>
 
-      {/* FAQ Link Section */}
+      {/* FAQ Section */}
       <div className="py-16 px-6 lg:px-12 bg-gradient-to-r from-purple-100 to-pink-100">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">
-            Sprawdź też FAQ
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+            Często zadawane pytania
           </h2>
-          <p className="text-gray-600 text-lg mb-8">
-            Może znajdziesz odpowiedź na swoje pytanie w naszej sekcji często
-            zadawanych pytań.
+          <p className="text-gray-600 text-lg mb-8 text-center">
+            Może znajdziesz odpowiedź na swoje pytanie poniżej.
           </p>
-          <a
-            href="/faq"
-            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg"
-          >
-            <FaQuestion className="mr-2" />
-            Zobacz FAQ
-          </a>
+          <FAQ items={defaultFAQItems} />
         </div>
       </div>
     </div>

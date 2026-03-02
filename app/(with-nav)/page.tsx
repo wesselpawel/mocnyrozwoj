@@ -1,20 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import hero from "@/public/hero.png";
-import logo from "@/public/logo.png";
+import logo from "@/public/logoNew.png";
 import brain from "@/public/brain.png";
 import asset1 from "@/public/assets/1.jpg";
 import asset2 from "@/public/assets/2.jpg";
 import asset3 from "@/public/assets/3.jpg";
 import asset4 from "@/public/assets/4.jpg";
 import asset5 from "@/public/assets/5.jpg";
+import { defaultFAQItems } from "@/lib/faqData";
 import Products from "@/components/Products";
 import Courses from "@/components/Courses";
+import FAQ from "@/components/FAQ";
 import CounterAnimation from "@/components/CounterAnimation";
 import { getProducts } from "@/lib/getProducts";
 import { blogService } from "@/lib/blogService";
 import { Metadata } from "next";
 import Script from "next/script";
+import accent1 from "@/public/accent1.png";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import {
   FaUserMd,
@@ -24,6 +27,8 @@ import {
   FaLeaf,
   FaSeedling,
   FaBullseye,
+  FaCheck,
+  FaShoppingCart,
 } from "react-icons/fa";
 import { Diet } from "@/types";
 
@@ -36,145 +41,79 @@ export default async function Home() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Hero Section */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute min-w-full min-h-full object-cover"
-          style={{
-            transform: "translate3d(0, var(--scroll), 0) scale(1.25)",
-          }}
-        >
-          <source src="/herovid.mp4" type="video/mp4" />
-        </video>
-        <div className="backdrop-blur-sm bg-black/50 w-full h-full fixed left-0 top-0"></div>
-      </div>
-      <div className="relative lg:mt-0 h-[95vh] flex items-center justify-center">
-        <div className="mx-6 pt-8 bg-black/75 backdrop-blur-sm p-4 lg:p-12 rounded-3xl flex flex-col items-center justify-center text-center lg:text-left lg:flex-row-reverse ">
-          <div className="relative">
-            <Image
-              src={hero}
-              width={1024}
-              height={1024}
-              alt="Zdrowe posiłki i plany dietetyczne"
-              className="w-[175px] lg:w-[400px] xl:w-[300px] 2xl:w-[300px] rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-300 border-2 border-green-500"
-            />
-
-            <div className="absolute -top-4 -right-4 bg-white text-black px-4 py-2 rounded-full text-sm font-bold border-2 border-green-500">
-              Zdrowa dieta
+      <div className="relative mt-32 flex items-center justify-center">
+        <div className="z-50 pt-8 flex flex-col items-center justify-center text-center">
+          <div className="max-w-[450px] lg:max-w-full relative">
+            <div className="absolute left-[-260px] lg:left-[-300px] top-[-144px] sm:top-[-128px] lg:top-[-100px] sm:left-[-320px] w-[350px] lg:w-[300px] h-auto z-[-1]">
+              <Image
+                src={accent1}
+                width={1000}
+                height={1000}
+                alt="Accent 1"
+                className="w-full h-full rotate-45"
+              />
             </div>
-          </div>
-          <div className="lg:mr-12 max-w-[450px]">
-            <h1 className=" text-2xl lg:text-4xl font-bold mt-6 text-white">
-              Rozwój osobisty, zdrowie i lekkostrawna dieta
-            </h1>
-            <p className="px-6 lg:pl-0 sm:text-lg mt-6 text-white font-pt max-w-lg leading-relaxed">
-              Profesjonalne diety stworzone przez ekspertów. Energia, zdrowie,
-              lepsze jutro.
+            {/* <div className="-rotate-[110deg] absolute right-[-260px] lg:right-[-300px] bottom-[-144px] sm:bottom-[-128px] lg:bottom-[-100px] sm:right-[-320px] w-[350px] lg:w-[300px] h-auto z-[-1]">
+              <Image
+                src={accent1}
+                width={1000}
+                height={1000}
+                alt="Accent 1"
+                className="w-full h-full"
+              />
+            </div> */}
+            <p className="font-extrabold text-center text-3xl lg:text-5xl tracking-[0.6rem] font-montserrat text-[#1f1d1d]">
+              NIE LICZ <br /> KALORII
             </p>
-            <div className="flex flex-col lg:flex-row gap-4 justify-center lg:justify-start mt-8">
-              <Link
-                href="/#rozwoj-osobisty"
-                className="mx-auto lg:mx-0 w-max max-w-full sm:text-base px-4 py-2 bg-white text-green-600 border-2 border-green-600 rounded-full hover:bg-green-50 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
-              >
-                Rozwój osobisty
-              </Link>
-              <Link
-                href="/#dieta"
-                className="mx-auto lg:mx-0 w-max max-w-full sm:text-base px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-full hover:from-green-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
-              >
-                Kup dietę
-              </Link>
+            <h1 className="text-2xl sm:text-3xl lg:text-6xl mt-6 text-[#e77503] font-anton tracking-[0.1rem]">
+              KLIKNIJ. JEDZ. OSIĄGNIJ CEL
+            </h1>
+            <div className="flex flex-col items-center justify-center">
+              <p className="mx-3 lg:mx-0 mt-6 text-black max-w-lg text-center">
+                W 60 sekund wygenerujesz gotowy dzień diety dopasowany do Twojej
+                masy, redukcji lub treningu.
+              </p>
+              <div className="flex flex-wrap flex-row justify-center gap-4 mt-8">
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="text-white text-sm">Lista zakupów</p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="text-white text-sm">Przepisy na dania</p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="text-white text-sm">Kalorie policzone</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Courses Section */}
-      <Courses />
-      {/* Why Choose Us Section */}
-      <div className="bg-black/75 backdrop-blur-sm rounded-3xl p-6 lg:p-12 m-6 lg:m-12 lg:my-24">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-center  text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8">
-            Profesjonalna dieta – bez czekania, bez wysokich kosztów
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center mb-4">
-                <FaUserMd className="text-2xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Profesjonalne plany
-              </h3>
-              <p className="text-gray-600">
-                Każdy plan dietetyczny przygotowany jest przez specjalistę z
-                zakresu dietetyki
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center mb-4">
-                <FaBalanceScale className="text-2xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Zbilansowane diety
-              </h3>
-              <p className="text-gray-600">
-                Diety są zbilansowane, pełnowartościowe, dostosowane do potrzeb
-                osób chcących redukować wagę, utrzymać zdrowie lub budować masę
-                mięśniową
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">🧮</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Kalkulator KCAL w dashboardzie
-              </h3>
-              <p className="text-gray-600">
-                Po zakupie diet zyskasz dostęp do profesjonalnego kalkulatora
-                KCAL z obliczaniem BMR, TDEE i rozkładem makroskładników
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">📄</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Gotowe do wydruku
-              </h3>
-              <p className="text-gray-600">
-                Pliki PDF są przejrzyste, gotowe do wydruku i zawierają listy
-                zakupów oraz dokładne przepisy
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-row gap-4 justify-center mt-8">
-            <a
-              href="/#dieta"
-              className="w-max text-xs max-w-full sm:text-base px-4 py-2 bg-white text-green-600 border-2 border-green-600 rounded-full hover:bg-green-50 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
-            >
-              Kup dietę
-            </a>
-            <a
-              href="/#rozwoj-osobisty"
-              className="w-max text-xs max-w-full sm:text-base px-4 py-2 bg-white text-green-600 border-2 border-green-600 rounded-full hover:bg-green-50 transform hover:scale-105 transition-all duration-300 font-bold shadow-lg relative"
-            >
-              Rozwój osobisty
-            </a>
-          </div>
-        </div>
+      <div className="max-w-6xl mx-auto px-4" id="shop">
+        <Products product={products[0]} />
       </div>
       {/* How It Works Section */}
-      <div className="py-16 px-6 lg:px-12 bg-gradient-to-r from-blue-100 to-orange-100">
+      <div className="mt-12 py-16 px-6 lg:px-12">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-center  text-3xl sm:text-4xl lg:text-5xl font-bold text-black mb-12">
-            Lekkostrawna dieta?
+          <h2 className="font-montserrat font-extrabold tracking-[0.6rem] text-left text-3xl sm:text-4xl lg:text-5xl text-black mb-12">
+            DIETA ONLINE DOPASOWANA DO CIEBIE
           </h2>
-          <div className="mx-auto w-max max-w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <p className="mb-8 font-montserrat">
+            Chcesz <b>schudnąć</b>, <b>poprawić sylwetkę</b> lub{" "}
+            <b>zacząć zdrowo się odżywiać</b>, ale nie wiesz od czego zacząć?
+            Nasze <b>narzędzie do tworzenia diety online</b> zrobi to za Ciebie.
+            Bez wiedzy dietetycznej. Bez skomplikowanych zasad. Bez godzin
+            planowania.
+          </p>
+          <div className="mx-auto w-max max-w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <Image
                 src={asset1}
@@ -185,124 +124,186 @@ export default async function Home() {
               />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                Prosty proces w 4 krokach
-              </h3>
               <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    1
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Wybierz swoją dietę online
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      Keto, wegetariańska, redukcyjna, dla sportowców
-                    </p>
-                  </div>
+                  <p className="font-montserrat text-white">
+                    Nie musisz znać się na dietach
+                  </p>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    2
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Płać szybko i bezpiecznie
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      Bezpieczne płatności online
-                    </p>
-                  </div>
+                  <p className="font-montserrat text-white">
+                    Nie musisz liczyć kalorii
+                  </p>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    3
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Pobierz gotowy jadłospis PDF
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      I zacznij zdrowe odżywianie
-                    </p>
-                  </div>
+                  <p className="font-montserrat text-white">
+                    Nie musisz samodzielnie układać jadłospisu
+                  </p>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    4
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Wydrukuj i trzymaj się planu
-                    </p>
-                    <p className="text-gray-600 text-sm">Każdego dnia</p>
+                  <p className="font-montserrat text-white">
+                    Dostajesz konkretny plan działania
+                  </p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
                   </div>
+                  <p className="font-montserrat text-white">
+                    Oszczędzasz godziny planowania
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* What's Included Section */}
-      <div className="py-16 px-6 lg:px-12 bg-white">
-        <div className="max-w-6xl mx-auto w-max">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                Co zawiera każdy plan dietetyczny?
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-gray-700">
-                    7-dniowy lub 14-dniowy jadłospis w formie PDF
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-gray-700">
-                    Zbilansowane przepisy dietetyczne dostosowane do
-                    makroskładników
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-gray-700">
-                    Lista zakupów na każdy tydzień
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-pink-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-gray-700">
-                    Łatwe i szybkie w przygotowaniu posiłki
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-gray-700">
-                    Piękny design gotowy do wydruku
-                  </span>
-                </div>
+      {/* How It Works - 3 Steps */}
+      <div className="py-16 px-6 lg:px-12">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-montserrat font-extrabold tracking-[0.6rem] text-left text-3xl sm:text-4xl lg:text-5xl text-black mb-12">
+            JAK TO DZIAŁA
+          </h2>
+          <p className="mb-8 font-montserrat">
+            Chcesz <b>schudnąć</b>, <b>poprawić sylwetkę</b> lub{" "}
+            <b>zacząć zdrowo się odżywiać</b>, ale nie wiesz od czego zacząć?
+            Nasze <b>narzędzie do tworzenia diety online</b> zrobi to za Ciebie.
+            Bez wiedzy dietetycznej. Bez skomplikowanych zasad. Bez godzin
+            planowania.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col">
+              <div className="p-1 w-24 h-24 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                <span className="text-white text-4xl font-bold">1</span>
               </div>
+              <div className="w-max max-w-full flex flex-row items-center text-black rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg mb-6 mt-8">
+                <p className="font-anton tracking-[0.1rem] text-2xl">
+                  KILKA PROSTYCH PYTAŃ
+                </p>
+              </div>
+              <p className="font-montserrat text-zinc-800 leading-relaxed">
+                Podajesz swój cel (<b>odchudzanie</b>, <b>redukcja</b>,{" "}
+                <b>masa</b>, <b>zdrowe odżywianie</b>), podstawowe informacje o
+                sobie i preferencje żywieniowe. Bez liczenia kalorii. Bez
+                skomplikowanych formularzy.
+              </p>
             </div>
+            <div className="flex flex-col">
+              <div className="p-1 w-24 h-24 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                <span className="text-white text-4xl font-bold">2</span>
+              </div>
+              <div className="w-max max-w-full flex flex-row items-center text-black rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg mb-6 mt-8">
+                <p className="font-anton tracking-[0.1rem] text-2xl">
+                  MY GENERUJEMY TWOJĄ PERSONALNĄ DIETĘ
+                </p>
+              </div>
+              <p className="font-montserrat text-zinc-800 leading-relaxed">
+                Algorytm tworzy{" "}
+                <b>dopasowany jadłospis z dokładnymi porcjami</b>, listą zakupów
+                i prostymi przepisami. Wiesz dokładnie co jeść, ile jeść i kiedy
+                jeść.
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <div className="p-1 w-24 h-24 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                <span className="text-white text-4xl font-bold">3</span>
+              </div>
+              <div className="w-max max-w-full flex flex-row items-center text-black rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg mb-6 mt-8">
+                <p className="font-anton tracking-[0.1rem] text-2xl">
+                  WIDZISZ GOTOWY PLAN I ZACZYNASZ OD RAZU
+                </p>
+              </div>
+              <p className="font-montserrat text-zinc-800 leading-relaxed">
+                Otrzymujesz <b>kalendarz z planem żywieniowym</b>. Możesz go
+                wydrukować lub korzystać w telefonie. Nie musisz nic planować –
+                po prostu trzymasz się rozpiski i widzisz efekty.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="py-16 px-6 lg:px-12">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-montserrat font-extrabold tracking-[0.6rem] text-left text-3xl sm:text-4xl lg:text-5xl text-black mb-12">
+            CZY TO DLA CIEBIE?
+          </h2>
+          <p className="mb-4 font-montserrat">
+            <b>Co otrzymasz w 60 sekund?</b>
+          </p>
+          <p className="mb-8 font-montserrat">
+            Gotowy dzień diety dopasowany do celu, automatycznie policzone
+            kalorie, listę zakupów, proste przepisy krok po kroku, możliwość
+            budowania diety dzień po dniu.
+          </p>
+
+          <div className="mx-auto w-max max-w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <div className="space-y-6">
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="font-montserrat text-white">
+                    Zaczynasz dietę i kończysz po 3 dniach
+                  </p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="font-montserrat text-white">
+                    Nie masz czasu planować posiłków
+                  </p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="font-montserrat text-white">
+                    Masz dość liczenia kalorii
+                  </p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="font-montserrat text-white">
+                    Trenujesz i chcesz jeść pod wyniki
+                  </p>
+                </div>
+                <div className="w-max max-w-full flex flex-row items-center px-5 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                    <FaCheck className="text-white" />
+                  </div>
+                  <p className="font-montserrat text-white">
+                    Chcesz schudnąć, ale nie wiesz co jeść
+                  </p>
+                </div>
+                <p className="font-montserrat text-zinc-800 leading-relaxed">
+                  Jeśli zaznaczasz choć jeden punkt – nasz kreator diety jest
+                  dla Ciebie.
+                </p>
+              </div>
+            </div>{" "}
             <div>
               <Image
                 src={asset2}
                 width={600}
                 height={400}
-                alt="Co zawiera plan dietetyczny"
-                className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                alt="Lekkostrawna Dieta"
+                className="mx-auto rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
               />
             </div>
           </div>
@@ -311,23 +312,47 @@ export default async function Home() {
       {/* Diet Types Section */}
       <div className="py-16 px-6 lg:px-12 bg-gradient-to-r from-green-100 to-blue-100">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-center  text-3xl sm:text-4xl lg:text-5xl font-bold text-black mb-12">
-            Typy diet do wyboru
+          <h2 className="font-montserrat font-extrabold tracking-[0.6rem] text-left text-3xl sm:text-4xl lg:text-5xl text-black mb-12">
+            DLACZEGO NASZA DIETA DZIAŁA?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+          <div className="font-montserrat grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-red-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#e77503] rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaBalanceScale className="text-2xl text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Dieta redukcyjna
+                Dopasowanie celu
               </h3>
               <p className="text-gray-600">
-                Dla osób chcących schudnąć i poprawić sylwetkę
+                Nasz algorytm tworzy dietę dopasowaną do Twoich potrzeb i celów.
               </p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#e77503] rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaCheck className="text-2xl text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">
+                Bez liczenia kalorii
+              </h3>
+              <p className="text-gray-600">
+                System automatycznie liczy kalorie i dostosowuje dietę do Twoich
+                potrzeb.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+              <div className="w-16 h-16 bg-[#e77503] rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaShoppingCart className="text-2xl text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">
+                Proste, dostępne produkty
+              </h3>
+              <p className="text-gray-600">
+                System tworzy dietę na podstawie łatwo dostępnych produktów.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+              <div className="w-16 h-16 bg-[#e77503] rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaDumbbell className="text-2xl text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3">
@@ -338,7 +363,7 @@ export default async function Home() {
               </p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-teal-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#e77503] rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaLeaf className="text-2xl text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3">
@@ -349,7 +374,7 @@ export default async function Home() {
               </p>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#e77503] rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaSeedling className="text-2xl text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3">
@@ -359,57 +384,10 @@ export default async function Home() {
                 Niskowęglowodanowe plany żywieniowe
               </p>
             </div>
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaSeedling className="text-2xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Dieta na zdrowe jelita
-              </h3>
-              <p className="text-gray-600">
-                Wspomagająca zdrowie układu pokarmowego
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaBullseye className="text-2xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Diety spersonalizowane
-              </h3>
-              <p className="text-gray-600">
-                Dostosowane do Twoich celów i preferencji
-              </p>
-            </div>
           </div>
         </div>
       </div>
-      {/* Products Section */}
-      {/* <div className="bg-white py-24" id="shop">
-        <div className="relative">
-          <Image
-            src={brain}
-            width={512}
-            height={512}
-            alt="Plany Dietetyczne"
-            className="brain pt-12 pb-6 w-[100px] mx-auto animate-bounce"
-          />
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="text-nowrap bg-black text-white px-6 py-2 rounded-full text-sm font-bold">
-              Profesjonalne plany
-            </div>
-          </div>
-        </div>
-        <h2 className="text-center  text-3xl sm:text-4xl lg:text-5xl font-bold text-black px-4">
-          Wybierz swoją dietę!
-        </h2>
-        <p className="mx-auto mt-6 text-center px-6 lg:pl-0 sm:text-lg text-gray-700 font-pt max-w-2xl leading-relaxed">
-          Profesjonalne plany dietetyczne stworzone przez dietetyków. Gotowe
-          jadłospisy do wydruku z listami zakupów i przepisami. Zacznij zdrowe
-          odżywianie już dziś!
-        </p>
-        <Products products={products} />
-      </div> */}
+      <Courses />
       {/* Customer Reviews Section */}
       <div className="py-16 px-6 lg:px-12 bg-gray-50">
         <div className="max-w-6xl mx-auto">
@@ -422,7 +400,7 @@ export default async function Home() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-start space-x-4">
+              <div className="flex items-start space-x-4 bg-[#e77503] rounded-full p-1">
                 <Image
                   src={asset3}
                   width={80}
@@ -442,7 +420,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-start space-x-4">
+              <div className="flex items-start space-x-4 bg-[#e77503] rounded-full p-1">
                 <Image
                   src={asset4}
                   width={80}
@@ -462,7 +440,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-start space-x-4">
+              <div className="flex items-start space-x-4 bg-[#e77503] rounded-full p-1">
                 <Image
                   src={asset5}
                   width={80}
@@ -513,6 +491,13 @@ export default async function Home() {
           </div>
         </div>
       </div>
+      <div className="py-16 px-6 lg:px-12 bg-gray-50">
+        <FAQ
+          items={[...defaultFAQItems]}
+          title="Często zadawane pytania"
+          allowMultiple={false}
+        />
+      </div>
     </div>
   );
 }
@@ -525,7 +510,7 @@ export const metadata: Metadata = {
   icons: [
     {
       type: "image/x-icon",
-      url: "./public/logo.png",
+      url: "./public/logoNew.png",
     },
   ],
 };

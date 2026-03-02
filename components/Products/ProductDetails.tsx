@@ -26,26 +26,18 @@ export default function ProductDetails({
 }) {
   const imageSrc =
     "mainImage" in product
-      ? product.mainImage || product.images[0]?.src || "/logo.png"
+      ? product.mainImage || product.images[0]?.src || "/logoNew.png"
       : product.image;
 
   const features = [
-    { icon: pc, text: "100% ONLINE", color: "from-blue-400 to-purple-400" },
-    {
-      icon: mug,
-      text: "GOTOWE DO WYDRUKU",
-      color: "from-green-400 to-blue-400",
-    },
-    { icon: clock, text: "BEZ LIMITU", color: "from-purple-400 to-pink-400" },
-    {
-      icon: calendar,
-      text: "KIEDY CHCESZ",
-      color: "from-orange-400 to-red-400",
-    },
+    { icon: pc, text: "100% ONLINE", color: "from-[#FFF3E0] to-[#FFF3E0]" },
+
+    { icon: clock, text: "BEZ LIMITU", color: "from-[#FFF3E0] to-[#FFF3E0]" },
+
     {
       icon: hat,
       text: "OD DIETETYKÓW",
-      color: "from-indigo-400 to-purple-400",
+      color: "from-[#FFF3E0] to-[#FFF3E0]",
     },
   ];
 
@@ -58,13 +50,15 @@ export default function ProductDetails({
       >
         {/* Background Image with Overlay */}
         <div className="absolute inset-0">
-          <Image
-            src={imageSrc}
-            width={1024}
-            height={1024}
-            alt={product?.title}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
-          />
+          >
+            <source src="/herovid.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
         </div>
 
@@ -77,7 +71,7 @@ export default function ProductDetails({
             transition={{ delay: 0.2 }}
             className="text-white drop-shadow-lg text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight"
           >
-            {product.title}
+            Stwórz dietę online
           </motion.h2>
 
           {/* Features Grid */}
@@ -85,7 +79,7 @@ export default function ProductDetails({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8 max-w-4xl mx-auto"
+            className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto"
           >
             {features.map((feature, index) => (
               <motion.div
@@ -103,10 +97,10 @@ export default function ProductDetails({
                     width={24}
                     height={24}
                     alt=""
-                    className="filter brightness-0 invert"
+                    className="text-zinc-800"
                   />
                 </div>
-                <span className="text-white/90 text-xs md:text-sm font-medium text-center leading-tight">
+                <span className="text-white text-xs md:text-sm font-medium text-center leading-tight">
                   {feature.text}
                 </span>
               </motion.div>
@@ -121,23 +115,11 @@ export default function ProductDetails({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setTest(product)}
-            className="inline-flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full px-8 py-4 font-bold text-lg shadow-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+            className="inline-flex items-center space-x-3 bg-[#e77503] hover:bg-[#e77503]/80 text-white rounded-full px-8 py-4 font-bold text-lg shadow-lg transition-all duration-300"
           >
+            <span>Stwórz dietę</span>
             <FaPlay className="text-sm" />
-            <span>Kup plan dietetyczny</span>
-            <FaArrowRight className="text-sm" />
           </motion.button>
-
-          {/* Free Badge */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="mt-4 inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2"
-          >
-            <FaCheck className="text-green-300" />
-            <span className="text-white/90 font-medium">PDF DO WYDRUKU</span>
-          </motion.div>
         </div>
       </motion.div>
     </div>

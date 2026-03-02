@@ -76,12 +76,11 @@ export default function PostPurchaseSignup({
       setIsLoading(true);
 
       // Create user account
-      const { signUpWithEmail, createUserInFirestore } = await import(
-        "@/firebase"
-      );
+      const { signUpWithEmail, createUserInFirestore } =
+        await import("@/firebase");
       const userCredential = await signUpWithEmail(
         formData.email,
-        formData.password
+        formData.password,
       );
 
       // Create user profile

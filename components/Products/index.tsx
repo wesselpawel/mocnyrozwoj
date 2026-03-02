@@ -6,16 +6,11 @@ import { IProduct, Diet } from "@/types";
 import { updateDocument } from "@/firebase";
 import { dietService } from "@/lib/dietService";
 
-export default function Products({ products }: { products: (IProduct | Diet)[] }) {
-  const [openedProduct, setOpenedProduct] = useState<IProduct | Diet | null>(null);
+export default function Products({ product }: { product: IProduct | Diet }) {
   const [test, setTest] = useState<IProduct | Diet | null>(null);
-  const [isClient, setIsClient] = useState(false);
+
   const [selectedCategory, setSelectedCategory] = useState<string>("Wszystkie");
   const [categories, setCategories] = useState<string[]>(["Wszystkie"]);
-
-  useEffect(() => {
-    setIsClient(typeof window !== "undefined");
-  }, []);
 
   // Fetch categories from database
   useEffect(() => {
@@ -56,7 +51,7 @@ export default function Products({ products }: { products: (IProduct | Diet)[] }
     setTest(product); // This only sets the state
     if (typeof window !== "undefined") {
       window.dispatchEvent(
-        new CustomEvent("test-popup-opened", { detail: { test: product } })
+        new CustomEvent("test-popup-opened", { detail: { test: product } }),
       );
     }
     // Increment clickCount in the database
@@ -65,47 +60,15 @@ export default function Products({ products }: { products: (IProduct | Diet)[] }
         ["clickCount"],
         [(("clickCount" in product ? product.clickCount : undefined) ?? 0) + 1],
         "products",
-        product.id
+        product.id,
       );
     } catch {
       // Failed to increment clickCount
     }
   };
 
-  // Filter products based on selected category
-  const filteredProducts =
-    selectedCategory === "Wszystkie"
-      ? products
-      : products.filter(
-          (product: IProduct | Diet) =>
-            "category" in product && product.category === selectedCategory,
-        );
-
-  if (!isClient) {
-    return null;
-  }
-
   return (
-    <div className="mx-5 lg:mx-[8vw] xl:mx-[12vw]">
-      {/* Category Filter */}
-      <div className="mb-8">
-        <div className="flex flex-wrap justify-center gap-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                selectedCategory === category
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div className="w-full">
       {/* Test Modal */}
       {test && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4">
@@ -120,21 +83,8 @@ export default function Products({ products }: { products: (IProduct | Diet)[] }
       )}
 
       <Suspense fallback={<div>Loading...</div>}>
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product: IProduct | Diet, i: number) => (
-              <Product
-                product={product}
-                key={i}
-                products={products}
-                openedProduct={openedProduct}
-                setOpenedProduct={setOpenedProduct}
-                setTest={handleOpenTest}
-              />
-            ))
-          ) : (
-            <div className="col-span-full p-4 bg-gray-200">Brak wyników...</div>
-          )}
+        <div className="flex justify-center mt-12">
+          <Product product={product} setTest={handleOpenTest} />
         </div>
       </Suspense>
     </div>

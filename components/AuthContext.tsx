@@ -69,12 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
   };
 
-  const handleLogout = async () => {
+  const handlelogout = async () => {
     try {
       await logout();
       setUser(null);
     } catch {
-      // Logout failed
+      // logout failed
     }
   };
 
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, firebaseUser, login, logout: handleLogout, updateUser }}
+      value={{ user, firebaseUser, login, logout: handlelogout, updateUser }}
     >
       {children}
     </AuthContext.Provider>

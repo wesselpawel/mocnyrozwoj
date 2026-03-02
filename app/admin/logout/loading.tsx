@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="fixed left-0 top-0 z-[5000] font-sans italic font-light h-screen w-screen flex justify-center items-center bg-[#202020] text-4xl text-white">
+    <div className="fixed left-0 top-0 z-[5000] font-sans italic font-light h-screen w-full flex justify-center items-center bg-[#202020] text-4xl text-white">
       <div className="flex flex-col items-center justify-center">
         <svg
           aria-hidden="true"

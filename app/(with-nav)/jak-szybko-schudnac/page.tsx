@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import hero from "@/public/hero.png";
-import logo from "@/public/logo.png";
+import logo from "@/public/logoNew.png";
 import brain from "@/public/brain.png";
 import asset1 from "@/public/assets/1.jpg";
 import asset2 from "@/public/assets/2.jpg";
@@ -67,7 +67,7 @@ export default async function JakSzybkoSchudnac() {
             <h1 className=" text-2xl lg:text-4xl font-bold mt-6 text-white">
               Jak szybko schudnąć? Profesjonalne plany dietetyczne
             </h1>
-            <p className="px-6 lg:pl-0 sm:text-lg mt-6 text-white font-pt max-w-lg leading-relaxed">
+            <p className="px-6 lg:pl-0 sm:text-lg mt-6 text-white font-montserrat max-w-lg leading-relaxed">
               Sprawdzone metody odchudzania. Diety redukcyjne stworzone przez
               ekspertów. Zdrowe i skuteczne plany żywieniowe dla szybkich
               rezultatów.
@@ -387,7 +387,7 @@ export default async function JakSzybkoSchudnac() {
         <h2 className="text-center  text-3xl sm:text-4xl lg:text-5xl font-bold text-black px-4">
           Wybierz swoją dietę redukcyjną!
         </h2>
-        <p className="mx-auto mt-6 text-center px-6 lg:pl-0 sm:text-lg text-gray-700 font-pt max-w-2xl leading-relaxed">
+        <p className="mx-auto mt-6 text-center px-6 lg:pl-0 sm:text-lg text-gray-700 font-montserrat max-w-2xl leading-relaxed">
           Profesjonalne plany dietetyczne stworzone przez dietetyków. Gotowe
           jadłospisy do wydruku z listami zakupów i przepisami. Zacznij zdrowe
           odżywianie już dziś!
@@ -481,7 +481,7 @@ export const metadata: Metadata = {
   icons: [
     {
       type: "image/x-icon",
-      url: "./public/logo.png",
+      url: "./public/logoNew.png",
     },
   ],
 };

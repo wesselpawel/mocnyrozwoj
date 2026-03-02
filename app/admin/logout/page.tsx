@@ -5,7 +5,7 @@ import { signOut } from "firebase/auth";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
 
-export default function Logout() {
+export default function logout() {
   useEffect(() => {
     signOut(auth).then(() => redirect("/admin"));
   }, []);

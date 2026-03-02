@@ -18,6 +18,8 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 import PurchaseButton from "./PurchaseButton";
+import { modalStyles } from "./modalStyles";
+import FAQ from "./FAQ";
 
 interface DietDetailModalProps {
   diet: Diet | null;
@@ -231,21 +233,14 @@ export default function DietDetailModal({
       case "faq":
         return (
           <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-black">
-                Często zadawane pytania
-              </h3>
-              <div className="space-y-4">
-                {diet.faq.map((faq: { question: string; answer?: string; answers?: string[] }, index: number) => (
-                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-2 text-gray-800">
-                      {faq.question}
-                    </h4>
-                    <p className="text-gray-700">{faq.answer}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <FAQ
+              items={(diet.faq || []).map((f) => ({
+                question: f.question,
+                answer: "answer" in f ? (f as { answer: string }).answer : undefined,
+                answers: f.answers,
+              }))}
+              title="Często zadawane pytania"
+            />
 
             <div>
               <h3 className="text-lg font-semibold mb-4 text-black">
@@ -298,36 +293,37 @@ export default function DietDetailModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          className={modalStyles.backdrop}
           onClick={onClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+            className={`${modalStyles.panel} max-w-4xl max-h-[90vh] flex flex-col`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gray-900 text-white p-6 flex-shrink-0">
+            <div className={`${modalStyles.gradientHeader} p-6 flex-shrink-0`}>
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">{diet.title}</h2>
-                  <p className="text-gray-300 mt-1 text-sm">
+                  <p className="text-white/80 mt-1 text-sm">
                     {diet.shortDescription}
                   </p>
                   <div className="flex items-center mt-2">
-                    <span className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
+                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-medium">
                       {diet.difficulty}
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="text-white hover:text-gray-300 transition-colors"
+                  className={modalStyles.closeButton}
+                  aria-label="Zamknij szczegóły diety"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -352,8 +348,8 @@ export default function DietDetailModal({
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap ${
                       activeTab === tab.id
-                        ? "text-gray-800 border-b-2 border-gray-800"
-                        : "text-gray-500 hover:text-gray-700"
+                        ? "text-violet-700 border-b-2 border-violet-700"
+                        : "text-gray-500 hover:text-violet-600"
                     }`}
                   >
                     <span className="mr-2">{tab.icon}</span>

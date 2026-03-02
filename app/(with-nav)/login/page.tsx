@@ -58,9 +58,8 @@ function LoginForm() {
         }, 1000);
       } else {
         // Handle registration
-        const { signUpWithEmail, createUserInFirestore } = await import(
-          "@/firebase"
-        );
+        const { signUpWithEmail, createUserInFirestore } =
+          await import("@/firebase");
         const userCredential = await signUpWithEmail(email, password);
 
         // Create user profile
@@ -92,9 +91,8 @@ function LoginForm() {
     setError("");
 
     try {
-      const { signInWithGoogle, createUserInFirestore } = await import(
-        "@/firebase"
-      );
+      const { signInWithGoogle, createUserInFirestore } =
+        await import("@/firebase");
       const userCredential = await signInWithGoogle();
 
       if (userCredential) {
@@ -268,7 +266,7 @@ function LoginForm() {
               {loading ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {isLogin ? "Logowanie..." : "Rejestracja..."}
+                  {isLogin ? "logowanie..." : "Rejestracja..."}
                 </div>
               ) : isLogin ? (
                 "Zaloguj się"

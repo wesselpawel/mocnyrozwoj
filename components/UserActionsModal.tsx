@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { FaTimes, FaUser, FaBook, FaSignOutAlt, FaCrown } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
 import { logout } from "@/firebase";
+import { modalStyles } from "./modalStyles";
 
 interface UserActionsModalProps {
   isOpen: boolean;
@@ -39,13 +40,13 @@ export default function UserActionsModal({
     checkSubscriptionStatus();
   }, [user]);
 
-  const handleLogout = async () => {
+  const handlelogout = async () => {
     try {
       await logout();
       onClose();
       router.push("/login");
     } catch {
-      // Logout failed
+      // logout failed
     }
   };
 
@@ -82,7 +83,7 @@ export default function UserActionsModal({
       id: "logout",
       icon: <FaSignOutAlt className="text-lg" />,
       text: "Wyloguj się",
-      action: handleLogout,
+      action: handlelogout,
       color: "text-red-600",
       bgColor: "bg-red-50",
     },
@@ -99,7 +100,7 @@ export default function UserActionsModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-slate-950/55 backdrop-blur-[2px] z-40"
             onClick={onClose}
           />
 
@@ -111,12 +112,14 @@ export default function UserActionsModal({
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-4 lg:inset-8 z-50 flex items-center justify-center"
           >
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div
+              className={`${modalStyles.panel} max-w-md max-h-[90vh] flex flex-col`}
+            >
               {/* Header */}
-              <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+              <div className={`${modalStyles.gradientHeader} p-6`}>
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  className={`absolute top-4 right-4 ${modalStyles.closeButton}`}
                 >
                   <FaTimes className="text-sm" />
                 </button>
@@ -132,7 +135,7 @@ export default function UserActionsModal({
               </div>
 
               {/* Actions Grid */}
-              <div className="p-6">
+              <div className="p-6 overflow-y-auto">
                 <div className="space-y-3">
                   {userActions.map((action) => (
                     <motion.button

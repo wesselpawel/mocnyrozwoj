@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 export default function Loading() {
   return (
-    <div className="fixed left-0 top-0 z-[5000] font-sans italic font-light h-screen w-screen flex justify-center items-center bg-[#312E81] text-4xl text-black">
+    <div className="fixed left-0 top-0 z-[5000] font-sans italic font-light h-screen w-full flex justify-center items-center bg-[#312E81] text-4xl text-black">
       <div className="flex flex-col items-center justify-center">
         {" "}
         <div className="bg-white w-36 h-36 mx-auto rounded-md flex flex-col items-center justify-center">

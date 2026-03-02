@@ -1,14 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import DietPlanCard from "./CourseCard";
-import DietDetailModal from "./DietDetailModal";
 import { coursesService } from "@/lib/coursesService";
+import { polishToEnglish } from "@/lib/polishToEnglish";
 import { dietService } from "@/lib/dietService";
 import { Course, Diet } from "@/types";
 import { useAuth } from "./AuthContext";
 import { FaCalendar, FaFire, FaUtensils } from "react-icons/fa";
 import PurchaseButton from "./PurchaseButton";
+import DietTest from "./DietTest";
+import { usePurchaseFlow } from "@/hooks/usePurchaseFlow";
 
 export default function Courses() {
   const [dietPlans, setDietPlans] = useState<Course[]>([]);
@@ -16,10 +19,13 @@ export default function Courses() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("Wszystkie");
   const [categories, setCategories] = useState<string[]>(["Wszystkie"]);
-  const [selectedDiet, setSelectedDiet] = useState<Diet | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const router = useRouter();
+  const [showCourseTest, setShowCourseTest] = useState(false);
+  const [selectedCourseForTest, setSelectedCourseForTest] =
+    useState<Course | null>(null);
   const { user } = useAuth();
+  const { handlePurchase: handlePurchaseFlow } = usePurchaseFlow();
 
   // Fetch visible diet plans, diets, and categories from database
   useEffect(() => {
@@ -113,6 +119,20 @@ export default function Courses() {
     } finally {
       setCheckoutLoading(null);
     }
+  };
+
+  const handleStartCourseTest = (course: Course) => {
+    setSelectedCourseForTest(course);
+    setShowCourseTest(true);
+  };
+
+  const handleCoursePurchase = async (course: Course) => {
+    await handlePurchaseFlow({
+      id: course.id,
+      title: course.title,
+      price: course.price,
+      type: "course",
+    });
   };
 
   if (loading) {
@@ -226,10 +246,11 @@ export default function Courses() {
 
                     <div className="grid grid-cols-2 w-full gap-4">
                       <button
-                        onClick={() => {
-                          setSelectedDiet(diet);
-                          setIsModalOpen(true);
-                        }}
+                        onClick={() =>
+                          router.push(
+                            `/produkt/${polishToEnglish(diet.title) || diet.id}`
+                          )
+                        }
                         className="w-full bg-gray-600 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm"
                       >
                         Zobacz szczegóły
@@ -259,32 +280,6 @@ export default function Courses() {
           </div>
         )}
 
-        {/* Courses Grid */}
-        {dietPlans.length > 0 && (
-          <div id="rozwoj-osobisty">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Kursy rozwoju osobistego
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-              {dietPlans.map((dietPlan, index) => (
-                <motion.div
-                  key={dietPlan.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <DietPlanCard
-                    course={dietPlan}
-                    onClick={() => {
-                      // Handle diet plan click - could open diet plan details or redirect
-                    }}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* No content message */}
         {filteredDiets.length === 0 && dietPlans.length === 0 && (
           <div className="text-center py-12">
@@ -300,16 +295,6 @@ export default function Courses() {
           </div>
         )}
       </div>
-
-      {/* Diet Detail Modal */}
-      <DietDetailModal
-        diet={selectedDiet}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedDiet(null);
-        }}
-      />
     </div>
   );
 }

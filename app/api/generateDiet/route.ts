@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   // For development, allow requests without the secret key
   if (
     process.env.NODE_ENV === "production" &&
-    (!tubylytylkofigi || tubylytylkofigi !== process.env.API_SECRET_KEY)
+    tubylytylkofigi !== process.env.API_SECRET_KEY
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(response);
-  } catch {
-    return NextResponse.json({ error: "Error" }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: error }, { status: 500 });
   }
 }

@@ -28,12 +28,14 @@ interface DietPlanCardProps {
   course: DietPlan;
   variant?: "default" | "compact" | "horizontal";
   onClick?: () => void;
+  onStartTest?: (course: DietPlan) => void;
 }
 
 const DietPlanCard: React.FC<DietPlanCardProps> = ({
   course,
   variant = "default",
   onClick,
+  onStartTest,
 }) => {
   const { user } = useAuth();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -192,17 +194,26 @@ const DietPlanCard: React.FC<DietPlanCardProps> = ({
                 </span>
               )}
             </div>
-            <PurchaseButton
-              item={{
-                id: course.id,
-                title: course.title,
-                price: course.price,
-                type: "course",
-              }}
-              variant="secondary"
-            >
-              Kup teraz
-            </PurchaseButton>
+            {onStartTest ? (
+              <button
+                onClick={() => onStartTest(course)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105"
+              >
+                Rozpocznij test
+              </button>
+            ) : (
+              <PurchaseButton
+                item={{
+                  id: course.id,
+                  title: course.title,
+                  price: course.price,
+                  type: "course",
+                }}
+                variant="secondary"
+              >
+                Kup teraz
+              </PurchaseButton>
+            )}
           </div>
         </div>
       </div>

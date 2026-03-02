@@ -4,25 +4,14 @@ import { useState } from "react";
 import { FaStar } from "react-icons/fa6";
 import { Diet, IProduct } from "@/types";
 
-export default function ProductCard({
-  setOpenedProduct,
-  product,
-}: {
-  setOpenedProduct: React.Dispatch<
-    React.SetStateAction<IProduct | Diet | null>
-  >;
-  product: IProduct | Diet;
-}) {
+export default function ProductCard({ product }: { product: IProduct | Diet }) {
   const imageSrc =
     "mainImage" in product
-      ? product.mainImage || product.images[0]?.src || "/logo.png"
+      ? product.mainImage || product.images[0]?.src || "/logoNew.png"
       : product.image;
 
   return (
-    <div
-      className="group relative cursor-pointer"
-      onClick={() => setOpenedProduct(product)}
-    >
+    <div className="group relative cursor-pointer">
       <div className="h-[500px]">
         <div className="h-full w-full relative">
           {/* Content */}

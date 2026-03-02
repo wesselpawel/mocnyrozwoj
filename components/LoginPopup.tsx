@@ -13,6 +13,7 @@ import {
 import { useAuth } from "./AuthContext";
 import { signInWithEmail, signUpWithEmail, signInWithGoogle } from "@/firebase";
 import { useRouter } from "next/navigation";
+import { modalStyles } from "./modalStyles";
 
 interface LoginPopupProps {
   isOpen: boolean;
@@ -128,7 +129,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
     } catch (error: unknown) {
       const err = error as { code?: string };
       if (err.code === "auth/popup-closed-by-user") {
-        setError("Logowanie zostało anulowane");
+        setError("logowanie zostało anulowane");
       } else if (err.code === "auth/popup-blocked") {
         setError(
           "Wyskakujące okno zostało zablokowane. Sprawdź ustawienia przeglądarki."
@@ -157,7 +158,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-slate-950/55 backdrop-blur-[2px] z-50"
             onClick={onClose}
           />
 
@@ -169,12 +170,14 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-4 lg:inset-8 z-50 flex items-center justify-center"
           >
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div
+              className={`${modalStyles.panel} max-w-md max-h-[90vh] flex flex-col`}
+            >
               {/* Header */}
-              <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+              <div className={`${modalStyles.gradientHeader} p-6`}>
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  className={`absolute top-4 right-4 ${modalStyles.closeButton}`}
                 >
                   <FaTimes className="text-sm" />
                 </button>
@@ -189,7 +192,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-6 overflow-y-auto">
                 {/* Google Login Button */}
                 <button
                   onClick={handleGoogleLogin}
@@ -289,7 +292,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        {isLoginMode ? "Logowanie..." : "Rejestracja..."}
+                        {isLoginMode ? "logowanie..." : "Rejestracja..."}
                       </div>
                     ) : isLoginMode ? (
                       "Zaloguj się"

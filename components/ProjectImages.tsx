@@ -109,7 +109,7 @@ export default function ProjectImages({
                 </div>
               </div>
             ))}
-            <div className="font-cardo text-lg w-max mx-auto absolute left-0 -top-8 bg-gradient-to-r from-primaryHoverStart to-primaryHoverEnd text-white">
+            <div className="font-anton text-lg w-max mx-auto absolute left-0 -top-8 bg-gradient-to-r from-primaryHoverStart to-primaryHoverEnd text-white">
               {currentIndex + 1} / {service.images.length}
             </div>
             <button
