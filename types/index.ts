@@ -5,6 +5,13 @@ export interface ProductImage {
 export interface IQuestion {
   question: string;
   answers: string[];
+  multiple?: boolean;
+  type?: "choice" | "text" | "gender";
+  placeholder?: string;
+  inputType?: "text" | "number";
+  optional?: boolean;
+  maxLength?: number;
+  multiline?: boolean;
 }
 
 export interface ITestimonial {
@@ -124,7 +131,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  subscriptionStatus: "free" | "premium";
+  subscriptionStatus: "free" | "Basic" | "Advanced" | "Pro" | "premium";
   subscriptionEndDate?: string;
   totalPurchases?: number;
   totalSpent?: number;

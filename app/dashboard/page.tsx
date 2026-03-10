@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, useCallback } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import logo from "@/public/logoNew.png";
@@ -9,27 +9,100 @@ import {
   FaBook,
   FaSignOutAlt,
   FaDownload,
+  FaArrowLeft,
   FaPlay,
   FaClock,
   FaStar,
   FaUsers,
+  FaLock,
+  FaLightbulb,
+  FaExclamationTriangle,
+  FaBullseye,
+  FaCheck,
 } from "react-icons/fa";
 import { useAuth } from "@/components/AuthContext";
 import { coursesService } from "@/lib/coursesService";
 import { dietService } from "@/lib/dietService";
 import { userPurchasesService } from "@/lib/userPurchasesService";
-import { Course, Diet } from "@/types";
+import { Course, Diet, IProduct, IQuestion } from "@/types";
 import { testResultsService, TestResult } from "@/lib/testResultsService";
-import PersonalReport from "@/components/Products/PersonalReport";
+import DashboardPersonalReport from "@/components/Products/DashboardPersonalReport";
 import DietTest from "@/components/DietTest";
 import KcalCalculator from "@/components/KcalCalculator";
+import StaticTest from "@/components/Products/StaticTest";
+import staticQuestions from "@/components/Products/staticQuestions.json";
+
+const dashboardDietGenerator: IProduct = {
+  id: "dashboard-day-1-generator",
+  title: "Dzień 1",
+  description: "Generator planu diety dla Dnia 1",
+  images: [],
+  mainImage: "",
+  price: 0,
+  tags: [],
+  questions: staticQuestions as IQuestion[],
+};
+const OPTIONAL_NOTES_QUESTION = "Czy chcesz dodać dodatkowe uwagi do planu?";
+
+const getDayFromTestName = (testName: string) => {
+  const match = /dzień\s*(\d+)/i.exec(testName || "");
+  if (!match) return null;
+  const day = Number(match[1]);
+  return Number.isFinite(day) && day > 0 ? day : null;
+};
+
+const getMaxDaysForSubscription = (status?: string) => {
+  const normalized = (status || "free").toLowerCase();
+  if (normalized === "basic") return 7;
+  if (normalized === "advanced") return 14;
+  if (normalized === "pro" || normalized === "premium") return 30;
+  return 2;
+};
+
+const isMaxSubscription = (status?: string) => {
+  const normalized = (status || "free").toLowerCase();
+  return normalized === "pro" || normalized === "premium";
+};
+
+type SubscriptionFeature =
+  | "analysisAvoid"
+  | "analysisMistakes"
+  | "resetDays"
+  | "mealSwap"
+  | "latestAlgorithm"
+  | "fullAccess";
+
+const getSubscriptionRank = (status?: string) => {
+  const normalized = (status || "free").toLowerCase();
+  if (normalized === "pro" || normalized === "premium") return 3;
+  if (normalized === "advanced") return 2;
+  if (normalized === "basic") return 1;
+  return 0;
+};
+
+const hasSubscriptionFeature = (status: string | undefined, feature: SubscriptionFeature) => {
+  const rank = getSubscriptionRank(status);
+  const featureRank: Record<SubscriptionFeature, number> = {
+    analysisAvoid: 1,
+    analysisMistakes: 1,
+    resetDays: 2,
+    mealSwap: 2,
+    latestAlgorithm: 3,
+    fullAccess: 3,
+  };
+  return rank >= featureRank[feature];
+};
 
 function DashboardContent() {
-  const [activeTab, setActiveTab] = useState("shop");
+  const [activeTab, setActiveTab] = useState("test-results");
   const [allDietPlans, setAllDietPlans] = useState<Course[]>([]);
   const [allDiets, setAllDiets] = useState<Diet[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showPlansPopup, setShowPlansPopup] = useState(false);
+  const [showUpsellPopup, setShowUpsellPopup] = useState(false);
+  const [isUpsellPopupAnimatingIn, setIsUpsellPopupAnimatingIn] = useState(false);
+  const [isPlansPopupAnimatingIn, setIsPlansPopupAnimatingIn] = useState(false);
   const [userPurchasedDiets, setUserPurchasedDiets] = useState<string[]>([]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const { user, logout } = useAuth();
@@ -138,18 +211,88 @@ function DashboardContent() {
     loadAllData();
   }, [user]);
 
+  const isAnalysisTab =
+    activeTab === "analysis-advice" ||
+    activeTab === "analysis-avoid" ||
+    activeTab === "analysis-mistakes";
+  const canAccessAvoidTab = hasSubscriptionFeature(
+    user?.subscriptionStatus,
+    "analysisAvoid",
+  );
+  const canAccessMistakesTab = hasSubscriptionFeature(
+    user?.subscriptionStatus,
+    "analysisMistakes",
+  );
+
   useEffect(() => {
-    if (activeTab === "test-results" && user?.id) {
+    if ((activeTab === "test-results" || isAnalysisTab) && user?.id) {
       testResultsService.getUserTestResults(user.id).then(setTestResults);
     }
-  }, [activeTab, user?.id]);
+  }, [activeTab, isAnalysisTab, user?.id]);
 
   const tabs = [
-    { id: "shop", name: "Sklep", icon: FaShoppingCart },
-    { id: "my-diets", name: "Moje zasoby", icon: FaBook },
-    { id: "kcal-calculator", name: "Kalkulator KCAL", icon: FaClock },
-    { id: "test-results", name: "Wyniki testów", icon: FaStar },
+    { id: "test-results", name: "Moja dieta", icon: FaStar },
+    { id: "analysis-advice", name: "Porady", icon: FaLightbulb },
+    { id: "analysis-avoid", name: "Czego unikać", icon: FaExclamationTriangle },
+    { id: "analysis-mistakes", name: "Najczęstsze błędy", icon: FaBullseye },
+    { id: "settings", name: "Ustawienia", icon: FaUsers },
   ];
+  const plans = [
+    {
+      id: "free",
+      name: "Poziom 1",
+      price: "0 zł / miesiąc",
+      days: 2,
+      features: ["2 dni diety", "Podstawowy dostęp", "Start bez opłat"],
+    },
+    {
+      id: "basic",
+      name: "Poziom 2",
+      price: "9 zł / miesiąc",
+      days: 7,
+      features: ["7 dni diety", "Czego unikać", "Najczęstsze błędy"],
+    },
+    {
+      id: "advanced",
+      name: "Poziom 3",
+      price: "19 zł / miesiąc",
+      days: 14,
+      features: ["14 dni diety", "Resetowanie dni", "Wymiana dań"],
+    },
+    {
+      id: "pro",
+      name: "Poziom 4",
+      price: "29 zł / miesiąc",
+      days: 30,
+      features: [
+        "30 dni diety",
+        "Najnowszy algorytm",
+        "Pełen dostęp",
+      ],
+    },
+  ] as const;
+
+  useEffect(() => {
+    if (!showUpsellPopup) {
+      setIsUpsellPopupAnimatingIn(false);
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      setIsUpsellPopupAnimatingIn(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [showUpsellPopup]);
+
+  useEffect(() => {
+    if (!showPlansPopup) {
+      setIsPlansPopupAnimatingIn(false);
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      setIsPlansPopupAnimatingIn(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [showPlansPopup]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -174,11 +317,43 @@ function DashboardContent() {
         );
       case "kcal-calculator":
         return <KcalCalculator />;
+      case "settings":
+        return <SettingsSection />;
       case "test-results":
         return (
           <TestResultsSection
             testResults={testResults}
             loading={activeTab === "test-results" && !testResults}
+            subscriptionStatus={user?.subscriptionStatus}
+            onDietGenerated={() => {
+              if (user?.id) {
+                testResultsService.getUserTestResults(user.id).then(setTestResults);
+              }
+            }}
+          />
+        );
+      case "analysis-advice":
+        return (
+          <AnalysisTabSection
+            testResults={testResults}
+            loading={isAnalysisTab && !testResults}
+            view="advice"
+          />
+        );
+      case "analysis-avoid":
+        return (
+          <AnalysisTabSection
+            testResults={testResults}
+            loading={isAnalysisTab && !testResults}
+            view="avoid"
+          />
+        );
+      case "analysis-mistakes":
+        return (
+          <AnalysisTabSection
+            testResults={testResults}
+            loading={isAnalysisTab && !testResults}
+            view="mistakes"
           />
         );
       default:
@@ -206,73 +381,228 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Header */}
-      <div className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center">
-              <Image
-                src={logo}
-                width={512}
-                height={512}
-                alt="Mocny Rozwój Osobisty logo"
-                className="h-12 w-12"
-              />
-              <h1 className="font-bold text-xl ml-3 text-black">
-                Panel użytkownika
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex flex-row items-center gap-1">
-                <div className="text-sm text-gray-600">Witaj,</div>
-                <div className="font-semibold text-black">
-                  {user?.name || "Użytkownik"}
-                </div>
+    <div className="min-h-screen bg-[#f6f4fb]">
+      <div className="sticky top-0 z-40 border-b border-zinc-200/70 bg-white/95 backdrop-blur-sm">
+        {/* Header */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center min-w-0">
+                <Image
+                  src={logo}
+                  width={512}
+                  height={512}
+                  alt="Mocny Rozwój Osobisty logo"
+                  className="h-10 w-10 shrink-0"
+                />
+                <h1 className="font-bold text-xl ml-3 text-black truncate">
+                  Panel użytkownika
+                </h1>
               </div>
               <button
                 onClick={() => {
                   logout();
                   router.push("/login");
                 }}
-                className="p-2 text-gray-600 hover:text-red-600 transition-colors"
+                className="p-2 rounded-full text-gray-600 hover:bg-zinc-100 hover:text-red-600 transition-colors"
+                aria-label="Wyloguj"
               >
                 <FaSignOutAlt size={20} />
               </button>
             </div>
+
+            <div className="text-sm text-gray-600">
+              Witaj,{" "}
+              <span className="font-semibold text-black">
+                {user?.name.charAt(0).toUpperCase() + user?.name.slice(1) || "Użytkowniku"}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
-          <div className="flex space-x-8 overflow-x-auto scrollbar-hide">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center min-w-max space-x-2 py-4 px-2 border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? "border-purple-600 text-purple-600"
-                      : "border-transparent text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="font-medium">{tab.name}</span>
-                </button>
-              );
-            })}
+        {/* Navigation Tabs */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 pb-3">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (tab.id === "analysis-avoid" && !canAccessAvoidTab) {
+                    setShowUpsellPopup(true);
+                    return;
+                  }
+                  if (tab.id === "analysis-mistakes" && !canAccessMistakesTab) {
+                    setShowUpsellPopup(true);
+                    return;
+                  }
+                  setActiveTab(tab.id);
+                }}
+                className={`min-w-max rounded-full px-5 py-2.5 text-sm sm:text-base font-semibold transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-[#e77503] text-white"
+                    : "bg-[#f6ead8] text-[#b45b00] hover:bg-[#f2dfc3]"
+                }`}
+              >
+                <span>{tab.name}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 md:py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-8">
         {renderContent()}
       </div>
+
+      {showUpsellPopup && (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center p-3 sm:p-4">
+          <div
+            className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${
+              isUpsellPopupAnimatingIn ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setShowUpsellPopup(false)}
+          />
+          <div
+            className={`relative w-full max-w-2xl overflow-hidden rounded-3xl border border-[#e77503]/30 shadow-2xl bg-cover bg-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              isUpsellPopupAnimatingIn
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-5 scale-95"
+            }`}
+            style={{ backgroundImage: "url('/assets2/1.jpg')" }}
+          >
+            <div
+              className={`bg-gradient-to-b from-black/75 via-black/70 to-black/80 p-6 sm:p-8 text-white transition-all duration-500 delay-75 ${
+                isUpsellPopupAnimatingIn
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2"
+              }`}
+            >
+              <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Ups... Używasz funkcji płatnej, której nie obejmuje Twój darmowy plan.
+              </h3>
+              <p className="mt-4 text-white/90 text-base sm:text-lg leading-relaxed">
+                Czy chcesz zobaczyć nasz cennik? Najtańszy plan zaczyna się już {" "}
+                <b>od{" "}
+                9 złotych na miesiąc</b>. Bez ukrytych opłat.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUpsellPopup(false);
+                    setShowPlansPopup(true);
+                  }}
+                  className="rounded-full bg-[#e77503] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#d96c02] transition-colors"
+                >
+                  Zobacz cennik
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowUpsellPopup(false)}
+                  className="rounded-full border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+                >
+                  Zostań przy darmowej wersji
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPlansPopup && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4">
+          <div
+            className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-500 ${
+              isPlansPopupAnimatingIn ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setShowPlansPopup(false)}
+          />
+          <div
+            className={`relative w-full max-w-4xl rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6 lg:p-8 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              isPlansPopupAnimatingIn
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-5 scale-95"
+            }`}
+          >
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#1c2b4a]">
+                  Dostępne plany
+                </h3>
+                <p className="text-zinc-600 mt-2">
+                  Wybierz plan, aby odblokować więcej funkcji.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
+                onClick={() => setShowPlansPopup(false)}
+              >
+                Zamknij
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {plans.map((plan) => {
+                const currentPlan = (user?.subscriptionStatus || "free").toLowerCase();
+                const isCurrent = currentPlan === plan.id;
+                const isHighlighted = plan.id === "pro";
+                return (
+                  <article
+                    key={plan.id}
+                    className={`rounded-2xl border p-5 transition-all ${
+                      isHighlighted
+                        ? "border-[#e77503]/40 bg-[#fff7ef]"
+                        : "border-zinc-200 bg-white"
+                    }`}
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h4 className="text-xl font-bold text-[#1c2b4a]">{plan.name}</h4>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          isCurrent
+                            ? "bg-green-100 text-green-700"
+                            : "bg-[#fff3e0] text-[#b45b00]"
+                        }`}
+                      >
+                        {isCurrent ? "Aktualny plan" : `${plan.days} dni`}
+                      </span>
+                    </div>
+                    <p className="text-2xl font-extrabold text-[#e77503] mb-4">
+                      {plan.price}
+                    </p>
+                    <ul className="space-y-2 mb-5">
+                      {plan.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-center gap-2 text-sm text-zinc-700"
+                        >
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#e77503] text-white">
+                            <FaCheck size={10} />
+                          </span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      className={`w-full rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        isCurrent
+                          ? "bg-zinc-100 text-zinc-500 cursor-not-allowed"
+                          : "bg-[#e77503] text-white hover:bg-[#d96c02]"
+                      }`}
+                      disabled={isCurrent}
+                    >
+                      {isCurrent ? "Aktywny" : "Wybierz plan"}
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -859,91 +1189,752 @@ function MyDietsSection({
 function TestResultsSection({
   testResults,
   loading,
+  subscriptionStatus,
+  onDietGenerated,
 }: {
   testResults: TestResult[];
   loading: boolean;
+  subscriptionStatus?: string;
+  onDietGenerated?: () => void;
 }) {
-  const [openResult, setOpenResult] = useState<TestResult | null>(null);
+  const { user } = useAuth();
+  const [isResultOpen, setIsResultOpen] = useState(false);
+  const [isPopupAnimatingIn, setIsPopupAnimatingIn] = useState(false);
+  const [openedDay, setOpenedDay] = useState<number | null>(null);
+  const [generatorTest, setGeneratorTest] = useState<IProduct | Diet | null>(null);
+  const [generatedByDay, setGeneratedByDay] = useState<Record<number, TestResult>>(
+    {},
+  );
+  const [generatingDay, setGeneratingDay] = useState<number | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [showPlansPopup, setShowPlansPopup] = useState(false);
+  const [showUpsellPopup, setShowUpsellPopup] = useState(false);
+  const [isUpsellPopupAnimatingIn, setIsUpsellPopupAnimatingIn] = useState(false);
+  const [isPlansPopupAnimatingIn, setIsPlansPopupAnimatingIn] = useState(false);
+
+  useEffect(() => {
+    if (!isResultOpen && !generatorTest && !showPlansPopup && !showUpsellPopup) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isResultOpen, generatorTest, showPlansPopup, showUpsellPopup]);
+
+  useEffect(() => {
+    if (!showUpsellPopup) {
+      setIsUpsellPopupAnimatingIn(false);
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      setIsUpsellPopupAnimatingIn(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [showUpsellPopup]);
+
+  useEffect(() => {
+    if (!showPlansPopup) {
+      setIsPlansPopupAnimatingIn(false);
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      setIsPlansPopupAnimatingIn(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [showPlansPopup]);
+
+  useEffect(() => {
+    if (!isResultOpen) {
+      setIsPopupAnimatingIn(false);
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setIsPopupAnimatingIn(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isResultOpen]);
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-8 shadow-lg">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Wyniki testów</h2>
+      <div className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Moja dieta</h2>
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Ładowanie wyników testów...</p>
+          <p className="text-gray-600">Ładowanie Twojej diety...</p>
         </div>
       </div>
     );
   }
+
+  const maxDays = getMaxDaysForSubscription(user?.subscriptionStatus);
+  const persistedByDay = [...testResults]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .reduce<Record<number, TestResult>>((acc, result) => {
+      const day = getDayFromTestName(result.testName);
+      if (!day || day > maxDays || acc[day]) return acc;
+      acc[day] = result;
+      return acc;
+    }, {});
+  const dayResults = Array.from({ length: maxDays }, (_, index) => {
+    const day = index + 1;
+    return generatedByDay[day] ?? persistedByDay[day] ?? null;
+  });
+  const latestPreferences = [...testResults]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .find((result) => Array.isArray(result.answers) && result.answers.length > 0);
+  const savedPreferences =
+    latestPreferences?.answers.filter(
+      (item) => item.question !== OPTIONAL_NOTES_QUESTION,
+    ) ?? [];
+  const dayOneResult = dayResults[0];
+  const days = Array.from({ length: maxDays }, (_, i) => i + 1);
+  const totalDays = maxDays;
+  const availableDays = dayResults.filter(Boolean).length;
+  const openedDayResult = openedDay ? dayResults[openedDay - 1] : null;
+  const showAddDaysCard = !isMaxSubscription(user?.subscriptionStatus);
+  const canResetDays = hasSubscriptionFeature(subscriptionStatus, "resetDays");
+  const canUseLatestAlgorithm = hasSubscriptionFeature(
+    subscriptionStatus,
+    "latestAlgorithm",
+  );
+  const plans = [
+    {
+      id: "free",
+      name: "Poziom 1",
+      price: "0 zł / miesiąc",
+      days: 2,
+      features: ["2 dni diety", "Podstawowy dostęp", "Start bez opłat"],
+    },
+    {
+      id: "basic",
+      name: "Poziom 2",
+      price: "9 zł / miesiąc",
+      days: 7,
+      features: ["7 dni diety", "Czego unikać", "Najczęstsze błędy"],
+    },
+    {
+      id: "advanced",
+      name: "Poziom 3",
+      price: "19 zł / miesiąc",
+      days: 14,
+      features: ["14 dni diety", "Resetowanie dni", "Wymiana dań"],
+    },
+    {
+      id: "pro",
+      name: "Poziom 4",
+      price: "29 zł / miesiąc",
+      days: 30,
+      features: [
+        "30 dni diety",
+        "Najnowszy algorytm",
+        "Pełen dostęp",
+      ],
+    },
+  ] as const;
+
+  const generateDayPlan = async (day: number) => {
+    if (!user?.id || generatingDay) return;
+
+    if (day > maxDays) return;
+    const previousDayResult = day > 1 ? dayResults[day - 2] : null;
+    if (day > 1 && !previousDayResult) return;
+    if (savedPreferences.length === 0) return;
+
+    setGeneratingDay(day);
+    setGenerationProgress(0);
+
+    const progressInterval = window.setInterval(() => {
+      setGenerationProgress((prev) => Math.min(prev + Math.floor(Math.random() * 8) + 3, 92));
+    }, 400);
+
+    try {
+      const prompt = savedPreferences;
+      const previousDayMealNames =
+        day > 1 &&
+        previousDayResult?.report &&
+        typeof previousDayResult.report === "object" &&
+        Array.isArray(
+          (previousDayResult.report as { plan_dnia?: unknown[] }).plan_dnia,
+        )
+          ? (
+              (previousDayResult.report as {
+                plan_dnia: Array<{ nazwa_posilku?: string }>;
+              }).plan_dnia || []
+            )
+              .map((meal) => meal?.nazwa_posilku)
+              .filter((name): name is string => Boolean(name && name.trim()))
+          : [];
+
+      const response = await fetch("/api/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          testName: `Dzień ${day}`,
+          previousDayMealNames,
+          algorithmVersion: canUseLatestAlgorithm ? "latest" : "standard",
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to generate diet");
+      }
+      const report = await response.json();
+
+      await testResultsService.saveTestResult({
+        userId: user.id,
+        testName: `Dzień ${day}`,
+        answers: prompt,
+        report,
+      });
+
+      const createdAt = new Date().toISOString();
+      const generatedResult: TestResult = {
+        id: `generated_${day}_${Date.now()}`,
+        userId: user.id,
+        testName: `Dzień ${day}`,
+        answers: prompt,
+        report,
+        createdAt,
+      };
+
+      setGeneratedByDay((prev) => ({ ...prev, [day]: generatedResult }));
+      setGenerationProgress(100);
+      setOpenedDay(day);
+      setIsResultOpen(true);
+      onDietGenerated?.();
+    } catch {
+    } finally {
+      window.clearInterval(progressInterval);
+      setTimeout(() => {
+        setGeneratingDay(null);
+        setGenerationProgress(0);
+      }, 500);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-lg">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Wyniki testów</h2>
-      {testResults.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FaStar size={40} className="text-white" />
-          </div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Brak zapisanych wyników testów
-          </h3>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Wypełnij testy i zapisz swoje wyniki, aby zobaczyć je tutaj.
+    <div className="rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6 lg:p-8">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-bold tracking-tight text-[#1c2b4a]">
+            Moja dieta
+          </h2>
+          <p className="text-gray-600 mt-2 text-lg">
+            Twój plan jest dostępny dzień po dniu.
           </p>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {testResults.map((result) => (
-            <div
-              key={result.id}
-              className="border rounded-lg p-4 bg-gradient-to-br from-purple-50 to-pink-50 w-full cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setOpenResult(result)}
+        <button
+          type="button"
+          onClick={() => {
+            if (!canResetDays) {
+              setShowUpsellPopup(true);
+              return;
+            }
+            setOpenedDay(null);
+            setIsResultOpen(false);
+            setGeneratorTest(dashboardDietGenerator);
+          }}
+          className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+            canResetDays
+              ? "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
+              : "border-[#e77503]/30 bg-[#fff3e0] text-[#b45b00] hover:bg-[#fde7c3]"
+          }`}
+        >
+          {canResetDays ? "Rozpocznij od nowa" : "Rozpocznij od nowa (Poziom 3)"}
+        </button>
+      </div>
+
+      <div className="rounded-2xl bg-zinc-50/60">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {days.map((day) => {
+          const result = dayResults[day - 1];
+          const isGenerating = generatingDay === day;
+          const isBlockedBySequence = day > 1 && !dayResults[day - 2];
+          const hasPreferences = savedPreferences.length > 0;
+          return (
+            <button
+              type="button"
+              key={day}
+              className={`group rounded-2xl p-4 text-left border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm ${
+                result
+                  ? "border-[#e77503]/30 bg-[#e77503]"
+                  : "border-zinc-200 bg-white hover:border-zinc-300"
+              }`}
+              onClick={() => {
+                if (result) {
+                  setOpenedDay(day);
+                  setIsResultOpen(true);
+                  return;
+                }
+
+                if (!hasPreferences && day === 1) {
+                  setGeneratorTest(dashboardDietGenerator);
+                  return;
+                }
+
+                if (isBlockedBySequence || !hasPreferences) return;
+
+                if (user?.id && day <= maxDays) {
+                  generateDayPlan(day);
+                }
+              }}
+              disabled={isGenerating || isBlockedBySequence}
             >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
-                <div>
-                  <div className="font-bold text-lg text-purple-700">
-                    {result.testName}
+              <div className="flex h-full flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`font-semibold text-base ${
+                      result ? "text-white" : "text-[#1c2b4a]"
+                    }`}
+                  >
+                    Dzień {day}
+                  </span>
+                  {result ? (
+                    <span className="rounded-full bg-[#fff3e0] px-2.5 py-1 text-xs font-semibold text-[#b45b00] transition-transform duration-300 group-hover:scale-105">
+                      Gotowy
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#e77503] px-2 py-1 text-[11px] font-medium text-white transition-transform duration-300 group-hover:scale-105">
+                      <FaLock size={10} />
+                      Stwórz
+                    </span>
+                  )}
+                </div>
+                <div className={`text-sm ${result ? "text-white/80" : "text-zinc-500"}`}>
+                  {isGenerating
+                    ? `Tworzenie planu... ${generationProgress}%`
+                    : result
+                      ? new Date(result.createdAt).toLocaleDateString()
+                      : !hasPreferences
+                        ? "Uzupełnij preferencje"
+                        : isBlockedBySequence
+                          ? "Najpierw stwórz poprzedni dzień"
+                          : "Brak planu"}
+                </div>
+                {isGenerating && (
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200/70">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+                      style={{ width: `${generationProgress}%` }}
+                    />
                   </div>
-                  <div className="text-gray-500 text-sm">
-                    {new Date(result.createdAt).toLocaleString()}
+                )}
+               
+              </div>
+            </button>
+          );
+        })}
+        {showAddDaysCard && (
+          <button
+            type="button"
+            className="group rounded-2xl p-4 text-left border border-zinc-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm hover:border-zinc-300"
+            onClick={() => setShowUpsellPopup(true)}
+          >
+            <div className="flex h-full flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-base text-[#1c2b4a]">
+                  Więcej dni
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#e77503] px-2 py-1 text-[11px] font-medium text-white transition-transform duration-300 group-hover:scale-105">
+                  Dodaj
+                </span>
+              </div>
+              <div className="text-sm text-zinc-500">Dostępne dni: {availableDays}/{totalDays}</div>
+            </div>
+          </button>
+        )}
+      </div>
+      </div>
+
+      {showUpsellPopup && (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center p-3 sm:p-4">
+          <div
+            className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${
+              isUpsellPopupAnimatingIn ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setShowUpsellPopup(false)}
+          />
+          <div
+            className={`relative w-full max-w-2xl overflow-hidden rounded-3xl border border-[#e77503]/30 shadow-2xl bg-cover bg-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              isUpsellPopupAnimatingIn
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-5 scale-95"
+            }`}
+            style={{ backgroundImage: "url('/assets2/1.jpg')" }}
+          >
+            <div
+              className={`bg-gradient-to-b from-black/75 via-black/70 to-black/80 p-6 sm:p-8 text-white transition-all duration-500 delay-75 ${
+                isUpsellPopupAnimatingIn
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2"
+              }`}
+            >
+              <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Ups... Używasz funkcji płatnej, której nie obejmuje Twój darmowy plan.
+              </h3>
+              <p className="mt-4 text-white/90 text-base sm:text-lg leading-relaxed">
+                Czy chcesz zobaczyć nasz cennik? Najtańszy plan zaczyna się już od{" "}
+                <b>9 złotych na miesiąc</b>. Bez ukrytych opłat.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUpsellPopup(false);
+                    setShowPlansPopup(true);
+                  }}
+                  className="rounded-full bg-[#e77503] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#d96c02] transition-colors"
+                >
+                  Zobacz cennik
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowUpsellPopup(false)}
+                  className="rounded-full border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+                >
+                  Zostań przy darmowej wersji
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPlansPopup && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4">
+          <div
+            className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-500 ${
+              isPlansPopupAnimatingIn ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setShowPlansPopup(false)}
+          />
+          <div
+            className={`relative w-full max-w-4xl rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6 lg:p-8 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              isPlansPopupAnimatingIn
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-5 scale-95"
+            }`}
+          >
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#1c2b4a]">
+                  Dostępne plany
+                </h3>
+                <p className="text-zinc-600 mt-2">
+                  Wybierz plan, aby odblokować więcej dni diety.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
+                onClick={() => setShowPlansPopup(false)}
+              >
+                Zamknij
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {plans.map((plan) => {
+                const currentPlan = (user?.subscriptionStatus || "free").toLowerCase();
+                const isCurrent = currentPlan === plan.id;
+                const isHighlighted = plan.id === "pro";
+                return (
+                  <article
+                    key={plan.id}
+                    className={`rounded-2xl border p-5 transition-all ${
+                      isHighlighted
+                        ? "border-[#e77503]/40 bg-[#fff7ef]"
+                        : "border-zinc-200 bg-white"
+                    }`}
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h4 className="text-xl font-bold text-[#1c2b4a]">{plan.name}</h4>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          isCurrent
+                            ? "bg-green-100 text-green-700"
+                            : "bg-[#fff3e0] text-[#b45b00]"
+                        }`}
+                      >
+                        {isCurrent ? "Aktualny plan" : `${plan.days} dni`}
+                      </span>
+                    </div>
+                    <p className="text-2xl font-extrabold text-[#e77503] mb-4">
+                      {plan.price}
+                    </p>
+                    <ul className="space-y-2 mb-5">
+                      {plan.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-center gap-2 text-sm text-zinc-700"
+                        >
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#e77503] text-white">
+                            <FaCheck size={10} />
+                          </span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      className={`w-full rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        isCurrent
+                          ? "bg-zinc-100 text-zinc-500 cursor-not-allowed"
+                          : "bg-[#e77503] text-white hover:bg-[#d96c02]"
+                      }`}
+                      disabled={isCurrent}
+                    >
+                      {isCurrent ? "Aktywny" : "Wybierz plan"}
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      
+      {openedDayResult && isResultOpen && (
+        <div
+          className={`fixed inset-0 z-50 w-full h-full bg-white transition-opacity duration-300 ${
+            isPopupAnimatingIn ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <div
+            className={`w-full h-full overflow-y-auto transition-all duration-300 ${
+              isPopupAnimatingIn ? "translate-y-0" : "translate-y-3"
+            }`}
+          >
+            <div className="sticky top-0 z-50 px-4 py-3 bg-white border-b border-zinc-100 flex flex-row items-center justify-between gap-3">
+              <button
+                className="inline-flex items-center gap-2 text-zinc-800 font-semibold transition-all duration-200 hover:text-[#e77503] hover:-translate-x-0.5"
+                onClick={() => setIsResultOpen(false)}
+                aria-label="Zamknij"
+              >
+                <FaArrowLeft />
+                Powrót
+              </button>
+
+              <div className="flex-1 min-w-0">
+                <div className="w-full overflow-x-auto scrollbar-hide">
+                  <div className="inline-flex min-w-full justify-end gap-2 px-1">
+                    {days.map((day) => {
+                      const hasDayResult = Boolean(dayResults[day - 1]);
+                      const isActive = openedDay === day;
+                      return (
+                        <button
+                          key={`popup-day-${day}`}
+                          type="button"
+                          onClick={() => {
+                            if (!hasDayResult) return;
+                            setOpenedDay(day);
+                          }}
+                          className={`whitespace-nowrap rounded-full px-5 py-2.5 text-base font-bold transition-colors ${
+                            isActive
+                              ? "bg-[#e77503] text-white"
+                              : hasDayResult
+                                ? "bg-[#fff3e0] text-[#b45b00] hover:bg-[#fde7c3]"
+                                : "bg-zinc-100 text-zinc-400"
+                          }`}
+                          disabled={!hasDayResult}
+                        >
+                          Dzień {day}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
+
             </div>
-          ))}
-        </div>
-      )}
-      {/* Modal Popup for full result */}
-      {openResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative p-6">
-            <button
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold"
-              onClick={() => setOpenResult(null)}
-              aria-label="Zamknij"
-            >
-              ×
-            </button>
-            <div className="mb-4">
-              <div className="font-bold text-xl text-purple-700">
-                {openResult.testName}
+            {openedDayResult.report && typeof openedDayResult.report === "object" ? (
+              <div className="mx-auto w-full max-w-6xl py-4">
+                <DashboardPersonalReport data={openedDayResult.report} />
               </div>
-              <div className="text-gray-500 text-sm mb-2">
-                {new Date(openResult.createdAt).toLocaleString()}
-              </div>
-            </div>
-            {/* Render report using PersonalReport if possible, else fallback to JSON */}
-            {openResult.report && typeof openResult.report === "object" ? (
-              <PersonalReport data={openResult.report} />
             ) : (
-              <pre className="bg-gray-100 rounded p-4 text-xs overflow-x-auto border border-gray-200">
-                {typeof openResult.report === "string"
-                  ? openResult.report
-                  : JSON.stringify(openResult.report, null, 2)}
-              </pre>
+              <div className="mx-auto w-full max-w-6xl px-4 py-4">
+                <pre className="bg-gray-100 rounded p-4 text-xs overflow-x-auto border border-gray-200">
+                  {typeof openedDayResult.report === "string"
+                    ? openedDayResult.report
+                    : JSON.stringify(openedDayResult.report, null, 2)}
+                </pre>
+              </div>
             )}
           </div>
         </div>
+      )}
+
+      {generatorTest && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setGeneratorTest(null)}
+          />
+          <div className="relative w-full h-[calc(100dvh-1rem)] sm:h-[90vh] sm:max-w-4xl overflow-hidden rounded-2xl sm:rounded-3xl">
+            <StaticTest
+              setTest={setGeneratorTest}
+              test={generatorTest}
+              autoSaveOnResult
+              redirectOnSaveSuccess={false}
+              onAutoSaveSuccess={(saved) => {
+                const day = 1;
+                setGeneratedByDay((prev) => ({
+                  ...prev,
+                  [day]: {
+                    id: `generated_${Date.now()}`,
+                    userId: null,
+                    testName: saved.testName,
+                    answers: saved.answers,
+                    report: saved.report,
+                    createdAt: saved.createdAt,
+                  },
+                }));
+                setGeneratorTest(null);
+                setOpenedDay(day);
+                setIsResultOpen(true);
+                onDietGenerated?.();
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SettingsSection() {
+  const { user } = useAuth();
+
+  return (
+    <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <div className="mb-6">
+        <h2 className="text-3xl font-bold text-gray-800">Ustawienia</h2>
+        <p className="text-gray-600 mt-2">Podstawowe informacje o Twoim koncie.</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+          <div className="text-xs uppercase tracking-wide text-zinc-500 mb-1">Imię</div>
+          <div className="font-semibold text-zinc-800">{user?.name || "-"}</div>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+          <div className="text-xs uppercase tracking-wide text-zinc-500 mb-1">Email</div>
+          <div className="font-semibold text-zinc-800">{user?.email || "-"}</div>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+          <div className="text-xs uppercase tracking-wide text-zinc-500 mb-1">ID użytkownika</div>
+          <div className="font-semibold text-zinc-800 break-all">{user?.id || "-"}</div>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+          <div className="text-xs uppercase tracking-wide text-zinc-500 mb-1">Subskrypcja</div>
+          <div className="font-semibold text-zinc-800">{user?.subscriptionStatus || "free"}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnalysisTabSection({
+  testResults,
+  loading,
+  view,
+}: {
+  testResults: TestResult[];
+  loading: boolean;
+  view: "advice" | "avoid" | "mistakes";
+}) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl p-8 shadow-lg">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Analiza</h2>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Ładowanie analizy...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const latestResult = [...testResults].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )[0];
+  const report =
+    latestResult && typeof latestResult.report === "object" && latestResult.report
+      ? (latestResult.report as Record<string, unknown>)
+      : null;
+  const analysisData =
+    report &&
+    typeof report.analiza === "object" &&
+    report.analiza !== null
+      ? (report.analiza as {
+          porady_dla_ciebie?: string[];
+          czego_unikac?: string[];
+          najczestsze_bledy?: string[];
+        })
+      : null;
+  const currentItems =
+    view === "advice"
+      ? analysisData?.porady_dla_ciebie ?? []
+      : view === "avoid"
+        ? analysisData?.czego_unikac ?? []
+        : analysisData?.najczestsze_bledy ?? [];
+  const viewTitle =
+    view === "advice"
+      ? "Porady"
+      : view === "avoid"
+        ? "Czego unikać"
+        : "Najczęstsze błędy";
+  const viewDescription =
+    view === "advice"
+      ? "Praktyczne wskazówki dopasowane do Twojego celu."
+      : view === "avoid"
+        ? "Elementy, których warto unikać, aby szybciej zobaczyć efekty."
+        : "Najczęstsze pułapki, które mogą spowolnić Twoje postępy.";
+
+  return (
+    <div className="bg-white rounded-2xl p-8 shadow-lg">
+      <div className="mb-6">
+        <h2 className="text-3xl font-bold text-gray-800">{viewTitle}</h2>
+        <p className="text-gray-600 mt-2">{viewDescription}</p>
+      </div>
+
+      {!latestResult && (
+        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-zinc-600">
+          Nie masz jeszcze zapisanej analizy. Wykonaj test i zapisz wynik, aby
+          zobaczyć tę sekcję.
+        </div>
+      )}
+
+      {latestResult && !analysisData && (
+        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-zinc-600">
+          Dla tego wyniku nie ma jeszcze danych analitycznych. Wykonaj test
+          ponownie, aby wygenerować nową analizę.
+        </div>
+      )}
+
+      {analysisData && currentItems.length === 0 && (
+        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-zinc-600">
+          Brak danych w tej sekcji dla aktualnego wyniku.
+        </div>
+      )}
+
+      {analysisData && currentItems.length > 0 && (
+        <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <ul className="space-y-2">
+            {currentItems.map((item, index) => (
+              <li
+                key={`${view}-${index}`}
+                className="rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-2 text-sm text-zinc-700"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

@@ -1,13 +1,23 @@
 "use client";
 import Product from "./Product";
 import { Suspense, useState, useEffect } from "react";
-import Test from "./Test";
+import { useRouter } from "next/navigation";
+import StaticTest from "./StaticTest";
 import { IProduct, Diet } from "@/types";
 import { updateDocument } from "@/firebase";
 import { dietService } from "@/lib/dietService";
+import { useAuth } from "@/components/AuthContext";
 
-export default function Products({ product }: { product: IProduct | Diet }) {
+export default function Products({
+  product,
+  heroTitle,
+}: {
+  product: IProduct | Diet;
+  heroTitle?: string;
+}) {
   const [test, setTest] = useState<IProduct | Diet | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
 
   const [selectedCategory, setSelectedCategory] = useState<string>("Wszystkie");
   const [categories, setCategories] = useState<string[]>(["Wszystkie"]);
@@ -48,6 +58,11 @@ export default function Products({ product }: { product: IProduct | Diet }) {
 
   // When a test is opened, dispatch a global event and increment clickCount
   const handleOpenTest = async (product: IProduct | Diet) => {
+    if (user) {
+      router.push("/dashboard");
+      return;
+    }
+
     setTest(product); // This only sets the state
     if (typeof window !== "undefined") {
       window.dispatchEvent(
@@ -76,15 +91,19 @@ export default function Products({ product }: { product: IProduct | Diet }) {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setTest(null)}
           />
-          <div className="relative w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[90vh] overflow-hidden rounded-2xl sm:rounded-3xl">
-            <Test setTest={setTest} test={test} />
+          <div className="relative w-full h-[calc(100dvh-1rem)] sm:h-[90vh] sm:max-w-4xl overflow-hidden rounded-2xl sm:rounded-3xl">
+            <StaticTest setTest={setTest} test={test} />
           </div>
         </div>
       )}
 
       <Suspense fallback={<div>Loading...</div>}>
         <div className="flex justify-center mt-12">
-          <Product product={product} setTest={handleOpenTest} />
+          <Product
+            product={product}
+            setTest={handleOpenTest}
+            heroTitle={heroTitle}
+          />
         </div>
       </Suspense>
     </div>

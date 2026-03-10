@@ -28,7 +28,7 @@ export default function PurchaseButton({
     primary:
       "text-center block w-full bg-purple-600 text-white px-3 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed",
     secondary:
-      "bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105",
+      "mt-4 bg-[#ca6400] text-white px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-300 transform ",
   };
 
   const buttonClassName = className || baseClasses[variant];
@@ -61,7 +61,7 @@ export default function PurchaseButton({
             Przetwarzanie...
           </div>
         ) : (
-          children || "Kup teraz"
+          children || "Odblokuj pełen dostęp"
         )}
       </button>
 

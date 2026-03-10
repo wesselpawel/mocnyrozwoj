@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaTimes,
@@ -18,12 +18,19 @@ import { modalStyles } from "./modalStyles";
 interface LoginPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: "login" | "register";
+  allowModeSwitch?: boolean;
 }
 
-export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
+export default function LoginPopup({
+  isOpen,
+  onClose,
+  initialMode = "login",
+  allowModeSwitch = true,
+}: LoginPopupProps) {
   const { login } = useAuth();
   const router = useRouter();
-  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoginMode, setIsLoginMode] = useState(initialMode === "login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -32,6 +39,14 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const isRegisterOnly = initialMode === "register" && !allowModeSwitch;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setIsLoginMode(initialMode === "login");
+    setError("");
+    setFormData({ email: "", password: "", name: "" });
+  }, [isOpen, initialMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,24 +208,28 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
 
               {/* Content */}
               <div className="p-6 overflow-y-auto">
-                {/* Google Login Button */}
-                <button
-                  onClick={handleGoogleLogin}
-                  disabled={isLoading}
-                  className="w-full bg-white border-2 border-gray-300 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-3 mb-6"
-                >
-                  <FaGoogle className="text-red-500" />
-                  <span>Kontynuuj z Google</span>
-                </button>
+                {!isRegisterOnly && (
+                  <>
+                    {/* Google Login Button */}
+                    <button
+                      onClick={handleGoogleLogin}
+                      disabled={isLoading}
+                      className="w-full bg-white border-2 border-gray-300 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-3 mb-6"
+                    >
+                      <FaGoogle className="text-red-500" />
+                      <span>Kontynuuj z Google</span>
+                    </button>
 
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">lub</span>
-                  </div>
-                </div>
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300" />
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">lub</span>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -302,21 +321,22 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
                   </button>
                 </form>
 
-                {/* Toggle Mode */}
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={() => {
-                      setIsLoginMode(!isLoginMode);
-                      setError("");
-                      setFormData({ email: "", password: "", name: "" });
-                    }}
-                    className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
-                  >
-                    {isLoginMode
-                      ? "Nie masz konta? Zarejestruj się"
-                      : "Masz już konto? Zaloguj się"}
-                  </button>
-                </div>
+                {allowModeSwitch && (
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={() => {
+                        setIsLoginMode(!isLoginMode);
+                        setError("");
+                        setFormData({ email: "", password: "", name: "" });
+                      }}
+                      className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                    >
+                      {isLoginMode
+                        ? "Nie masz konta? Zarejestruj się"
+                        : "Masz już konto? Zaloguj się"}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

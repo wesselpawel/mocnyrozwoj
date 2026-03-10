@@ -166,18 +166,18 @@ export default function KcalCalculator() {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-lg max-w-4xl mx-auto">
+    <div className="bg-white rounded-3xl border border-[#e77503]/20 p-6 sm:p-8 shadow-sm max-w-6xl mx-auto">
       <div className="flex items-center mb-8">
-        <FaCalculator className="text-3xl text-purple-600 mr-4" />
-        <h2 className="text-3xl font-bold text-gray-800">Kalkulator KCAL</h2>
+        <FaCalculator className="text-3xl text-[#e77503] mr-4" />
+        <h2 className="text-3xl font-bold text-[#1f1d1d]">Kalkulator KCAL</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Calculator Form */}
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaUser className="mr-2 text-purple-600" />
+          <div className="bg-[#fff7ef] border border-[#e77503]/20 p-6 rounded-2xl">
+            <h3 className="text-xl font-semibold text-[#1f1d1d] mb-4 flex items-center">
+              <FaUser className="mr-2 text-[#e77503]" />
               Dane osobowe
             </h3>
 
@@ -191,7 +191,7 @@ export default function KcalCalculator() {
                   name="age"
                   value={formData.age}
                   onChange={handleInputChange}
-                  className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="text-black w-full px-4 py-3 border border-[#e77503]/25 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e77503] focus:border-transparent"
                   placeholder="np. 25"
                   min="15"
                   max="100"
@@ -206,7 +206,7 @@ export default function KcalCalculator() {
                   name="gender"
                   value={formData.gender}
                   onChange={handleInputChange}
-                  className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="text-black w-full px-4 py-3 border border-[#e77503]/25 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e77503] focus:border-transparent"
                 >
                   <option value="male">Mężczyzna</option>
                   <option value="female">Kobieta</option>
@@ -215,7 +215,7 @@ export default function KcalCalculator() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                  <FaRulerVertical className="mr-1 text-purple-600" />
+                  <FaRulerVertical className="mr-1 text-[#e77503]" />
                   Wzrost (cm)
                 </label>
                 <input
@@ -223,7 +223,7 @@ export default function KcalCalculator() {
                   name="height"
                   value={formData.height}
                   onChange={handleInputChange}
-                  className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="text-black w-full px-4 py-3 border border-[#e77503]/25 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e77503] focus:border-transparent"
                   placeholder="np. 175"
                   min="120"
                   max="250"
@@ -232,7 +232,7 @@ export default function KcalCalculator() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                  <FaWeight className="mr-1 text-purple-600" />
+                  <FaWeight className="mr-1 text-[#e77503]" />
                   Waga (kg)
                 </label>
                 <input
@@ -240,7 +240,7 @@ export default function KcalCalculator() {
                   name="weight"
                   value={formData.weight}
                   onChange={handleInputChange}
-                  className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="text-black w-full px-4 py-3 border border-[#e77503]/25 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e77503] focus:border-transparent"
                   placeholder="np. 70"
                   min="30"
                   max="300"
@@ -250,16 +250,16 @@ export default function KcalCalculator() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaBolt className="mr-2 text-blue-600" />
+          <div className="bg-[#fff7ef] border border-[#e77503]/20 p-6 rounded-2xl">
+            <h3 className="text-xl font-semibold text-[#1f1d1d] mb-4 flex items-center">
+              <FaBolt className="mr-2 text-[#e77503]" />
               Poziom aktywności
             </h3>
             <select
               name="activityLevel"
               value={formData.activityLevel}
               onChange={handleInputChange}
-              className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="text-black w-full px-4 py-3 border border-[#e77503]/25 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e77503] focus:border-transparent"
             >
               {activityLevels.map((level) => (
                 <option key={level.value} value={level.value}>
@@ -269,16 +269,16 @@ export default function KcalCalculator() {
             </select>
           </div>
 
-          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaThLarge className="mr-2 text-green-600" />
+          <div className="bg-[#fff7ef] border border-[#e77503]/20 p-6 rounded-2xl">
+            <h3 className="text-xl font-semibold text-[#1f1d1d] mb-4 flex items-center">
+              <FaThLarge className="mr-2 text-[#e77503]" />
               Cel dietetyczny
             </h3>
             <select
               name="goal"
               value={formData.goal}
               onChange={handleInputChange}
-              className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="text-black w-full px-4 py-3 border border-[#e77503]/25 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e77503] focus:border-transparent"
             >
               {goals.map((goal) => (
                 <option key={goal.value} value={goal.value}>
@@ -291,14 +291,14 @@ export default function KcalCalculator() {
           <div className="flex gap-4">
             <button
               onClick={calculateCalories}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center"
+              className="flex-1 bg-[#e77503] text-white py-3 px-6 rounded-full font-semibold hover:bg-[#d96c02] transition-colors duration-200 flex items-center justify-center"
             >
               <FaCalculator className="mr-2" />
               Oblicz
             </button>
             <button
               onClick={resetForm}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 border border-[#e77503]/30 text-[#1f1d1d] rounded-full font-semibold hover:bg-[#fff7ef] transition-colors"
             >
               Wyczyść
             </button>
@@ -308,14 +308,14 @@ export default function KcalCalculator() {
         {/* Results */}
         <div>
           {results ? (
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl">
-              <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-                <FaFireAlt className="mr-2 text-orange-600" />
+            <div className="bg-[#fff7ef] border border-[#e77503]/20 p-6 rounded-2xl">
+              <h3 className="text-xl font-semibold text-[#1f1d1d] mb-6 flex items-center">
+                <FaFireAlt className="mr-2 text-[#e77503]" />
                 Wyniki kalkulacji
               </h3>
 
               <div className="space-y-4">
-                <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="bg-white p-4 rounded-xl border border-[#e77503]/10">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-medium">
                       BMR (Podstawowa Przemiana Materii):
@@ -329,12 +329,12 @@ export default function KcalCalculator() {
                   </p>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="bg-white p-4 rounded-xl border border-[#e77503]/10">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-medium">
                       TDEE (Całkowite Zapotrzebowanie):
                     </span>
-                    <span className="text-lg font-bold text-blue-600">
+                    <span className="text-lg font-bold text-[#e77503]">
                       {results.tdee} kcal
                     </span>
                   </div>
@@ -343,12 +343,12 @@ export default function KcalCalculator() {
                   </p>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-purple-200">
+                <div className="bg-white p-4 rounded-xl border-2 border-[#e77503]/35">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-medium">
                       Docelowe kalorie:
                     </span>
-                    <span className="text-xl font-bold text-purple-600">
+                    <span className="text-xl font-bold text-[#e77503]">
                       {results.targetCalories} kcal
                     </span>
                   </div>
@@ -360,40 +360,40 @@ export default function KcalCalculator() {
                     Rozkład makroskładników:
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-red-50 p-3 rounded-lg text-center border border-red-200">
-                      <div className="text-red-600 font-bold text-lg">
+                    <div className="bg-[#fff3e0] p-3 rounded-lg text-center border border-[#e77503]/30">
+                      <div className="text-[#b45b00] font-bold text-lg">
                         {results.protein}g
                       </div>
-                      <div className="text-red-700 text-sm font-medium">
+                      <div className="text-[#8f4700] text-sm font-medium">
                         Białko
                       </div>
-                      <div className="text-red-500 text-xs">25%</div>
+                      <div className="text-[#b45b00] text-xs">25%</div>
                     </div>
-                    <div className="bg-yellow-50 p-3 rounded-lg text-center border border-yellow-200">
-                      <div className="text-yellow-600 font-bold text-lg">
+                    <div className="bg-[#fff3e0] p-3 rounded-lg text-center border border-[#e77503]/30">
+                      <div className="text-[#b45b00] font-bold text-lg">
                         {results.carbs}g
                       </div>
-                      <div className="text-yellow-700 text-sm font-medium">
+                      <div className="text-[#8f4700] text-sm font-medium">
                         Węglowodany
                       </div>
-                      <div className="text-yellow-500 text-xs">45%</div>
+                      <div className="text-[#b45b00] text-xs">45%</div>
                     </div>
-                    <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
-                      <div className="text-green-600 font-bold text-lg">
+                    <div className="bg-[#fff3e0] p-3 rounded-lg text-center border border-[#e77503]/30">
+                      <div className="text-[#b45b00] font-bold text-lg">
                         {results.fats}g
                       </div>
-                      <div className="text-green-700 text-sm font-medium">
+                      <div className="text-[#8f4700] text-sm font-medium">
                         Tłuszcze
                       </div>
-                      <div className="text-green-500 text-xs">30%</div>
+                      <div className="text-[#b45b00] text-xs">30%</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 p-12 rounded-xl text-center">
-              <FaCalculator className="text-4xl text-gray-400 mx-auto mb-4" />
+            <div className="bg-[#fff7ef] border border-[#e77503]/20 p-12 rounded-2xl text-center">
+              <FaCalculator className="text-4xl text-[#e77503] mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
                 Kalkulator KCAL
               </h3>
@@ -402,7 +402,7 @@ export default function KcalCalculator() {
                 zapotrzebowanie kaloryczne i docelowe kalorie według wybranego
                 celu.
               </p>
-              <div className="mt-6 text-sm text-gray-400">
+              <div className="mt-6 text-sm text-gray-500">
                 <p>📊 Kalkulator wykorzystuje wzór Mifflin-St Jeor</p>
                 <p>🎯 Precyzyjne obliczenie BMR i TDEE</p>
                 <p>🥗 Automatyczny rozkład makroskładników</p>
@@ -413,11 +413,11 @@ export default function KcalCalculator() {
       </div>
 
       {results && (
-        <div className="mt-8 bg-blue-50 p-6 rounded-xl border border-blue-200">
-          <h4 className="text-lg font-semibold text-blue-800 mb-3">
+        <div className="mt-8 bg-[#fff7ef] p-6 rounded-2xl border border-[#e77503]/20">
+          <h4 className="text-lg font-semibold text-[#8f4700] mb-3">
             💡 Dodatkowe informacje:
           </h4>
-          <div className="text-sm text-blue-700 space-y-2">
+          <div className="text-sm text-[#8f4700] space-y-2">
             <p>
               • <strong>BMR</strong> to minimalna ilość kalorii potrzebna do
               funkcjonowania organizmu w spoczynku

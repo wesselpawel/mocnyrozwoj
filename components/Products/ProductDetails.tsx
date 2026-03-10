@@ -20,9 +20,11 @@ import { IProduct, Diet } from "@/types";
 export default function ProductDetails({
   product,
   setTest,
+  heroTitle = "TWOJA DIETA ONLINE",
 }: {
   product: IProduct | Diet;
   setTest: (product: IProduct | Diet) => void | Promise<void>;
+  heroTitle?: string;
 }) {
   const imageSrc =
     "mainImage" in product
@@ -69,9 +71,9 @@ export default function ProductDetails({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-white drop-shadow-lg text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight"
+            className="text-white drop-shadow-lg text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight font-montserrat"
           >
-            Stwórz dietę online
+            {heroTitle}
           </motion.h2>
 
           {/* Features Grid */}
@@ -117,7 +119,7 @@ export default function ProductDetails({
             onClick={() => setTest(product)}
             className="inline-flex items-center space-x-3 bg-[#e77503] hover:bg-[#e77503]/80 text-white rounded-full px-8 py-4 font-bold text-lg shadow-lg transition-all duration-300"
           >
-            <span>Stwórz dietę</span>
+            <span>Rozpocznij</span>
             <FaPlay className="text-sm" />
           </motion.button>
         </div>

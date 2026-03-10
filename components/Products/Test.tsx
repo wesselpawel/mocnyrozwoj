@@ -412,11 +412,13 @@ export default function DietPlan({
                           onClick={() => setShowLogin(true)}
                           disabled={saveStatus === "saving"}
                         >
-                          Zaloguj i zapisz plan
+                          Zarejestruj się i zapisz plan
                         </button>
                         <LoginPopup
                           isOpen={showLogin}
                           onClose={() => setShowLogin(false)}
+                          initialMode="register"
+                          allowModeSwitch={false}
                         />
                       </>
                     ) : (

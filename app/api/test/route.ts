@@ -19,201 +19,164 @@ export async function POST(req: Request) {
       );
     }
 
-    const { prompt, testName } = await req.json();
-    if (!prompt || !testName) {
+    const { prompt, testName, previousDayMealNames } = await req.json();
+    if (!Array.isArray(prompt) || prompt.length === 0 || !testName) {
       return NextResponse.json(
-        { error: "Prompt and testName are required" },
+        { error: "Prompt (answers array) and testName are required" },
         { status: 400 }
       );
     }
+
+    const answersJson = JSON.stringify(prompt, null, 2);
+    console.log(answersJson);
     const response = await openai.responses.create({
-      model: "gpt-4o-2024-08-06",
+      model: "gpt-5.4-2026-03-05",
       input: [
         {
           role: "system",
           content:
-            "Jesteś asystentem analizującym testy psychologiczne. Odpowiadasz tylko w języku polskim",
+            "Jesteś doświadczonym dietetykiem, ale znasz ludzi i ich preferencje i nawyki. Klienci chcą otrzymać dietę z produktów które znają, oraz, dania, które można łatwo przygotować i szybko zjeść. Potrawy mają mieć niskie postrzeganie trudności, tak samo lista zakupów. Tworzysz wyłącznie jednodniowy plan żywieniowy na podstawie odpowiedzi użytkownika. Odpowiadasz tylko w języku polskim i tylko zgodnie ze schematem JSON.",
         },
         {
           role: "user",
-          content: `Na podstawie testu o nazwie "${testName}", wygeneruj raport na podstawie następujących wyników: "${prompt}". Wynik musi być w poprawnym formacie JSON i zgodny ze schematem`,
+          content: `Na podstawie testu o nazwie "${testName}" wygeneruj 1-dniowy plan diety.
+
+Odpowiedzi użytkownika:
+${answersJson}
+
+Nazwy posiłków z poprzedniego dnia (nie powtarzaj tych samych nazw):
+${Array.isArray(previousDayMealNames) ? JSON.stringify(previousDayMealNames) : "[]"}
+
+Wymagania:
+- Uwzględnij wyłącznie jeden dzień żywienia.
+- Każdy posiłek musi zawierać policzone wartości: kalorie, białko_g, tłuszcze_g, węglowodany_g.
+- Gramatura musi być podana dla każdego składnika.
+- "lista_zakupow" ma być spójna z "plan_dnia" oraz "przepisy" (te same produkty i gramatury sumaryczne).
+- "przepisy" mają być dla wszystkich posiłków z planu dnia.
+- Na bazie celu użytkownika dodaj sekcję "analiza" z 3 osobnymi listami:
+  1) "porady_dla_ciebie"
+  2) "czego_unikac"
+  3) "najczestsze_bledy"
+- Każda lista w sekcji "analiza" ma zawierać od 4 do 6 konkretnych punktów.
+- Używaj praktycznych, realnych produktów dostępnych w Polsce.
+- Jeśli podano "Nazwy posiłków z poprzedniego dnia", nie używaj tych samych nazw posiłków ponownie.
+- Nie dodawaj żadnych pól spoza schematu.`,
         },
       ],
       text: {
         format: {
           type: "json_schema",
-          name: "test_report",
+          name: "diet_plan_report",
           schema: {
             type: "object",
             properties: {
-              summary: {
-                type: "object",
-                properties: {
-                  title: {
-                    type: "string",
-                    description: "The title of the test report",
-                  },
-                  description: {
-                    type: "string",
-                    description: "Summary based on the user's responses",
-                  },
-                },
-                required: ["title", "description"],
-                additionalProperties: false,
-              },
-              strengths: {
-                type: "object",
-                properties: {
-                  personality_traits: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        trait: {
-                          type: "string",
-                          description:
-                            "The polish name of the personality trait",
+              plan_dnia: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nazwa_posilku: { type: "string" },
+                    godzina: { type: "string" },
+                    skladniki: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          produkt: { type: "string" },
+                          ilosc_g: { type: "number" },
                         },
-                        description: {
-                          type: "string",
-                          description: "Description of the personality trait",
-                        },
+                        required: ["produkt", "ilosc_g"],
+                        additionalProperties: false,
                       },
-                      required: ["trait", "description"],
-                      additionalProperties: false,
                     },
+                    kalorie_kcal: { type: "number" },
+                    bialko_g: { type: "number" },
+                    tluszcze_g: { type: "number" },
+                    weglowodany_g: { type: "number" },
                   },
-                  self_confidence: {
-                    type: "string",
-                    description: "Description of self-confidence quality",
-                  },
+                  required: [
+                    "nazwa_posilku",
+                    "godzina",
+                    "skladniki",
+                    "kalorie_kcal",
+                    "bialko_g",
+                    "tluszcze_g",
+                    "weglowodany_g",
+                  ],
+                  additionalProperties: false,
                 },
-                required: ["personality_traits", "self_confidence"],
-                additionalProperties: false,
               },
-              weaknesses: {
-                type: "object",
-                properties: {
-                  areas_for_improvement: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        trait: {
-                          type: "string",
-                          description: "The polish name of the weakness trait",
+              lista_zakupow: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    produkt: { type: "string" },
+                    ilosc_calkowita_g: { type: "number" },
+                    kalorie_kcal: { type: "number" },
+                  },
+                  required: ["produkt", "ilosc_calkowita_g", "kalorie_kcal"],
+                  additionalProperties: false,
+                },
+              },
+              przepisy: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nazwa_posilku: { type: "string" },
+                    skladniki: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          produkt: { type: "string" },
+                          ilosc_g: { type: "number" },
                         },
-                        description: {
-                          type: "string",
-                          description: "Description of the weakness trait",
-                        },
+                        required: ["produkt", "ilosc_g"],
+                        additionalProperties: false,
                       },
-                      required: ["trait", "description"],
-                      additionalProperties: false,
+                    },
+                    kroki: {
+                      type: "array",
+                      items: { type: "string" },
                     },
                   },
-                  confidence_barriers: {
-                    type: "string",
-                    description: "Description of confidence barriers",
-                  },
+                  required: ["nazwa_posilku", "skladniki", "kroki"],
+                  additionalProperties: false,
                 },
-                required: ["areas_for_improvement", "confidence_barriers"],
-                additionalProperties: false,
               },
-              dream_alignment: {
+              analiza: {
                 type: "object",
                 properties: {
-                  compatibility: {
-                    type: "string",
-                    description: "Description of dream alignment compatibility",
-                  },
-                  potential_challenges: {
+                  porady_dla_ciebie: {
                     type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        challenge: {
-                          type: "string",
-                          description:
-                            "Description of the challenge (dont put a dot at the end)",
-                        },
-                        solution: {
-                          type: "string",
-                          description: "Description of the proposed solution",
-                        },
-                      },
-                      required: ["challenge", "solution"],
-                      additionalProperties: false,
-                    },
+                    items: { type: "string" },
+                    minItems: 4,
+                    maxItems: 6,
+                  },
+                  czego_unikac: {
+                    type: "array",
+                    items: { type: "string" },
+                    minItems: 4,
+                    maxItems: 6,
+                  },
+                  najczestsze_bledy: {
+                    type: "array",
+                    items: { type: "string" },
+                    minItems: 4,
+                    maxItems: 6,
                   },
                 },
-                required: ["compatibility", "potential_challenges"],
-                additionalProperties: false,
-              },
-              personalized_advice: {
-                type: "object",
-                properties: {
-                  "self-improvement_tips": {
-                    type: "array",
-                    items: {
-                      type: "string",
-                      description: "A tip for self-improvement",
-                    },
-                  },
-                  mindset_shift: {
-                    type: "string",
-                    description: "Description of the desired mindset shift",
-                  },
-                },
-                required: ["self-improvement_tips", "mindset_shift"],
-                additionalProperties: false,
-              },
-              next_steps: {
-                type: "object",
-                properties: {
-                  actionable_goals: {
-                    type: "array",
-                    items: {
-                      type: "string",
-                      description: "An actionable goal for the user",
-                    },
-                  },
-                  recommended_resources: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        type: {
-                          type: "string",
-                          description:
-                            "The polish type of the resource (e.g. Książka, Artykuł)",
-                        },
-                        title: {
-                          type: "string",
-                          description: "The title of the resource",
-                        },
-                        author: {
-                          type: "string",
-                          description: "The author of the resource",
-                        },
-                      },
-                      required: ["type", "title", "author"],
-                      additionalProperties: false,
-                    },
-                  },
-                },
-                required: ["actionable_goals", "recommended_resources"],
+                required: [
+                  "porady_dla_ciebie",
+                  "czego_unikac",
+                  "najczestsze_bledy",
+                ],
                 additionalProperties: false,
               },
             },
-            required: [
-              "summary",
-              "strengths",
-              "weaknesses",
-              "dream_alignment",
-              "personalized_advice",
-              "next_steps",
-            ],
+            required: ["plan_dnia", "lista_zakupow", "przepisy", "analiza"],
             additionalProperties: false,
           },
         },

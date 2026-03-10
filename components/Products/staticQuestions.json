@@ -1,0 +1,90 @@
+[
+  {
+    "question": "Jaki jest Twój główny cel?",
+    "type": "choice",
+    "answers": [
+      "Schudnąć",
+      "Zbudować masę",
+      "Utrzymać wagę",
+      "Poprawić energię"
+    ]
+  },
+  {
+    "question": "Co najbardziej utrudnia Ci trzymanie diety?",
+    "type": "choice",
+    "multiple": true,
+    "answers": [
+      "Brak czasu",
+      "Podjadanie wieczorem",
+      "Nieregularne godziny pracy",
+      "Brak pomysłów na posiłki",
+      "Ciągła ochota na słodycze"
+    ]
+  },
+  {
+    "question": "Jak wygląda Twoja aktywność?",
+    "type": "choice",
+    "answers": [
+      "Siedząca praca",   
+      "Lekko aktywny",
+      "Trenuję 2–3x tygodniowo",
+      "Trenuję 4–5x tygodniowo",
+      "Intensywny sport"
+    ]
+  },
+  {
+    "question": "Ile czasu możesz poświęcić na przygotowanie posiłków?",
+    "type": "choice",
+    "answers": [
+      "Do 15 minut",
+      "15-30 minut",
+      "30-60 minut",
+      "Ponad 60 minut"
+    ]
+  },
+  {
+    "question": "Czy jest coś, czego nie jesz?",
+    "type": "choice",
+    "answers": [
+      "Tylko wegetariańska",
+      "Bez laktozy",
+      "Bez glutenu",
+      "Bez ograniczeń"
+    ]
+  },
+  {
+    "question": "Podaj swoją wagę (kg)",
+    "type": "text",
+    "inputType": "number",
+    "placeholder": "np. 78",
+    "answers": []
+  },
+  {
+    "question": "Podaj swój wzrost (cm)",
+    "type": "text",
+    "inputType": "number",
+    "placeholder": "np. 175",
+    "answers": []
+  },
+  {
+    "question": "Podaj swój wiek",
+    "type": "text",
+    "inputType": "number",
+    "placeholder": "np. 29",
+    "answers": []
+  },
+  {
+    "question": "Podaj swoją płeć",
+    "type": "gender",
+    "answers": ["Kobieta", "Mężczyzna"]
+  },
+  {
+    "question": "Czy chcesz dodać dodatkowe uwagi do planu?",
+    "type": "text",
+    "multiline": true,
+    "optional": true,
+    "maxLength": 100,
+    "placeholder": "Np. nie lubię ostrych potraw, wolę szybkie śniadania...",
+    "answers": []
+  }
+]

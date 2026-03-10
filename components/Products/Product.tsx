@@ -14,9 +14,11 @@ import { Diet, IProduct } from "@/types";
 export default function Product({
   product,
   setTest,
+  heroTitle,
 }: {
   product: IProduct | Diet;
   setTest: (product: IProduct | Diet) => void | Promise<void>;
+  heroTitle?: string;
 }) {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isImageOpen, setImageOpen] = useState(false);
@@ -43,7 +45,11 @@ export default function Product({
               {/* Content */}
               <div className="h-full overflow-y-auto">
                 {/* Hero Section */}
-                <ProductDetails product={product} setTest={setTest} />
+                <ProductDetails
+                  product={product}
+                  setTest={setTest}
+                  heroTitle={heroTitle}
+                />
               </div>
             </div>
           </motion.div>

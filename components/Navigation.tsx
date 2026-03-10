@@ -3,28 +3,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import logo from "@/public/logoNew.png";
+import logo from "@/public/dziendiety.png";
 
 // Array for main navigation links
 const NAV_ITEMS = [
+  // Uncomment to enable blog/faq
   {
-    label: "Dieta",
-    href: "/dieta",
-    className:
-      "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
+    label: "Blog",
+    href: "/blog",
+    className: "text-zinc-800 hover:text-[#f77503] transition-colors duration-200 font-medium",
     mobileClass:
-      "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
+      "block px-3 py-2 text-zinc-800 hover:text-[#f77503] hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
     show: true,
   },
-  // Uncomment to enable blog/faq
-  // {
-  //   label: "Blog",
-  //   href: "/blog",
-  //   className: "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
-  //   mobileClass:
-  //     "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
-  //   show: false,
-  // },
   // {
   //   label: "FAQ",
   //   href: "/faq",
@@ -37,7 +28,7 @@ const NAV_ITEMS = [
     label: "Kontakt",
     href: "/contact",
     className:
-      "text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium",
+      "text-zinc-800 hover:text-[#f77503] transition-colors duration-200 font-medium",
     mobileClass:
       "block px-3 py-2 text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md font-medium transition-colors duration-200",
     show: true,
@@ -48,7 +39,7 @@ const NAV_ITEMS = [
     className:
       "border-2 border-[#e77503] text-[#e77503] px-6 py-2 rounded-full hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium",
     mobileClass:
-      "block px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-center",
+      "block px-3 py-2 bg-gradient-to-r from-[#f77503] to-[#f77503] text-white rounded-md hover:from-[#f77503] hover:to-[#f77503] transition-all duration-200 font-medium text-center",
     show: true,
   },
 ];
@@ -95,20 +86,14 @@ export default function Navigation() {
       style={{ willChange: "transform" }}
     >
       <div className="max-w-6xl mx-auto px-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-2">
           {/* logo */}
           <Link
             href="/"
             className="flex items-center space-x-3"
             onClick={closeMobileMenu}
           >
-            <Image
-              src={logo}
-              width={512}
-              height={512}
-              alt="Mocny Rozwój Osobisty logo"
-              className="w-24 h-auto"
-            />
+          <Image src={logo} alt="Logo" width={100} height={100}  className="w-40 h-auto"/>
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -128,7 +113,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
-              className="text-gray-700 hover:text-purple-600 transition-colors duration-200"
+              className="text-zinc-800 hover:text-[#f77503] transition-colors duration-200"
               onClick={toggleMobileMenu}
               aria-label="Toggle mobile menu"
             >

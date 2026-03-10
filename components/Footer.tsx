@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import logo from "@/public/logoNewWhite.png";
+import logo from "@/public/dziendiety2.png";
 import { MdEmail, MdPhone, MdChat } from "react-icons/md";
 
 export default function Footer() {
@@ -11,12 +11,12 @@ export default function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex flex-row gap-4">
-              <div className="flex items-center -mt-8">
+              <div className="bg-white flex pb-4 pt-3 h-max">
                 <Image
                   src={logo}
                   width={512}
                   height={512}
-                  alt="Mocny Rozwój Osobisty logo"
+                  alt="Dziendiety.pl logo"
                   className="w-32 h-auto"
                 />
               </div>
@@ -25,38 +25,25 @@ export default function Footer() {
                   Szybkie linki
                 </h4>
                 <ul className="space-y-1 text-gray-400 text-xs mt-3">
-                  <li>
+                <li>
                     <Link
-                      href="/dieta"
+                      href="/login"
                       className="hover:text-white transition-colors duration-200"
                     >
-                      Dieta
+                      Zaloguj się
                     </Link>
                   </li>
                   <li>
                     <Link
-                      href="/narzedzia/kalorie/kalkulator-kcal"
+                      href="/register"
                       className="hover:text-white transition-colors duration-200"
                     >
-                      Kalkulator kcal
+                      Utwórz konto
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/narzedzia/kalorie/kalkulator-bmi"
-                      className="hover:text-white transition-colors duration-200"
-                    >
-                      Kalkulator BMI
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/narzedzia/diety/generator-diety"
-                      className="hover:text-white transition-colors duration-200"
-                    >
-                      Generator diety
-                    </Link>
-                  </li>
+              
+                  
+                  
                   <li>
                     <Link
                       href="/contact"
@@ -65,41 +52,37 @@ export default function Footer() {
                       Kontakt
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/login"
-                      className="hover:text-white transition-colors duration-200"
-                    >
-                      Logowanie
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/register"
-                      className="hover:text-white transition-colors duration-200"
-                    >
-                      Rejestracja
-                    </Link>
-                  </li>
                 </ul>
               </div>
             </div>
-            <p className="text-gray-400 text-sm mt-12 mb-4 max-w-md leading-relaxed">
-              Twoja podróż do lepszej wersji siebie zaczyna się tutaj.
-            </p>
-            <div className="flex space-x-3">
-              <div className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors duration-200">
-                <MdEmail className="text-white text-sm" />
-              </div>
-              <div className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors duration-200">
-                <MdPhone className="text-white text-sm" />
-              </div>
-              <div className="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors duration-200">
-                <MdChat className="text-white text-sm" />
-              </div>
-            </div>
+            
+            
           </div>
 
+              <div>
+                <h4 className="font-semibold text-sm text-gray-200">
+                  Narzędzia
+                </h4>
+                <ul className="space-y-1 text-gray-400 text-xs mt-3">
+                <li>
+                    <Link
+                      href="/generator-diety-ai"
+                      className="hover:text-white transition-colors duration-200"
+                    >
+                      Generator diety AI
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/kalkulator-kcal"
+                      className="hover:text-white transition-colors duration-200"
+                    >
+                      Kalkulator kcal
+                    </Link>
+                  </li>
+                  
+                </ul>
+              </div>
           {/* Join CTA */}
           <div className="">
             <h4 className="font-semibold text-sm mb-2 text-gray-200">
@@ -107,20 +90,20 @@ export default function Footer() {
             </h4>
             <p className="text-xs mb-3 text-gray-400 leading-relaxed">
               Rozpocznij swoją transformację już dziś. Pełny dostęp do
-              wszystkich narzędzi rozwojowych.
+              darmowej diety.
             </p>
             <div className="space-y-1 text-xs">
               <div className="flex items-center">
                 <span className="text-green-400 mr-2">✓</span>
-                <span className="text-gray-300">Spersonalizowane raporty</span>
+                <span className="text-gray-300">Darmowa dieta</span>
               </div>
               <div className="flex items-center">
                 <span className="text-green-400 mr-2">✓</span>
-                <span className="text-gray-300">Praktyczne ćwiczenia</span>
+                <span className="text-gray-300">Praktyczne porady</span>
               </div>
               <div className="flex items-center">
                 <span className="text-green-400 mr-2">✓</span>
-                <span className="text-gray-300">Śledzenie postępów</span>
+                <span className="text-gray-300">Listy zakupów</span>
               </div>
             </div>
           </div>
@@ -129,7 +112,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-xs">
-            © 2026 mocnyrozwoj.pl Wszystkie prawa zastrzeżone.
+            © 2026 dziendiety.pl
           </p>
           <div className="flex space-x-4 mt-2 md:mt-0 text-xs text-gray-500">
             <span className="hover:text-gray-400 transition-colors duration-200 cursor-pointer">

@@ -20,8 +20,14 @@ export default function UserActionsModal({
   const { user, firebaseUser } = useAuth();
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<
-    "free" | "premium"
+    "free" | "Basic" | "Advanced" | "Pro" | "premium"
   >("free");
+  const normalizedSubscription = subscriptionStatus.toLowerCase();
+  const hasPaidPlan =
+    normalizedSubscription === "basic" ||
+    normalizedSubscription === "advanced" ||
+    normalizedSubscription === "pro" ||
+    normalizedSubscription === "premium";
 
   // Check subscription status from Firebase
   useEffect(() => {
@@ -161,14 +167,14 @@ export default function UserActionsModal({
                     <div className="flex items-center space-x-3">
                       <div
                         className={`p-2 rounded-full ${
-                          subscriptionStatus === "premium"
+                          hasPaidPlan
                             ? "bg-yellow-100"
                             : "bg-gray-100"
                         }`}
                       >
                         <FaCrown
                           className={`text-lg ${
-                            subscriptionStatus === "premium"
+                            hasPaidPlan
                               ? "text-yellow-600"
                               : "text-gray-400"
                           }`}
@@ -180,18 +186,16 @@ export default function UserActionsModal({
                         </h3>
                         <p
                           className={`text-sm capitalize ${
-                            subscriptionStatus === "premium"
+                            hasPaidPlan
                               ? "text-yellow-600 font-medium"
                               : "text-gray-600"
                           }`}
                         >
-                          {subscriptionStatus === "premium"
-                            ? "Premium"
-                            : "Darmowa"}
+                          {hasPaidPlan ? subscriptionStatus : "Darmowa"}
                         </p>
                       </div>
                     </div>
-                    {subscriptionStatus === "free" && (
+                    {!hasPaidPlan && (
                       <button
                         onClick={() => {
                           onClose();
