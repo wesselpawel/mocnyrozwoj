@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import StaticTest from "@/components/Products/StaticTest";
 import { useAuth } from "@/components/AuthContext";
 import { IProduct, Diet } from "@/types";
@@ -47,7 +48,8 @@ export default function LandingTestTriggerWrapper({
         {children}
       </button>
 
-      {test && (
+      {test && typeof document !== "undefined"
+        ? createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -57,7 +59,10 @@ export default function LandingTestTriggerWrapper({
             <StaticTest setTest={setTest} test={test} />
           </div>
         </div>
-      )}
+        ,
+        document.body,
+      )
+        : null}
     </>
   );
 }

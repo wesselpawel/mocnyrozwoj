@@ -146,12 +146,6 @@ export default async function KalkulatorKcalPage() {
                   </LandingTestTriggerWrapper>
                 ) : null}
                 <div className="mb-6 mt-6 flex justify-center gap-3">
-                  <Link
-                    href="#kcal-calculator"
-                    className="inline-flex items-center rounded-full border border-[#e77503]/30 px-6 py-3 font-semibold text-[#1f1d1d] hover:bg-[#fff7ef] transition-colors duration-300 shadow-sm"
-                  >
-                    Oblicz teraz
-                  </Link>
                   {testProduct ? (
                     <LandingTestTriggerButton
                       testProduct={testProduct}
