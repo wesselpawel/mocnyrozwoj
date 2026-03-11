@@ -29,7 +29,7 @@ export default function DietTest({
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [finished, setFinished] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState<Record<string, unknown> | null>(null);
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const questions = dietPlan.questions ?? [];
