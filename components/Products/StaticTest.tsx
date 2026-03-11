@@ -21,27 +21,7 @@ import { IProduct, Diet, IQuestion } from "@/types";
 import staticQuestions from "./staticQuestions.json";
 import Image from "next/image";
 import logoWhite from "@/public/logoNewWhite.png";
-
-async function getDietPlanResults({
-  prompt,
-  dietPlanName,
-}: {
-  prompt: { question: string; answer: string }[];
-  dietPlanName?: string;
-}) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/test`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      prompt,
-      testName: dietPlanName,
-    }),
-  });
-  const data = await response.json();
-  return data;
-}
+import { getDietPlanResultsStreamed } from "@/lib/testStreamClient";
 
 export default function StaticTest({
   setTest,
@@ -179,7 +159,7 @@ export default function StaticTest({
       setLoading(true);
 
       const fetchResults = async () => {
-        const report = await getDietPlanResults({
+        const report = await getDietPlanResultsStreamed({
           prompt: selected,
           dietPlanName: test?.title ?? "Plan dietetyczny",
         });

@@ -1207,6 +1207,7 @@ function TestResultsSection({
   );
   const [generatingDay, setGeneratingDay] = useState<number | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [generationStatus, setGenerationStatus] = useState("");
   const [showPlansPopup, setShowPlansPopup] = useState(false);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [isUpsellPopupAnimatingIn, setIsUpsellPopupAnimatingIn] = useState(false);
@@ -1336,6 +1337,48 @@ function TestResultsSection({
     },
   ] as const;
 
+  const consumeSseStream = async (
+    response: Response,
+    onEvent: (event: string, data: Record<string, unknown>) => void,
+  ) => {
+    if (!response.body) return;
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const frames = buffer.split("\n\n");
+      buffer = frames.pop() ?? "";
+
+      for (const frame of frames) {
+        const lines = frame
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean);
+        if (lines.length === 0) continue;
+
+        const eventLine = lines.find((line) => line.startsWith("event:"));
+        const dataLines = lines
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5).trim());
+        if (!eventLine || dataLines.length === 0) continue;
+
+        const eventName = eventLine.slice(6).trim();
+        try {
+          const payload = JSON.parse(dataLines.join("\n")) as Record<string, unknown>;
+          onEvent(eventName, payload);
+        } catch {
+          // Ignore malformed chunk and continue reading.
+        }
+      }
+    }
+  };
+
   const generateDayPlan = async (day: number) => {
     if (!user?.id || generatingDay) return;
 
@@ -1346,10 +1389,7 @@ function TestResultsSection({
 
     setGeneratingDay(day);
     setGenerationProgress(0);
-
-    const progressInterval = window.setInterval(() => {
-      setGenerationProgress((prev) => Math.min(prev + Math.floor(Math.random() * 8) + 3, 92));
-    }, 400);
+    setGenerationStatus("Łączenie z generatorem planu...");
 
     try {
       const prompt = savedPreferences;
@@ -1371,18 +1411,53 @@ function TestResultsSection({
 
       const response = await fetch("/api/test", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "text/event-stream",
+        },
         body: JSON.stringify({
           prompt,
           testName: `Dzień ${day}`,
           previousDayMealNames,
           algorithmVersion: canUseLatestAlgorithm ? "latest" : "standard",
+          stream: true,
         }),
       });
       if (!response.ok) {
         throw new Error("Failed to generate diet");
       }
-      const report = await response.json();
+      let report: Record<string, unknown> | null = null;
+      const contentType = response.headers.get("content-type") || "";
+
+      if (contentType.includes("text/event-stream")) {
+        await consumeSseStream(response, (event, data) => {
+          if (event === "progress") {
+            const progressValue = data.progress;
+            const statusValue = data.status;
+            if (typeof progressValue === "number") {
+              setGenerationProgress(Math.max(0, Math.min(100, progressValue)));
+            }
+            if (typeof statusValue === "string") {
+              setGenerationStatus(statusValue);
+            }
+          } else if (event === "final") {
+            const streamedResult = data.result;
+            if (streamedResult && typeof streamedResult === "object") {
+              report = streamedResult as Record<string, unknown>;
+            }
+          } else if (event === "error") {
+            throw new Error(
+              typeof data.error === "string" ? data.error : "Failed to generate diet",
+            );
+          }
+        });
+      } else {
+        report = await response.json();
+      }
+
+      if (!report) {
+        throw new Error("Empty report from streaming response");
+      }
 
       await testResultsService.saveTestResult({
         userId: user.id,
@@ -1407,11 +1482,12 @@ function TestResultsSection({
       setIsResultOpen(true);
       onDietGenerated?.();
     } catch {
+      setGenerationStatus("Wystąpił błąd podczas generowania.");
     } finally {
-      window.clearInterval(progressInterval);
       setTimeout(() => {
         setGeneratingDay(null);
         setGenerationProgress(0);
+        setGenerationStatus("");
       }, 500);
     }
   };
@@ -1506,7 +1582,7 @@ function TestResultsSection({
                 </div>
                 <div className={`text-sm ${result ? "text-white/80" : "text-zinc-500"}`}>
                   {isGenerating
-                    ? `Tworzenie planu... ${generationProgress}%`
+                    ? `${generationStatus || "Tworzenie planu..."} ${generationProgress}%`
                     : result
                       ? new Date(result.createdAt).toLocaleDateString()
                       : !hasPreferences

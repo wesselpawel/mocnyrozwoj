@@ -11,27 +11,7 @@ import {
 import { useAuth } from "@/components/AuthContext";
 import LoginPopup from "@/components/LoginPopup";
 import { Course, Diet } from "@/types";
-
-async function getDietPlanResults({
-  prompt,
-  dietPlanName,
-}: {
-  prompt: { question: string; answer: string }[];
-  dietPlanName?: string;
-}) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/test`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      prompt,
-      testName: dietPlanName,
-    }),
-  });
-  const data = await response.json();
-  return data;
-}
+import { getDietPlanResultsStreamed } from "@/lib/testStreamClient";
 
 export default function DietTest({
   setShowTest,
@@ -91,7 +71,7 @@ export default function DietTest({
       setLoading(true);
 
       const fetchResults = async () => {
-        const results = await getDietPlanResults({
+        const results = await getDietPlanResultsStreamed({
           prompt: selected,
           dietPlanName: dietPlan?.title,
         });

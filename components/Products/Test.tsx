@@ -10,27 +10,7 @@ import LoginPopup from "@/components/LoginPopup";
 import { testResultsService } from "@/lib/testResultsService";
 import { useRouter } from "next/navigation";
 import { IProduct, Diet } from "@/types";
-
-async function getDietPlanResults({
-  prompt,
-  dietPlanName,
-}: {
-  prompt: { question: string; answer: string }[];
-  dietPlanName?: string;
-}) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/test`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      prompt,
-      testName: dietPlanName,
-    }),
-  });
-  const data = await response.json();
-  return data;
-}
+import { getDietPlanResultsStreamed } from "@/lib/testStreamClient";
 
 export default function DietPlan({
   setTest,
@@ -92,7 +72,7 @@ export default function DietPlan({
       setLoading(true);
 
       const fetchResults = async () => {
-        const results = await getDietPlanResults({
+        const results = await getDietPlanResultsStreamed({
           prompt: selected,
           dietPlanName: test?.title ?? "Plan dietetyczny",
         });
