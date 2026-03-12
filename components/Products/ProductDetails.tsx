@@ -71,7 +71,7 @@ export default function ProductDetails({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-white drop-shadow-lg text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight font-montserrat"
+            className="text-white drop-shadow-lg text-2xl sm:text-3xl lg:text-5xl font-bold mb-8 leading-tight font-montserrat"
           >
             {heroTitle}
           </motion.h2>
