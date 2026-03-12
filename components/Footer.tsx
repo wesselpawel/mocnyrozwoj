@@ -30,17 +30,10 @@ export default function Footer() {
                       href="/login"
                       className="hover:text-white transition-colors duration-200"
                     >
-                      Zaloguj się
+                      Zaloguj się lub utwórz konto
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/register"
-                      className="hover:text-white transition-colors duration-200"
-                    >
-                      Utwórz konto
-                    </Link>
-                  </li>
+                  
               
                   
                   
