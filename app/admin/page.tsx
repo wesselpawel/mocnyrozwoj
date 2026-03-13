@@ -1,7 +1,4 @@
 "use client";
-
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/firebase";
 import Link from "next/link";
 import {
   FaPlus,
@@ -13,39 +10,6 @@ import {
 } from "react-icons/fa";
 
 export default function AdminPage() {
-  const [user, loading] = useAuthState(auth);
-
-  if (loading) {
-    return (
-      <div className="p-6 lg:p-16">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="p-6 lg:p-16">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
-            Dostęp zabroniony
-          </h1>
-          <p className="text-gray-600">
-            Musisz się zalogować, aby uzyskać dostęp do panelu
-            administracyjnego.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const adminCards = [
     {
       title: "Dodaj kurs",
@@ -98,7 +62,7 @@ export default function AdminPage() {
           Panel administracyjny
         </h1>
         <p className="text-gray-600">
-          Witaj, {user.email}! Oto przegląd funkcji administracyjnych.
+          Witaj, administratorze! Oto przegląd funkcji administracyjnych.
         </p>
       </div>
 

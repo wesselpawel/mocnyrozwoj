@@ -25,6 +25,7 @@ import LandingRegisterForm from "@/components/LandingRegisterForm";
 import LandingTestTriggerImage from "@/components/LandingTestTriggerImage";
 import LandingTestTriggerButton from "@/components/LandingTestTriggerButton";
 import LandingInteractiveTest from "@/components/LandingInteractiveTest";
+import HomeDietPricingSection from "@/components/HomeDietPricingSection";
 import {
   FaUserMd,
   FaBalanceScale,
@@ -193,8 +194,9 @@ export default async function Home() {
             Bez wiedzy dietetycznej. Bez skomplikowanych zasad. Bez godzin
             planowania.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col">
+          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="grid grid-cols-1  gap-8">
+            <div className="">
               <div className="p-1 w-24 h-24 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
                 <span className="text-white text-4xl font-bold">1</span>
               </div>
@@ -241,8 +243,13 @@ export default async function Home() {
               </p>
             </div>
           </div>
+        <video src="/generator-diety-ai-video.mp4" className="mx-automax-w-full w-[500px] h-full object-cover" autoPlay muted loop />
+        </div>
         </div>
       </div>
+      
+      <HomeDietPricingSection />
+
       <div className="py-16 px-6 lg:px-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-montserrat font-extrabold tracking-[0.6rem] text-left text-3xl sm:text-4xl lg:text-5xl text-black mb-12">

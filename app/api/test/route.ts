@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { addDocument } from "@/firebase";
 
 const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -7,6 +8,44 @@ const getOpenAIClient = () => {
     return null;
   }
   return new OpenAI({ apiKey });
+};
+
+const GENERATED_DIETS_COLLECTION = "generatedDiets";
+
+const createGeneratedDietId = () =>
+  `generated_diet_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+const persistGeneratedDiet = async ({
+  testName,
+  prompt,
+  previousDayMealNames,
+  algorithmVersion,
+  result,
+}: {
+  testName: string;
+  prompt: unknown[];
+  previousDayMealNames: string[];
+  algorithmVersion: unknown;
+  result: Record<string, unknown>;
+}) => {
+  const id = createGeneratedDietId();
+  const payload = {
+    id,
+    testName,
+    answers: prompt,
+    previousDayMealNames,
+    algorithmVersion:
+      typeof algorithmVersion === "string" ? algorithmVersion : "standard",
+    report: result,
+    source: "api_test",
+    createdAt: new Date().toISOString(),
+  };
+
+  try {
+    await addDocument(GENERATED_DIETS_COLLECTION, id, payload);
+  } catch {
+    // Diet generation should not fail just because analytics/archive persistence fails.
+  }
 };
 
 const DIET_PLAN_JSON_SCHEMA = {
@@ -179,7 +218,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const { prompt, testName, previousDayMealNames, stream } = await req.json();
+    const { prompt, testName, previousDayMealNames, stream, algorithmVersion } =
+      await req.json();
     if (!Array.isArray(prompt) || prompt.length === 0 || !testName) {
       return NextResponse.json(
         { error: "Prompt (answers array) and testName are required" },
@@ -199,6 +239,15 @@ export async function POST(req: Request) {
     if (!stream) {
       const response = await openai.responses.create(requestPayload);
       const result = JSON.parse(response.output_text);
+      await persistGeneratedDiet({
+        testName,
+        prompt,
+        previousDayMealNames: Array.isArray(previousDayMealNames)
+          ? previousDayMealNames
+          : [],
+        algorithmVersion,
+        result,
+      });
       return NextResponse.json(result);
     }
 
@@ -238,6 +287,15 @@ export async function POST(req: Request) {
           const finalResponse = await responseStream.finalResponse();
           const finalOutputText = finalResponse.output_text || outputText;
           const result = JSON.parse(finalOutputText);
+          await persistGeneratedDiet({
+            testName,
+            prompt,
+            previousDayMealNames: Array.isArray(previousDayMealNames)
+              ? previousDayMealNames
+              : [],
+            algorithmVersion,
+            result,
+          });
 
           sendEvent("final", { result });
           sendEvent("progress", {

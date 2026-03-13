@@ -13,6 +13,7 @@ async function updateUserSubscriptionData(
   userId: string,
   subscriptionId: string | null,
   customerId: string | null,
+  subscriptionPlan: string | null,
   paymentData: { amount: number | null; date: number; result: string | null },
   sessionId: string
 ) {
@@ -33,7 +34,7 @@ async function updateUserSubscriptionData(
   const subscriptionStatus =
     subscriptionData?.status === "active" ||
     subscriptionData?.status === "trialing"
-      ? "premium"
+      ? subscriptionPlan || "premium"
       : "free";
 
   const subscriptionEndDate = subscriptionData?.current_period_end
@@ -202,6 +203,7 @@ export async function POST(req: Request) {
       const customerId =
         typeof session.customer === "string" ? session.customer : null;
       const userId = session.metadata?.userId || session.metadata?.uid || null;
+      const subscriptionPlan = session.metadata?.subscriptionPlan || null;
 
       const paymentData = {
         amount: session.amount_total ?? null,
@@ -215,6 +217,7 @@ export async function POST(req: Request) {
             userId,
             subscriptionId,
             customerId,
+            subscriptionPlan,
             paymentData,
             session.id
           );

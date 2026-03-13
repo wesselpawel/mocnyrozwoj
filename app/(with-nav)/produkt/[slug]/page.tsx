@@ -525,7 +525,7 @@ export default function ProductPage() {
             <FAQ
               items={diet.faq.map((f) => ({
                 question: f.question,
-                answers: f.answers,
+                answer: f.answers.join("\n\n"),
               }))}
               title="Często zadawane pytania"
               allowMultiple={false}

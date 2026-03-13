@@ -2,23 +2,46 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { blogService, BlogPost } from "@/lib/blogService";
+import { blogService, BlogPost, DietDayPlan, DietGenerationInput } from "@/lib/blogService";
 import { ContentSection } from "./types";
+import {
+  createEmptySections,
+  mapSectionsToLegacyContentFields,
+} from "./contentFields";
 import PageHeader from "./components/PageHeader";
 import AIGenerationSection from "./components/AIGenerationSection";
 import BasicInformationSection from "./components/BasicInformationSection";
 import SEOInformationSection from "./components/SEOInformationSection";
 import ContentSectionsManager from "./components/ContentSectionsManager";
 import FormActions from "./components/FormActions";
+import DietDayGeneratorSection from "./components/DietDayGeneratorSection";
+
+const CATEGORIES_WITH_DIET_DAY_GENERATION = new Set([
+  "Diety",
+  "Przykładowe dni diety",
+  "Konkretny cel dietetyczny",
+]);
+
+const DEFAULT_DIET_INPUT: DietGenerationInput = {
+  calories: 2000,
+  mealsPerDay: 3,
+  mealVariants: [3, 4, 5],
+  dietName: "",
+  dietGoal: "",
+  unwantedProducts: "",
+  gender: "inna",
+};
 
 export default function NewBlogPostPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatingDietDays, setGeneratingDietDays] = useState(false);
   const [topic, setTopic] = useState("");
-  const [sections, setSections] = useState<ContentSection[]>([
-    { id: "1", title: "Treść posta", content: "" },
-  ]);
+  const [sections, setSections] = useState<ContentSection[]>(createEmptySections());
+  const [dietGenerationInput, setDietGenerationInput] =
+    useState<DietGenerationInput>(DEFAULT_DIET_INPUT);
+  const [dietDays, setDietDays] = useState<DietDayPlan[]>([]);
   const [post, setPost] = useState<Partial<BlogPost>>({
     title: "",
     shortDesc: "",
@@ -27,9 +50,29 @@ export default function NewBlogPostPage() {
     googleKeywords: "",
     url: "",
     urlLabel: "",
-    category: "Rozwój osobisty",
+    category: "Diety",
     tags: "",
   });
+
+  const [savingDraft, setSavingDraft] = useState(false);
+
+  const handleSaveDraft = async () => {
+    const draftData: Partial<BlogPost> = {
+      ...post,
+      ...mapSectionsToLegacyContentFields(sections),
+      dietGenerationInput,
+      dietDays,
+    };
+    try {
+      setSavingDraft(true);
+      await blogService.saveDraft(draftData);
+      alert("Szkic zapisany.");
+    } catch {
+      alert("Błąd podczas zapisywania szkicu posta");
+    } finally {
+      setSavingDraft(false);
+    }
+  };
 
   const handleGeneratePost = async () => {
     if (!topic.trim()) {
@@ -39,11 +82,12 @@ export default function NewBlogPostPage() {
 
     try {
       setGenerating(true);
-      const generatedPost = await blogService.generateBlogPost(topic);
-      setPost(generatedPost);
-
-      // Update post data with generated content (but not sections)
-      setPost(generatedPost);
+      const generatedPost = await blogService.generateBlogPost(topic, {
+        title: post.title || "",
+        category: post.category || "",
+        shortDesc: post.shortDesc || "",
+      });
+      setPost((prev) => ({ ...prev, ...generatedPost }));
       setTopic("");
     } catch {
       alert("Błąd podczas generowania posta");
@@ -58,23 +102,11 @@ export default function NewBlogPostPage() {
       return;
     }
 
-    // Convert section back to the expected format
     const postData = {
       ...post,
-      text1Title: "Treść posta",
-      text1Desc: sections[0]?.content || "",
-      text2Title: "",
-      text2Desc: "",
-      text3Title: "",
-      text3Desc: "",
-      text4Title: "",
-      text4Desc: "",
-      text5Title: "",
-      text5Desc: "",
-      text6Title: "",
-      text6Desc: "",
-      text7Title: "",
-      text7Desc: "",
+      ...mapSectionsToLegacyContentFields(sections),
+      dietGenerationInput,
+      dietDays,
     };
 
     try {
@@ -95,6 +127,46 @@ export default function NewBlogPostPage() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleGenerateDietDays = async () => {
+    if (!CATEGORIES_WITH_DIET_DAY_GENERATION.has(post.category || "")) {
+      return;
+    }
+
+    if (!dietGenerationInput.dietName.trim() || !dietGenerationInput.dietGoal.trim()) {
+      alert("Uzupełnij nazwę diety i cel diety.");
+      return;
+    }
+
+    try {
+      setGeneratingDietDays(true);
+      const response = await fetch("/api/admin/generate-diet-days", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          category: post.category,
+          ...dietGenerationInput,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { days?: DietDayPlan[]; error?: string }
+        | null;
+
+      if (!response.ok || !payload?.days) {
+        alert(payload?.error || "Nie udało się wygenerować dni diety.");
+        return;
+      }
+
+      setDietDays(payload.days);
+    } catch {
+      alert("Nie udało się wygenerować dni diety.");
+    } finally {
+      setGeneratingDietDays(false);
+    }
   };
 
   const updateSection = (
@@ -135,12 +207,29 @@ export default function NewBlogPostPage() {
               handleInputChange={handleInputChange}
             />
 
+            {CATEGORIES_WITH_DIET_DAY_GENERATION.has(post.category || "") && (
+              <DietDayGeneratorSection
+                value={dietGenerationInput}
+                days={dietDays}
+                loading={generatingDietDays}
+                onChange={(updates) =>
+                  setDietGenerationInput((prev) => ({ ...prev, ...updates }))
+                }
+                onGenerate={handleGenerateDietDays}
+              />
+            )}
+
             <ContentSectionsManager
               sections={sections}
               updateSection={updateSection}
             />
 
-            <FormActions loading={loading} handleSavePost={handleSavePost} />
+            <FormActions
+              loading={loading}
+              savingDraft={savingDraft}
+              handleSavePost={handleSavePost}
+              handleSaveDraft={handleSaveDraft}
+            />
           </form>
         </div>
       </div>

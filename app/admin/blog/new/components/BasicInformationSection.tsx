@@ -1,6 +1,7 @@
 "use client";
 
 import { BlogPost } from "@/lib/blogService";
+import { categories } from "@/app/(with-nav)/blog/data";
 
 interface BasicInformationSectionProps {
   post: Partial<BlogPost>;
@@ -11,6 +12,11 @@ export default function BasicInformationSection({
   post,
   handleInputChange,
 }: BasicInformationSectionProps) {
+  const postCategory = post.category || "";
+  const categoryOptions = postCategory && !categories.includes(postCategory as (typeof categories)[number])
+    ? [postCategory, ...categories]
+    : categories;
+
   return (
     <>
       {/* Basic Information */}
@@ -59,13 +65,17 @@ export default function BasicInformationSection({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Kategoria
           </label>
-          <input
-            type="text"
-            value={post.category}
+          <select
+            value={post.category || categoryOptions[0] || ""}
             onChange={(e) => handleInputChange("category", e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
-            placeholder="Rozwój osobisty"
-          />
+          >
+            {categoryOptions.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">

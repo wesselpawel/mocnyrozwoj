@@ -1,0 +1,11 @@
+export { getIntro } from "./intro";
+export { getLowCalorieDisclaimer } from "./lowCalorieDisclaimer";
+export { getCaloricHacks } from "./caloricHacks";
+export { getCaloricNeeds } from "./caloricNeeds";
+export { getCaloricSurplus } from "./caloricSurplus";
+export { getPrinciples } from "./principles";
+export { getProducts } from "./products";
+export { getMistakes } from "./mistakes";
+export { getProgress } from "./progress";
+export { getSummary } from "./summary";
+export { getProductTables } from "./productTables";

@@ -20,7 +20,14 @@ export default function UserActionsModal({
   const { user, firebaseUser } = useAuth();
   const router = useRouter();
   const [subscriptionStatus, setSubscriptionStatus] = useState<
-    "free" | "Basic" | "Advanced" | "Pro" | "premium"
+    | "free"
+    | "basic"
+    | "advanced"
+    | "pro"
+    | "Basic"
+    | "Advanced"
+    | "Pro"
+    | "premium"
   >("free");
   const normalizedSubscription = subscriptionStatus.toLowerCase();
   const hasPaidPlan =

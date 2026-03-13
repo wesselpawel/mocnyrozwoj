@@ -131,7 +131,15 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  subscriptionStatus: "free" | "Basic" | "Advanced" | "Pro" | "premium";
+  subscriptionStatus:
+    | "free"
+    | "basic"
+    | "advanced"
+    | "pro"
+    | "Basic"
+    | "Advanced"
+    | "Pro"
+    | "premium";
   subscriptionEndDate?: string;
   totalPurchases?: number;
   totalSpent?: number;

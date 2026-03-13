@@ -93,6 +93,15 @@ const hasSubscriptionFeature = (status: string | undefined, feature: Subscriptio
   return rank >= featureRank[feature];
 };
 
+const normalizeSubscriptionStatus = (value: unknown) => {
+  const normalized = String(value || "free").toLowerCase();
+  if (normalized === "basic") return "basic" as const;
+  if (normalized === "advanced") return "advanced" as const;
+  if (normalized === "pro") return "pro" as const;
+  if (normalized === "premium") return "premium" as const;
+  return "free" as const;
+};
+
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState("test-results");
   const [allDietPlans, setAllDietPlans] = useState<Course[]>([]);
@@ -103,9 +112,10 @@ function DashboardContent() {
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [isUpsellPopupAnimatingIn, setIsUpsellPopupAnimatingIn] = useState(false);
   const [isPlansPopupAnimatingIn, setIsPlansPopupAnimatingIn] = useState(false);
+  const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(null);
   const [userPurchasedDiets, setUserPurchasedDiets] = useState<string[]>([]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -132,11 +142,31 @@ function DashboardContent() {
             )
           : [];
         setUserPurchasedDiets(purchasedDiets);
+        updateUser({
+          subscriptionStatus: normalizeSubscriptionStatus(
+            userDoc?.subscriptionStatus,
+          ),
+          subscriptionEndDate:
+            typeof userDoc?.subscriptionEndDate === "string"
+              ? userDoc.subscriptionEndDate
+              : undefined,
+          totalPurchases:
+            typeof userDoc?.totalPurchases === "number"
+              ? userDoc.totalPurchases
+              : undefined,
+          totalSpent:
+            typeof userDoc?.totalSpent === "number" ? userDoc.totalSpent : undefined,
+          lastPurchaseDate:
+            typeof userDoc?.lastPurchaseDate === "string"
+              ? userDoc.lastPurchaseDate
+              : undefined,
+          purchasedCourses: purchasedDiets,
+        });
       } catch {}
     };
 
     loadUserPurchasedDiets();
-  }, [user?.id]);
+  }, [user?.id, updateUser]);
 
   // Handle payment success and refresh user diet plans
   useEffect(() => {
@@ -176,6 +206,16 @@ function DashboardContent() {
                   )
                 : [];
               setUserPurchasedDiets(purchasedDiets);
+              updateUser({
+                subscriptionStatus: normalizeSubscriptionStatus(
+                  userDoc?.subscriptionStatus,
+                ),
+                subscriptionEndDate:
+                  typeof userDoc?.subscriptionEndDate === "string"
+                    ? userDoc.subscriptionEndDate
+                    : undefined,
+                purchasedCourses: purchasedDiets,
+              });
             } catch {}
           };
           loadUserPurchasedDiets();
@@ -187,7 +227,7 @@ function DashboardContent() {
         }, 5000);
       }
     }
-  }, [user?.id, searchParams.toString()]);
+  }, [user?.id, searchParams.toString(), updateUser]);
 
   // Load diet plans on component mount
   useEffect(() => {
@@ -271,6 +311,29 @@ function DashboardContent() {
       ],
     },
   ] as const;
+
+  const handleSubscriptionCheckout = async (planId: string) => {
+    if (!user?.id || planId === "free") return;
+    setCheckoutLoadingPlan(planId);
+    try {
+      const response = await fetch("/api/stripe/subscription-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planId,
+          userEmail: user.email,
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+      if (data?.success && data?.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setCheckoutLoadingPlan(null);
+    }
+  };
 
   useEffect(() => {
     if (!showUpsellPopup) {
@@ -587,14 +650,26 @@ function DashboardContent() {
                     </ul>
                     <button
                       type="button"
+                      onClick={() => {
+                        if (isCurrent || plan.id === "free") return;
+                        handleSubscriptionCheckout(plan.id);
+                      }}
                       className={`w-full rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
-                        isCurrent
+                        isCurrent || plan.id === "free"
                           ? "bg-zinc-100 text-zinc-500 cursor-not-allowed"
                           : "bg-[#e77503] text-white hover:bg-[#d96c02]"
                       }`}
-                      disabled={isCurrent}
+                      disabled={
+                        isCurrent ||
+                        plan.id === "free" ||
+                        checkoutLoadingPlan === plan.id
+                      }
                     >
-                      {isCurrent ? "Aktywny" : "Wybierz plan"}
+                      {isCurrent
+                        ? "Aktywny"
+                        : checkoutLoadingPlan === plan.id
+                          ? "Przekierowanie..."
+                          : "Wybierz plan"}
                     </button>
                   </article>
                 );
@@ -1205,6 +1280,7 @@ function TestResultsSection({
   const [generatedByDay, setGeneratedByDay] = useState<Record<number, TestResult>>(
     {},
   );
+  const [startOverAt, setStartOverAt] = useState<number | null>(null);
   const [generatingDay, setGeneratingDay] = useState<number | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generationStatus, setGenerationStatus] = useState("");
@@ -1212,6 +1288,7 @@ function TestResultsSection({
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [isUpsellPopupAnimatingIn, setIsUpsellPopupAnimatingIn] = useState(false);
   const [isPlansPopupAnimatingIn, setIsPlansPopupAnimatingIn] = useState(false);
+  const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isResultOpen && !generatorTest && !showPlansPopup && !showUpsellPopup) return;
@@ -1272,7 +1349,12 @@ function TestResultsSection({
   }
 
   const maxDays = getMaxDaysForSubscription(user?.subscriptionStatus);
-  const persistedByDay = [...testResults]
+  const filteredTestResults = startOverAt
+    ? testResults.filter(
+        (result) => new Date(result.createdAt).getTime() >= startOverAt,
+      )
+    : testResults;
+  const persistedByDay = [...filteredTestResults]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .reduce<Record<number, TestResult>>((acc, result) => {
       const day = getDayFromTestName(result.testName);
@@ -1284,7 +1366,7 @@ function TestResultsSection({
     const day = index + 1;
     return generatedByDay[day] ?? persistedByDay[day] ?? null;
   });
-  const latestPreferences = [...testResults]
+  const latestPreferences = [...filteredTestResults]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .find((result) => Array.isArray(result.answers) && result.answers.length > 0);
   const savedPreferences =
@@ -1336,6 +1418,29 @@ function TestResultsSection({
       ],
     },
   ] as const;
+
+  const handleSubscriptionCheckout = async (planId: string) => {
+    if (!user?.id || planId === "free") return;
+    setCheckoutLoadingPlan(planId);
+    try {
+      const response = await fetch("/api/stripe/subscription-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planId,
+          userEmail: user.email,
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+      if (data?.success && data?.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setCheckoutLoadingPlan(null);
+    }
+  };
 
   const consumeSseStream = async (
     response: Response,
@@ -1510,6 +1615,8 @@ function TestResultsSection({
               setShowUpsellPopup(true);
               return;
             }
+            setStartOverAt(Date.now());
+            setGeneratedByDay({});
             setOpenedDay(null);
             setIsResultOpen(false);
             setGeneratorTest(dashboardDietGenerator);
@@ -1531,6 +1638,8 @@ function TestResultsSection({
           const isGenerating = generatingDay === day;
           const isBlockedBySequence = day > 1 && !dayResults[day - 2];
           const hasPreferences = savedPreferences.length > 0;
+          const isDisabled =
+            isGenerating || (isBlockedBySequence && hasPreferences);
           return (
             <button
               type="button"
@@ -1547,7 +1656,7 @@ function TestResultsSection({
                   return;
                 }
 
-                if (!hasPreferences && day === 1) {
+                if (!hasPreferences) {
                   setGeneratorTest(dashboardDietGenerator);
                   return;
                 }
@@ -1558,7 +1667,7 @@ function TestResultsSection({
                   generateDayPlan(day);
                 }
               }}
-              disabled={isGenerating || isBlockedBySequence}
+              disabled={isDisabled}
             >
               <div className="flex h-full flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -1757,14 +1866,26 @@ function TestResultsSection({
                     </ul>
                     <button
                       type="button"
+                      onClick={() => {
+                        if (isCurrent || plan.id === "free") return;
+                        handleSubscriptionCheckout(plan.id);
+                      }}
                       className={`w-full rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
-                        isCurrent
+                        isCurrent || plan.id === "free"
                           ? "bg-zinc-100 text-zinc-500 cursor-not-allowed"
                           : "bg-[#e77503] text-white hover:bg-[#d96c02]"
                       }`}
-                      disabled={isCurrent}
+                      disabled={
+                        isCurrent ||
+                        plan.id === "free" ||
+                        checkoutLoadingPlan === plan.id
+                      }
                     >
-                      {isCurrent ? "Aktywny" : "Wybierz plan"}
+                      {isCurrent
+                        ? "Aktywny"
+                        : checkoutLoadingPlan === plan.id
+                          ? "Przekierowanie..."
+                          : "Wybierz plan"}
                     </button>
                   </article>
                 );

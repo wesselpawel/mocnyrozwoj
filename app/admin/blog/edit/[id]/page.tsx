@@ -2,14 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { blogService, BlogPost } from "@/lib/blogService";
+import { blogService, BlogPost, DietDayPlan, DietGenerationInput } from "@/lib/blogService";
 import PageHeader from "../../new/components/PageHeader";
 import AIGenerationSection from "../../new/components/AIGenerationSection";
 import BasicInformationSection from "../../new/components/BasicInformationSection";
 import SEOInformationSection from "../../new/components/SEOInformationSection";
 import ContentSectionsManager from "../../new/components/ContentSectionsManager";
 import FormActions from "../../new/components/FormActions";
+import DietDayGeneratorSection from "../../new/components/DietDayGeneratorSection";
 import { ContentSection } from "../../new/types";
+import {
+  createSectionsFromPost,
+  mapSectionsToLegacyContentFields,
+} from "../../new/contentFields";
+
+const CATEGORIES_WITH_DIET_DAY_GENERATION = new Set([
+  "Diety",
+  "Przykładowe dni diety",
+  "Konkretny cel dietetyczny",
+]);
+
+const DEFAULT_DIET_INPUT: DietGenerationInput = {
+  calories: 2000,
+  mealsPerDay: 3,
+  mealVariants: [3, 4, 5],
+  dietName: "",
+  dietGoal: "",
+  unwantedProducts: "",
+  gender: "inna",
+};
 
 export default function EditBlogPostPage() {
   const router = useRouter();
@@ -17,10 +38,12 @@ export default function EditBlogPostPage() {
   const { id } = params as { id: string };
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatingDietDays, setGeneratingDietDays] = useState(false);
   const [topic, setTopic] = useState("");
-  const [sections, setSections] = useState<ContentSection[]>([
-    { id: "1", title: "Treść posta", content: "" },
-  ]);
+  const [sections, setSections] = useState<ContentSection[]>([]);
+  const [dietGenerationInput, setDietGenerationInput] =
+    useState<DietGenerationInput>(DEFAULT_DIET_INPUT);
+  const [dietDays, setDietDays] = useState<DietDayPlan[]>([]);
   const [post, setPost] = useState<Partial<BlogPost>>({});
   const [initialLoaded, setInitialLoaded] = useState(false);
 
@@ -29,17 +52,17 @@ export default function EditBlogPostPage() {
       setLoading(true);
       try {
         const fetchedPost = await blogService.getBlogPostById(id);
-        const fetchedPostWithContent = fetchedPost as
-          | (BlogPost & { text1Desc?: string })
-          | null;
         setPost(fetchedPost ?? {});
-        setSections([
-          {
-            id: "1",
-            title: "Treść posta",
-            content: fetchedPostWithContent?.text1Desc || "",
-          },
-        ]);
+        setSections(createSectionsFromPost(fetchedPost));
+        if (fetchedPost?.dietGenerationInput) {
+          setDietGenerationInput({
+            ...DEFAULT_DIET_INPUT,
+            ...fetchedPost.dietGenerationInput,
+          });
+        }
+        if (Array.isArray(fetchedPost?.dietDays)) {
+          setDietDays(fetchedPost.dietDays);
+        }
       } catch (error) {
         alert("Nie udało się załadować posta");
       } finally {
@@ -58,20 +81,9 @@ export default function EditBlogPostPage() {
     }
     const postData = {
       ...post,
-      text1Title: "Treść posta",
-      text1Desc: sections[0]?.content || "",
-      text2Title: "",
-      text2Desc: "",
-      text3Title: "",
-      text3Desc: "",
-      text4Title: "",
-      text4Desc: "",
-      text5Title: "",
-      text5Desc: "",
-      text6Title: "",
-      text6Desc: "",
-      text7Title: "",
-      text7Desc: "",
+      ...mapSectionsToLegacyContentFields(sections),
+      dietGenerationInput,
+      dietDays,
     };
     try {
       setLoading(true);
@@ -89,6 +101,46 @@ export default function EditBlogPostPage() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleGenerateDietDays = async () => {
+    if (!CATEGORIES_WITH_DIET_DAY_GENERATION.has(post.category || "")) {
+      return;
+    }
+
+    if (!dietGenerationInput.dietName.trim() || !dietGenerationInput.dietGoal.trim()) {
+      alert("Uzupełnij nazwę diety i cel diety.");
+      return;
+    }
+
+    try {
+      setGeneratingDietDays(true);
+      const response = await fetch("/api/admin/generate-diet-days", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          category: post.category,
+          ...dietGenerationInput,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { days?: DietDayPlan[]; error?: string }
+        | null;
+
+      if (!response.ok || !payload?.days) {
+        alert(payload?.error || "Nie udało się wygenerować dni diety.");
+        return;
+      }
+
+      setDietDays(payload.days);
+    } catch {
+      alert("Nie udało się wygenerować dni diety.");
+    } finally {
+      setGeneratingDietDays(false);
+    }
   };
 
   const updateSection = (
@@ -144,6 +196,18 @@ export default function EditBlogPostPage() {
               post={post}
               handleInputChange={handleInputChange}
             />
+
+            {CATEGORIES_WITH_DIET_DAY_GENERATION.has(post.category || "") && (
+              <DietDayGeneratorSection
+                value={dietGenerationInput}
+                days={dietDays}
+                loading={generatingDietDays}
+                onChange={(updates) =>
+                  setDietGenerationInput((prev) => ({ ...prev, ...updates }))
+                }
+                onGenerate={handleGenerateDietDays}
+              />
+            )}
 
             <ContentSectionsManager
               sections={sections}

@@ -1,13 +1,38 @@
 import Image from "next/image";
 import Link from "next/link";
 import profile from "@/public/donut.jpg";
-import { categories, categorySlugs, entries, type Category } from "./data";
+import { categorySlugs, categories as defaultCategories } from "./data";
+import { PublicBlogEntry } from "@/lib/publicBlogEntries";
 
 export default function BlogLibraryContent({
   selectedCategory,
+  entries,
 }: {
-  selectedCategory: Category | null;
+  selectedCategory: string | null;
+  entries: PublicBlogEntry[];
 }) {
+  const categories = Array.from(
+    new Set([
+      ...defaultCategories,
+      ...entries.map((entry) => entry.category).filter(Boolean),
+    ]),
+  );
+
+  const categorySlugByName = categories.reduce<Record<string, string>>(
+    (acc, category) => {
+      acc[category] =
+        categorySlugs[category as keyof typeof categorySlugs] ||
+        category
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      return acc;
+    },
+    {},
+  );
+
   const fullyFilteredEntries = selectedCategory
     ? entries.filter((entry) => entry.category === selectedCategory)
     : entries;
@@ -77,7 +102,7 @@ export default function BlogLibraryContent({
                 <Link href="/generator-diety-ai">
                   <b>generatora diety AI za darmo</b>
                 </Link>
-                . Autor strony dziendiety.pl.
+                {" "}dziendiety.pl
               </p>
               <p className="mt-3 text-xs text-zinc-500">
                 Aktualizacja biblioteki: 11.03.2026
@@ -115,7 +140,7 @@ export default function BlogLibraryContent({
               {categories.map((category) => (
                 <li key={category}>
                   <Link
-                    href={`/blog/${categorySlugs[category]}`}
+                    href={`/blog/${categorySlugByName[category]}`}
                     className={`block rounded-lg border px-3 py-2 text-sm transition-colors ${
                       selectedCategory === category
                         ? "border-[#e77503]/60 bg-[#fff3e0] text-[#b45b00] font-semibold"

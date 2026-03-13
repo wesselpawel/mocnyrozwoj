@@ -35,12 +35,29 @@ export default function ContentSectionEditor({
   index,
   updateSection,
 }: ContentSectionEditorProps) {
+  const sectionNumber = index + 1;
+
   return (
     <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-500">Treść posta</span>
+          <span className="text-sm font-medium text-gray-500">
+            Sekcja {sectionNumber}
+          </span>
         </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Tytuł sekcji
+        </label>
+        <input
+          type="text"
+          value={section.title}
+          onChange={(event) => updateSection(index, "title", event.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+          placeholder={`Sekcja ${sectionNumber}`}
+        />
       </div>
 
       <div>

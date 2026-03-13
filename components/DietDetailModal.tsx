@@ -236,8 +236,9 @@ export default function DietDetailModal({
             <FAQ
               items={(diet.faq || []).map((f) => ({
                 question: f.question,
-                answer: "answer" in f ? (f as { answer: string }).answer : undefined,
-                answers: f.answers,
+                answer: "answer" in f && (f as { answer?: string }).answer
+                  ? (f as { answer: string }).answer
+                  : f.answers.join("\n\n"),
               }))}
               title="Często zadawane pytania"
             />

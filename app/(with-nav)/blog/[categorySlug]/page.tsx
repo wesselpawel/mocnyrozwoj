@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BlogLibraryContent from "../BlogLibraryContent";
 import { categories, categorySlugs, getCategoryBySlug } from "../data";
+import { getPublicBlogEntries } from "@/lib/publicBlogEntries";
 
 type Props = {
   params: Promise<{ categorySlug: string }>;
@@ -46,5 +47,6 @@ export default async function BlogCategoryPage({
     notFound();
   }
 
-  return <BlogLibraryContent selectedCategory={category} />;
+  const entries = await getPublicBlogEntries();
+  return <BlogLibraryContent selectedCategory={category} entries={entries} />;
 }

@@ -26,6 +26,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const normalizeSubscriptionStatus = (
+  value: unknown,
+): User["subscriptionStatus"] => {
+  const normalized = String(value || "free").toLowerCase();
+  if (normalized === "basic") return "basic" as User["subscriptionStatus"];
+  if (normalized === "advanced") return "advanced" as User["subscriptionStatus"];
+  if (normalized === "pro") return "pro" as User["subscriptionStatus"];
+  if (normalized === "premium") return "premium";
+  return "free";
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -35,8 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setFirebaseUser(firebaseUser);
 
       if (firebaseUser) {
-        // Convert Firebase user to our User interface
-        const userData: User = {
+        // Convert Firebase user to our User interface.
+        const fallbackUserData: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || "",
           name:
@@ -49,14 +60,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           purchasedCourses: [],
         };
 
-        // Ensure user exists in Firestore
+        // Ensure user exists and always read current profile from Firestore.
         try {
-          await createUserInFirestore(userData);
+          const firestoreUser = await createUserInFirestore(fallbackUserData);
+          const rawUser = (firestoreUser || {}) as Record<string, unknown>;
+          const mergedUser: User = {
+            ...fallbackUserData,
+            ...(firestoreUser || {}),
+            id: (rawUser.id as string) || fallbackUserData.id,
+            email: (rawUser.email as string) || fallbackUserData.email,
+            name: (rawUser.name as string) || fallbackUserData.name,
+            subscriptionStatus: normalizeSubscriptionStatus(
+              rawUser.subscriptionStatus,
+            ),
+            totalPurchases:
+              typeof rawUser.totalPurchases === "number"
+                ? rawUser.totalPurchases
+                : fallbackUserData.totalPurchases,
+            totalSpent:
+              typeof rawUser.totalSpent === "number"
+                ? rawUser.totalSpent
+                : fallbackUserData.totalSpent,
+            purchasedCourses: Array.isArray(rawUser.purchasedCourses)
+              ? (rawUser.purchasedCourses as string[])
+              : fallbackUserData.purchasedCourses,
+            subscriptionEndDate:
+              typeof rawUser.subscriptionEndDate === "string"
+                ? rawUser.subscriptionEndDate
+                : undefined,
+            lastPurchaseDate:
+              typeof rawUser.lastPurchaseDate === "string"
+                ? rawUser.lastPurchaseDate
+                : undefined,
+            createdAt:
+              typeof rawUser.createdAt === "string"
+                ? rawUser.createdAt
+                : undefined,
+            updatedAt:
+              typeof rawUser.updatedAt === "string"
+                ? rawUser.updatedAt
+                : undefined,
+          };
+          setUser(mergedUser);
         } catch {
-          // Failed to create user in Firestore
+          setUser(fallbackUserData);
         }
-
-        setUser(userData);
       } else {
         setUser(null);
       }

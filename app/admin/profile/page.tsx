@@ -1,31 +1,20 @@
 "use client";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/firebase";
-import { signOut } from "firebase/auth";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   FaUser,
-  FaEnvelope,
   FaShieldAlt,
   FaSignOutAlt,
   FaCog,
 } from "react-icons/fa";
 
 export default function AdminProfilePage() {
-  const [user, loading] = useAuthState(auth);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const router = useRouter();
-
-  const handlelogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/admin");
-    } catch {}
+  const handleLogout = () => {
+    window.location.href = "/api/admin/logout";
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -51,35 +40,6 @@ export default function AdminProfilePage() {
     setIsChangingPassword(false);
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 lg:p-16">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="space-y-4">
-            <div className="h-20 bg-gray-200 rounded"></div>
-            <div className="h-20 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="p-6 lg:p-16">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
-            Dostęp zabroniony
-          </h1>
-          <p className="text-gray-600">
-            Musisz się zalogować, aby uzyskać dostęp do profilu.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 lg:p-16">
       <div className="mb-8">
@@ -103,14 +63,6 @@ export default function AdminProfilePage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-              <FaEnvelope className="text-gray-500 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="font-medium">{user.email}</p>
-              </div>
-            </div>
-
             <div className="flex items-center p-3 bg-gray-50 rounded-lg">
               <FaShieldAlt className="text-gray-500 mr-3" />
               <div>
@@ -158,7 +110,7 @@ export default function AdminProfilePage() {
                   Wyloguj się z panelu administracyjnego.
                 </p>
                 <button
-                  onClick={handlelogout}
+                  onClick={handleLogout}
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center"
                 >
                   <FaSignOutAlt className="mr-2" />

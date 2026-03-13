@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import BlogLibraryContent from "./BlogLibraryContent";
+import { getPublicBlogEntries } from "@/lib/publicBlogEntries";
 
 type Props = {
   searchParams: Promise<{ q?: string }>;
@@ -21,5 +22,6 @@ export default async function BlogPage({
   searchParams,
 }: Props) {
   await searchParams;
-  return <BlogLibraryContent selectedCategory={null} />;
+  const entries = await getPublicBlogEntries();
+  return <BlogLibraryContent selectedCategory={null} entries={entries} />;
 }

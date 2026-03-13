@@ -1,27 +1,25 @@
 "use client";
-import { auth } from "@/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("admin");
   const [password, setPassword] = useState<string>("");
-  const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const configError = searchParams.get("error") === "config";
 
-  function emailPasswordLogin() {
-    // Clear previous errors
-    setEmailError("");
+  async function login() {
+    setUsernameError("");
     setPasswordError("");
     setGeneralError("");
 
-    // Basic validation
-    if (!email.includes("@") || !email.includes(".")) {
-      setEmailError("Wpisz poprawny adres email");
+    if (username.trim().length < 3) {
+      setUsernameError("Wpisz poprawną nazwę użytkownika");
       return;
     }
 
@@ -32,50 +30,46 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Success - user will be redirected by the layout
-        router.push("/admin");
-      })
-      .catch((error: { code?: string }) => {
-        setIsLoading(false);
-
-        switch (error.code) {
-          case "auth/user-not-found":
-          case "auth/wrong-password":
-            setGeneralError("Niepoprawne dane logowania");
-            break;
-          case "auth/invalid-email":
-            setEmailError("Niepoprawny format adresu email");
-            break;
-          case "auth/too-many-requests":
-            setGeneralError(
-              "Zbyt wiele prób logowania. Spróbuj ponownie później.",
-            );
-            break;
-          case "auth/network-request-failed":
-            setGeneralError(
-              "Problem z połączeniem. Sprawdź połączenie internetowe.",
-            );
-            break;
-          default:
-            setGeneralError(
-              "Wystąpił błąd podczas logowania. Spróbuj ponownie.",
-            );
-        }
-
-        // Clear errors after 5 seconds
-        setTimeout(() => {
-          setEmailError("");
-          setPasswordError("");
-          setGeneralError("");
-        }, 5000);
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+        }),
       });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        setGeneralError(
+          payload?.error || "Wystąpił błąd podczas logowania. Spróbuj ponownie.",
+        );
+        return;
+      }
+
+      const nextPath = searchParams.get("next");
+      const redirectPath =
+        nextPath && nextPath.startsWith("/admin") ? nextPath : "/admin";
+      router.replace(redirectPath);
+      router.refresh();
+    } catch {
+      setGeneralError("Problem z połączeniem. Spróbuj ponownie.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    emailPasswordLogin();
+    if (configError) {
+      return;
+    }
+    void login();
   };
 
   return (
@@ -88,23 +82,30 @@ export default function LoginPage() {
           Panel administracyjny
         </h2>
 
-        <label className="text-gray-700 font-bold mb-2" htmlFor="email">
-          Email
+        {configError && (
+          <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-900 rounded">
+            Brak konfiguracji logowania. Ustaw w `.env.local` zmienne
+            ADMIN_PASSWORD oraz opcjonalnie ADMIN_USERNAME i ADMIN_SESSION_SECRET.
+          </div>
+        )}
+
+        <label className="text-gray-700 font-bold mb-2" htmlFor="username">
+          Nazwa użytkownika
         </label>
         <input
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          id="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           className={`text-black border p-2 mb-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${
-            emailError ? "border-red-500" : "border-gray-400"
+            usernameError ? "border-red-500" : "border-gray-400"
           }`}
-          placeholder="admin@example.com"
-          type="email"
+          placeholder="admin"
+          type="text"
           required
-          disabled={isLoading}
+          disabled={isLoading || configError}
         />
-        {emailError && (
-          <p className="text-red-500 text-sm mb-2">{emailError}</p>
+        {usernameError && (
+          <p className="text-red-500 text-sm mb-2">{usernameError}</p>
         )}
 
         <label className="text-gray-700 font-bold mb-2" htmlFor="password">
@@ -120,7 +121,7 @@ export default function LoginPage() {
           }`}
           placeholder="Hasło"
           required
-          disabled={isLoading}
+          disabled={isLoading || configError}
         />
         {passwordError && (
           <p className="text-red-500 text-sm mb-4">{passwordError}</p>
@@ -134,9 +135,9 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || configError}
           className={`py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
-            isLoading
+            isLoading || configError
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-green-400 hover:bg-green-500"
           } text-white`}

@@ -1,6 +1,4 @@
 "use client";
-
-import { FaPlus } from "react-icons/fa";
 import ContentSectionEditor from "./ContentSectionEditor";
 
 import { ContentSection } from "../types";
@@ -21,7 +19,7 @@ export default function ContentSectionsManager({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800">Treść posta</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Sekcje treści</h3>
       </div>
 
       {sections.map((section, index) => (

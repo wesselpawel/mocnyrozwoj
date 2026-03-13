@@ -1,129 +1,97 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaChevronDown } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-export interface FAQItem {
+export type FAQItem = {
   question: string;
-  answer?: string;
-  answers?: string[];
-}
+  answer: string;
+};
 
-interface FAQProps {
+type FAQProps = {
   items: FAQItem[];
   title?: string;
-  className?: string;
   allowMultiple?: boolean;
-}
+};
 
-function getAnswerText(item: FAQItem): string {
-  if (item.answer) return item.answer;
-  if (Array.isArray(item.answers)) return item.answers.join(" ");
-  return "";
-}
-
-export default function FAQ({
-  items,
-  title,
-  className = "",
-  allowMultiple = false,
-}: FAQProps) {
+export default function FAQ({ items, title = "Najczęściej zadawane pytania", allowMultiple = false }: FAQProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [openIndices, setOpenIndices] = useState<Set<number>>(new Set());
 
-  const isOpen = (index: number) =>
-    allowMultiple ? openIndices.has(index) : openIndex === index;
-
-  const toggle = (index: number) => {
+  const toggleItem = (index: number) => {
     if (allowMultiple) {
       setOpenIndices((prev) => {
         const next = new Set(prev);
-        if (next.has(index)) next.delete(index);
-        else next.add(index);
+        if (next.has(index)) {
+          next.delete(index);
+        } else {
+          next.add(index);
+        }
         return next;
       });
     } else {
-      setOpenIndex((prev) => (prev === index ? null : index));
+      setOpenIndex(openIndex === index ? null : index);
     }
   };
 
-  if (!items?.length) return null;
+  const isOpen = (index: number) => {
+    return allowMultiple ? openIndices.has(index) : openIndex === index;
+  };
 
   return (
-    <div className={`w-full ${className}`}>
-      {title && (
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">{title}</h3>
-      )}
+    <section id="faq" className="mt-12 mb-8">
+      <h2 className="text-2xl font-bold text-zinc-900 mb-6 flex items-center gap-3">
+        <span className="w-1.5 h-8 bg-[#e77503] rounded-full" />
+        {title}
+      </h2>
       <div className="space-y-3">
-        {items.map((item, index) => {
-          const answerText = getAnswerText(item);
-          const expanded = isOpen(index);
-
-          return (
-            <motion.div
-              key={index}
-              initial={false}
-              className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
-              layout
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className="border border-zinc-200 rounded-xl overflow-hidden bg-white"
+          >
+            <button
+              onClick={() => toggleItem(index)}
+              className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 hover:bg-zinc-50 transition-colors"
             >
-              <button
-                type="button"
-                onClick={() => toggle(index)}
-                className="w-full flex items-center justify-between gap-4 px-4 py-4 sm:px-5 sm:py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 rounded-xl"
-                aria-expanded={expanded}
-                aria-controls={`faq-answer-${index}`}
-                id={`faq-question-${index}`}
+              <span className="font-semibold text-zinc-900 text-base md:text-lg">
+                {item.question}
+              </span>
+              <span
+                className={`flex-shrink-0 w-6 h-6 rounded-full bg-[#e77503]/10 flex items-center justify-center transition-transform duration-200 ${
+                  isOpen(index) ? "rotate-180" : ""
+                }`}
               >
-                <span className="font-semibold text-gray-800 text-sm sm:text-base pr-2">
-                  {item.question}
-                </span>
-                <motion.span
-                  animate={{ rotate: expanded ? 180 : 0 }}
-                  transition={{ duration: 0.25, ease: "easeInOut" }}
-                  className="flex-shrink-0 text-gray-500"
+                <svg
+                  className="w-4 h-4 text-[#e77503]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <FaChevronDown className="w-4 h-4" aria-hidden />
-                </motion.span>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {expanded && answerText && (
-                  <motion.div
-                    id={`faq-answer-${index}`}
-                    role="region"
-                    aria-labelledby={`faq-question-${index}`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{
-                      height: "auto",
-                      opacity: 1,
-                      transition: {
-                        height: { duration: 0.3, ease: "easeInOut" },
-                        opacity: { duration: 0.2, delay: 0.05 },
-                      },
-                    }}
-                    exit={{
-                      height: 0,
-                      opacity: 0,
-                      transition: {
-                        height: { duration: 0.25, ease: "easeInOut" },
-                        opacity: { duration: 0.15 },
-                      },
-                    }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0">
-                      <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                        {answerText}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                isOpen(index) ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="px-5 pb-5 pt-2 border-t border-zinc-100">
+                <div className="prose prose-zinc prose-sm max-w-none prose-p:text-zinc-700 prose-p:leading-relaxed prose-ul:text-zinc-700 prose-li:text-zinc-700 prose-strong:text-zinc-900 prose-table:text-zinc-700 prose-th:bg-zinc-100 prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{item.answer}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
