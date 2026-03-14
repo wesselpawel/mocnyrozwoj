@@ -2,6 +2,8 @@ import { getDocuments } from "@/firebase";
 import { entries as staticEntries } from "@/app/(with-nav)/blog/data";
 import { generateDietPages } from "@/programmatic/diet/generator";
 import { getDietTemplateData } from "@/programmatic/diet/template";
+import { getAllRecipes, getCategoryByGoal } from "@/lib/recipeService";
+import type { RecipeEntry } from "@/types/recipe";
 
 export type BlogFAQItem = {
   question: string;
@@ -37,6 +39,14 @@ export type PublicBlogEntry = {
   sections?: BlogSection[];
   /** FAQ section */
   faq?: BlogFAQItem[];
+  /** Programmatic diet params (for generating content) */
+  programmaticDiet?: {
+    calories: number;
+    goal: "mass" | "reduction" | "maintenance";
+    mealCount: number;
+  };
+  /** Custom href - if set, overrides the default /blog/post/{slug} URL */
+  href?: string;
 };
 
 const stripHtml = (value: string) =>
@@ -121,26 +131,74 @@ const toPublicBlogEntry = (post: Record<string, unknown>): PublicBlogEntry | nul
   };
 };
 
-/** Programmatic SEO: diet pages as blog entries for category "Diety" */
+const DIET_GOAL_CATEGORIES: Record<string, string> = {
+  mass: "Dieta na masę",
+  reduction: "Dieta na redukcję",
+  maintenance: "Dieta na utrzymanie wagi",
+};
+
+/** Programmatic SEO: diet pages as blog entries */
 function getProgrammaticDietEntries(): PublicBlogEntry[] {
   const pages = generateDietPages();
   const today = new Date().toLocaleDateString("pl-PL");
   return pages.map(({ slug, params }) => {
     const data = getDietTemplateData(params);
     const contentFromSections = data.sections.map((s) => s.text);
+    const category = DIET_GOAL_CATEGORIES[params.goal] || "Diety";
     return {
       id: `programmatic-diet-${slug}`,
       slug,
       title: data.title,
       description: data.description,
-      category: "Diety",
+      category,
       readTime: estimateReadTime([data.description, ...contentFromSections]),
       updatedAt: today,
       content: contentFromSections,
       sections: data.sections,
       faq: data.faq,
+      programmaticDiet: {
+        calories: params.calorie,
+        goal: params.goal,
+        mealCount: params.mealCount,
+      },
     };
   });
+}
+
+/** Convert recipes to blog entries for "Przepisy dietetyczne" category */
+function recipeToPublicBlogEntry(recipe: RecipeEntry): PublicBlogEntry {
+  const category = getCategoryByGoal(recipe.goal);
+  const categorySlug = category?.slug || "na-mase";
+  const fullHref = `/przepisy/${categorySlug}/${recipe.slug}`;
+  
+  const ingredientsList = recipe.ingredients
+    .map((ing) => `${ing.name} (${ing.quantity}) - ${ing.calories} kcal`)
+    .join(", ");
+
+  return {
+    id: `recipe-${recipe.slug}`,
+    slug: recipe.slug,
+    href: fullHref,
+    title: recipe.seo.title,
+    description: recipe.seo.description,
+    category: "Przepisy dietetyczne",
+    readTime: "3 min",
+    updatedAt: new Date(recipe.generatedAt).toLocaleDateString("pl-PL"),
+    content: [
+      recipe.seo.description,
+      `Składniki: ${ingredientsList}`,
+      `Przygotowanie: ${recipe.preparationSteps.join(" ")}`,
+    ],
+  };
+}
+
+async function getRecipeEntries(): Promise<PublicBlogEntry[]> {
+  try {
+    const recipes = await getAllRecipes();
+    return recipes.map(recipeToPublicBlogEntry);
+  } catch {
+    return [];
+  }
 }
 
 export const getPublicBlogEntries = async (): Promise<PublicBlogEntry[]> => {
@@ -151,6 +209,12 @@ export const getPublicBlogEntries = async (): Promise<PublicBlogEntry[]> => {
   }
 
   for (const entry of getProgrammaticDietEntries()) {
+    merged.set(entry.slug, entry);
+  }
+
+  // Add recipe entries to "Przepisy dietetyczne" category
+  const recipeEntries = await getRecipeEntries();
+  for (const entry of recipeEntries) {
     merged.set(entry.slug, entry);
   }
 

@@ -1,3 +1,9 @@
 export { getIntro } from "./intro";
+export { getCaloricNeeds } from "./caloricNeeds";
+export { getCaloricDeficit } from "./caloricDeficit";
+export { getPrinciples } from "./principles";
 export { getProducts } from "./products";
 export { getMistakes } from "./mistakes";
+export { getProgress } from "./progress";
+export { getSummary } from "./summary";
+export { getProductTables } from "./productTables";

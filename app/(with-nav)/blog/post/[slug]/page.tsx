@@ -8,6 +8,8 @@ import MarkdownContent from "@/components/MarkdownContent";
 import TableOfContents from "@/components/TableOfContents";
 import SectionLinkButton from "@/components/SectionLinkButton";
 import FAQ from "@/components/FAQ";
+import ProgrammaticDietWrapper from "@/components/ProgrammaticDietWrapper";
+import RelatedDiets from "@/components/RelatedDiets";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -205,7 +207,7 @@ export default async function BlogPostPage({ params }: Props) {
                 href="/generator-diety-ai"
                 className="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#e77503] text-white rounded-xl font-semibold text-sm hover:bg-[#e77503]/90 transition-colors"
               >
-                Wypróbuj Generator Diety AI
+                Stwórz swoją dietę
               </Link>
             </aside>
           </div>
@@ -217,6 +219,7 @@ export default async function BlogPostPage({ params }: Props) {
                 sections={entry.sections}
                 title={entry.title}
                 hasFaq={entry.faq && entry.faq.length > 0}
+                hasJadlospis={!!entry.programmaticDiet}
               />
             </div>
           )}
@@ -302,6 +305,22 @@ export default async function BlogPostPage({ params }: Props) {
 
             {entry.faq && entry.faq.length > 0 && (
               <FAQ items={entry.faq} title="Najczęściej zadawane pytania" />
+            )}
+
+            {entry.programmaticDiet && (
+              <>
+                <ProgrammaticDietWrapper
+                  slug={entry.slug}
+                  calories={entry.programmaticDiet.calories}
+                  goal={entry.programmaticDiet.goal}
+                  mealCount={entry.programmaticDiet.mealCount}
+                />
+                <RelatedDiets
+                  currentCalories={entry.programmaticDiet.calories}
+                  goal={entry.programmaticDiet.goal}
+                  currentMealCount={entry.programmaticDiet.mealCount}
+                />
+              </>
             )}
           </div>
 

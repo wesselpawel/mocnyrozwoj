@@ -1,13 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   buildAdminSessionToken,
   getAdminSessionCookieName,
   getAdminSessionMaxAgeSeconds,
   isAdminAuthConfigured,
   isValidAdminCredentials,
+  isValidAdminSessionToken,
 } from "@/lib/adminAuth";
 
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
+  const cookie = request.cookies.get(getAdminSessionCookieName())?.value;
+  const isLoggedIn = await isValidAdminSessionToken(cookie);
+  return NextResponse.json({ isLoggedIn });
+}
+
+export async function POST(request: NextRequest) {
   if (!isAdminAuthConfigured()) {
     return NextResponse.json(
       {

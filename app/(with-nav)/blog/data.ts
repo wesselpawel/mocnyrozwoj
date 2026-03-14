@@ -1,5 +1,8 @@
 export type Category =
   | "Diety"
+  | "Dieta na masę"
+  | "Dieta na redukcję"
+  | "Dieta na utrzymanie wagi"
   | "Przykładowe dni diety"
   | "Konkretny cel dietetyczny"
   | "Przepisy dietetyczne";
@@ -17,6 +20,9 @@ export type BlogEntry = {
 
 export const categories: Category[] = [
   "Diety",
+  "Dieta na masę",
+  "Dieta na redukcję",
+  "Dieta na utrzymanie wagi",
   "Przykładowe dni diety",
   "Konkretny cel dietetyczny",
   "Przepisy dietetyczne",
@@ -24,6 +30,9 @@ export const categories: Category[] = [
 
 export const categorySlugs: Record<Category, string> = {
   Diety: "diety",
+  "Dieta na masę": "dieta-na-mase",
+  "Dieta na redukcję": "dieta-na-redukcje",
+  "Dieta na utrzymanie wagi": "dieta-na-utrzymanie-wagi",
   "Przykładowe dni diety": "przykladowe-dni-diety",
   "Konkretny cel dietetyczny": "konkretny-cel-dietetyczny",
   "Przepisy dietetyczne": "przepisy-dietetyczne",

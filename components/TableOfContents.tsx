@@ -7,6 +7,7 @@ interface TableOfContentsProps {
   sections: BlogSection[];
   title: string;
   hasFaq?: boolean;
+  hasJadlospis?: boolean;
 }
 
 function slugify(text: string): string {
@@ -27,8 +28,10 @@ function slugify(text: string): string {
 
 const FAQ_ID = "faq";
 const FAQ_TITLE = "Najczęściej zadawane pytania";
+const JADLOSPIS_ID = "jadlospis";
+const JADLOSPIS_TITLE = "Przykładowy jadłospis z przepisami";
 
-export default function TableOfContents({ sections, title, hasFaq }: TableOfContentsProps) {
+export default function TableOfContents({ sections, title, hasFaq, hasJadlospis }: TableOfContentsProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -40,6 +43,9 @@ export default function TableOfContents({ sections, title, hasFaq }: TableOfCont
     if (hasFaq) {
       sectionIds.push(FAQ_ID);
     }
+    if (hasJadlospis) {
+      sectionIds.push(JADLOSPIS_ID);
+    }
 
     const observerCallback: IntersectionObserverCallback = (entries) => {
       entries.forEach((entry) => {
@@ -47,6 +53,8 @@ export default function TableOfContents({ sections, title, hasFaq }: TableOfCont
           setActiveSection(entry.target.id);
           if (entry.target.id === FAQ_ID) {
             document.title = `${FAQ_TITLE} | DzienDiety`;
+          } else if (entry.target.id === JADLOSPIS_ID) {
+            document.title = `${JADLOSPIS_TITLE} | DzienDiety`;
           } else {
             const section = sections.find(
               (s) => (s.id || slugify(s.title)) === entry.target.id
@@ -75,7 +83,7 @@ export default function TableOfContents({ sections, title, hasFaq }: TableOfCont
       observer.disconnect();
       document.title = `${title} | DzienDiety`;
     };
-  }, [sections, title, hasFaq]);
+  }, [sections, title, hasFaq, hasJadlospis]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -136,6 +144,20 @@ export default function TableOfContents({ sections, title, hasFaq }: TableOfCont
                 }`}
               >
                 {FAQ_TITLE}
+              </button>
+            </li>
+          )}
+          {hasJadlospis && (
+            <li>
+              <button
+                onClick={() => scrollToSection(JADLOSPIS_ID)}
+                className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
+                  activeSection === JADLOSPIS_ID
+                    ? "bg-[#e77503] text-white font-medium"
+                    : "text-zinc-600 hover:text-[#e77503] hover:bg-zinc-100"
+                }`}
+              >
+                {JADLOSPIS_TITLE}
               </button>
             </li>
           )}

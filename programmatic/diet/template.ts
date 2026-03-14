@@ -9,6 +9,7 @@ import * as massContent from "@/content/diet/mass";
 import * as reductionContent from "@/content/diet/reduction";
 import * as maintenanceContent from "@/content/diet/maintenance";
 import { getMassDietFAQ } from "@/content/diet/mass/faq";
+import { getReductionDietFAQ } from "@/content/diet/reduction/faq";
 
 /** Zwraca dane strony dla danej kombinacji (params) — do użycia w getStaticProps / page */
 export function getDietTemplateData(params: DietPageParams): DietPageData {
@@ -68,7 +69,7 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       title: "Zapotrzebowanie kaloryczne a dieta na masę",
       text: massContent.getCaloricNeeds(),
       ctaLink: "/kalkulator-kcal",
-      ctaText: "Oblicz swoje zapotrzebowanie kaloryczne →",
+      ctaText: "Oblicz zapotrzebowanie kaloryczne →",
     },
     {
       id: "nadwyzka",
@@ -125,14 +126,67 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
   const h1 = title;
   const description = `Dieta redukcyjna ${calorie} kcal z przykładowym jadłospisem. Sprawdź zasady, produkty i ${meals} dziennie.`;
 
-  const sections = [
-    { title: "Wprowadzenie", text: reductionContent.getIntro(calorie) },
-    { title: "Ile posiłków dziennie?", text: `W tej diecie zalecamy ${meals} dziennie.` },
-    { title: "Produkty polecane na redukcję", text: reductionContent.getProducts() },
-    { title: "Częste błędy na redukcji", text: reductionContent.getMistakes() },
+  const sections: ArticleSection[] = [
+    {
+      id: "dla-kogo",
+      title: `Dieta ${calorie} kcal – dla kogo będzie odpowiednia?`,
+      text: reductionContent.getIntro(calorie),
+    },
+    {
+      id: "zapotrzebowanie",
+      title: "Zapotrzebowanie kaloryczne a redukcja",
+      text: reductionContent.getCaloricNeeds(),
+      ctaLink: "/kalkulator-kcal",
+      ctaText: "Oblicz zapotrzebowanie kaloryczne →",
+    },
+    {
+      id: "deficyt",
+      title: "Deficyt kaloryczny przy redukcji",
+      text: reductionContent.getCaloricDeficit(calorie),
+    },
+    {
+      id: "zasady",
+      title: `Zasady diety redukcyjnej ${calorie} kcal`,
+      text: reductionContent.getPrinciples(calorie, mealCount),
+      ctaLink: "/generator-diety-ai",
+      ctaText: "Stwórz dietę redukcyjną za darmo →",
+    },
+    {
+      id: "co-jesc",
+      title: `Co jeść na diecie redukcyjnej ${calorie} kcal?`,
+      text: reductionContent.getProducts(),
+      video: {
+        src: "/generator-diety-ai-video.mp4",
+        title: "DIETA REDUKCYJNA ZA DARMO",
+        ctaLink: "/generator-diety-ai",
+        ctaText: "Stwórz swoją dietę teraz →",
+      },
+    },
+    {
+      id: "czego-unikac",
+      title: `Czego unikać na diecie redukcyjnej?`,
+      text: reductionContent.getMistakes(calorie),
+    },
+    {
+      id: "tempo-redukcji",
+      title: `Jak szybko można schudnąć na diecie ${calorie} kcal?`,
+      text: reductionContent.getProgress(),
+    },
+    {
+      id: "podsumowanie",
+      title: "Podsumowanie",
+      text: reductionContent.getSummary(calorie),
+    },
+    {
+      id: "tabele-produktow",
+      title: "Produkty o niskiej kaloryczności – tabela",
+      text: reductionContent.getProductTables(),
+      linkToSection: "co-jesc",
+      linkText: "← Wróć do listy produktów",
+    },
   ];
 
-  return { ...params, title, h1, description, sections };
+  return { ...params, title, h1, description, sections, faq: getReductionDietFAQ(calorie) };
 }
 
 function getMaintenanceTemplateData(params: DietPageParams): DietPageData {

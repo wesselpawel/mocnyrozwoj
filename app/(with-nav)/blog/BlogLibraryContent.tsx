@@ -186,7 +186,7 @@ export default function BlogLibraryContent({
                           {entry.description}
                         </p>
                         <Link
-                          href={`/blog/post/${entry.slug}`}
+                          href={entry.href || `/blog/post/${entry.slug}`}
                           className="mt-4 inline-flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg text-sm font-semibold hover:bg-[#e77503]/80 transition-colors"
                         >
                           Czytaj artykuł
