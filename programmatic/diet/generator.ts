@@ -16,6 +16,31 @@ function mealCountSlug(count: number): string {
   return `${count}-posilkow`;
 }
 
+/** URL segment for meal count: "3-posilki" | "4-posilki" | "5-posilkow" */
+export function mealCountToSegment(count: number): string {
+  return mealCountSlug(count);
+}
+
+/** Parse segment "3-posilki" | "4-posilki" | "5-posilkow" → 3 | 4 | 5 */
+export function parseMealsSegment(segment: string): number | null {
+  const m = segment.match(/^(3|4|5)-posil(?:ki|kow)$/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+/** Path for diet page (no leading /dieta). Mass: hub-and-spoke; others: legacy slug. */
+export function getDietPagePath(params: DietPageParams): string {
+  const { calorie, goal, mealCount } = params;
+  if (goal === "mass") {
+    return `na-mase/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+  }
+  return dietParamsToSlug(params);
+}
+
+/** Path for mass hub page (no leading /dieta): e.g. "na-mase/1800-kcal" */
+export function getMassHubPath(calorie: number): string {
+  return `na-mase/${calorie}-kcal`;
+}
+
 /**
  * Polish declension for "posiłki/posiłków" in titles
  * 3, 4 → posiłki

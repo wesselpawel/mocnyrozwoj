@@ -22,5 +22,7 @@ Warto pamiętać, że zapotrzebowanie kaloryczne zależy od wielu czynników:
 
 Dla przykładu: mężczyzna ważący 85 kg przy wzroście 180 cm i umiarkowanej aktywności fizycznej potrzebuje około 2400–2700 kcal dziennie, aby utrzymać masę ciała. ${isLow ? `Dieta ${calorie} kcal stworzy dla niego znaczny deficyt kaloryczny.` : `Dieta ${calorie} kcal będzie dla niego umiarkowanym deficytem kalorycznym.`}
 
-Dlatego dieta redukcyjna zawsze powinna być dopasowana indywidualnie do zapotrzebowania energetycznego organizmu.`;
+Dlatego dieta redukcyjna zawsze powinna być dopasowana indywidualnie do zapotrzebowania energetycznego organizmu.
+
+Aby sprawdzić, czy ta kaloryczność jest dla Ciebie odpowiednia, [oblicz swoje zapotrzebowanie kaloryczne w kalkulatorze kcal](/kalkulator-kcal).`;
 }

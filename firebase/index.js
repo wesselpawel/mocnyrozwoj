@@ -63,10 +63,17 @@ const auth = getAuth(app);
 const analytics = isSupported().then((yes) => (yes ? getAnalytics(app) : null));
 
 async function getDocuments(collectionName) {
-  const ref = collection(db, collectionName);
-  const response = await getDocs(ref);
-  const res = response.docs.map((doc) => doc.data());
+  const colRef = collection(db, collectionName);
+  const response = await getDocs(colRef);
+  const res = response.docs.map((d) => d.data());
   return res;
+}
+
+/** Returns document IDs for a collection (e.g. programmaticDiets slugs). */
+async function getDocumentIds(collectionName) {
+  const colRef = collection(db, collectionName);
+  const snapshot = await getDocs(colRef);
+  return snapshot.docs.map((d) => d.id);
 }
 
 async function addDocument(collectionName, uniqueId, data) {
@@ -163,6 +170,7 @@ export {
   addDocument,
   getDocuments,
   getDocument,
+  getDocumentIds,
   removeDocument,
   updateDocument,
   uploadFile,

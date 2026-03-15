@@ -38,11 +38,7 @@ const GOAL_CATEGORY_SLUGS: Record<DietGoal, string> = {
   maintenance: "na-utrzymanie-wagi",
 };
 
-function generateRecipeUrl(meal: ProgrammaticMeal, mealCount: number, goal: DietGoal): string {
-  const mealTypeMap = MEAL_TYPE_MAP[mealCount] || MEAL_TYPE_MAP[4];
-  const mealType = mealTypeMap[meal.mealNumber] || "Przekąska";
-  const mealSlug = MEAL_TYPE_SLUGS[mealType];
-  const goalSlug = goal === "mass" ? "na-mase" : goal === "reduction" ? "na-redukcje" : "utrzymanie-wagi";
+function generateRecipeUrl(meal: ProgrammaticMeal, _mealCount: number, goal: DietGoal): string {
   const nameSlug = meal.mealName
     .toLowerCase()
     .replace(/ą/g, "a")
@@ -56,11 +52,11 @@ function generateRecipeUrl(meal: ProgrammaticMeal, mealCount: number, goal: Diet
     .replace(/ż/g, "z")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
-    .slice(0, 50);
+    .slice(0, 80);
 
-  const recipeSlug = `${mealSlug}-${meal.calories}-kcal-${goalSlug}-${nameSlug}`;
+  const recipeSlug = `${nameSlug}-${meal.calories}-kcal`;
   const categorySlug = GOAL_CATEGORY_SLUGS[goal];
-  
+
   return `/przepisy/${categorySlug}/${recipeSlug}`;
 }
 

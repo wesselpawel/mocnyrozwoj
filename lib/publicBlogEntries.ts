@@ -1,7 +1,8 @@
-import { getDocuments } from "@/firebase";
+import { getDocuments, getDocumentIds } from "@/firebase";
 import { entries as staticEntries } from "@/app/(with-nav)/blog/data";
-import { generateDietPages } from "@/programmatic/diet/generator";
+import { generateDietPages, getDietPagePath } from "@/programmatic/diet/generator";
 import { getDietTemplateData } from "@/programmatic/diet/template";
+import type { DietPageParams } from "@/programmatic/types";
 import { getAllRecipes, getCategoryByGoal } from "@/lib/recipeService";
 import type { RecipeEntry } from "@/types/recipe";
 
@@ -30,6 +31,8 @@ export type PublicBlogEntry = {
   id: string;
   slug: string;
   title: string;
+  /** Optional H1 for programmatic diet pages (differs from meta title) */
+  h1?: string;
   description: string;
   category: string;
   readTime: string;
@@ -47,6 +50,10 @@ export type PublicBlogEntry = {
   };
   /** Custom href - if set, overrides the default /blog/post/{slug} URL */
   href?: string;
+  /** Programmatic diet: true if this diet page has a generated day of meals in Firebase */
+  hasGeneratedDietDay?: boolean;
+  /** Optional image URL (e.g. recipe photo for Przepisy dietetyczne) */
+  imageUrl?: string;
 };
 
 const stripHtml = (value: string) =>
@@ -137,18 +144,36 @@ const DIET_GOAL_CATEGORIES: Record<string, string> = {
   maintenance: "Dieta na utrzymanie wagi",
 };
 
-/** Programmatic SEO: diet pages as blog entries */
-function getProgrammaticDietEntries(): PublicBlogEntry[] {
+/**
+ * All possible Firebase document IDs for this diet (Firestore IDs cannot contain "/").
+ * Used to match generated content regardless of which format was used when saving.
+ */
+function getPossibleGeneratedIdsForDiet(slug: string, params: DietPageParams): string[] {
+  const ids: string[] = [slug];
+  if (params.goal === "mass") {
+    const path = getDietPagePath(params);
+    ids.push(path.replace(/\//g, "-"));
+  }
+  return ids;
+}
+
+/** Programmatic SEO: diet pages as blog entries. hasGeneratedDietDay set by caller from Firebase. */
+function getProgrammaticDietEntries(slugsWithGeneratedContent: Set<string>): PublicBlogEntry[] {
   const pages = generateDietPages();
   const today = new Date().toLocaleDateString("pl-PL");
   return pages.map(({ slug, params }) => {
     const data = getDietTemplateData(params);
     const contentFromSections = data.sections.map((s) => s.text);
     const category = DIET_GOAL_CATEGORIES[params.goal] || "Diety";
+    const possibleIds = getPossibleGeneratedIdsForDiet(slug, params);
+    const hasGeneratedDietDay = possibleIds.some((id) => slugsWithGeneratedContent.has(id));
+
     return {
       id: `programmatic-diet-${slug}`,
       slug,
+      href: `/dieta/${slug}`,
       title: data.title,
+      h1: data.h1,
       description: data.description,
       category,
       readTime: estimateReadTime([data.description, ...contentFromSections]),
@@ -161,8 +186,28 @@ function getProgrammaticDietEntries(): PublicBlogEntry[] {
         goal: params.goal,
         mealCount: params.mealCount,
       },
+      hasGeneratedDietDay,
     };
   });
+}
+
+/** Normalize a Firebase document ID for lookup (bare slug, no collection path). */
+function normalizeGeneratedId(id: unknown): string {
+  const s = typeof id === "string" ? id.trim() : String(id ?? "");
+  if (!s) return "";
+  const bareId = s.includes("/") ? s.replace(/^.*\//, "").trim() : s;
+  return bareId;
+}
+
+/** Fetch all programmatic diet slugs that have a generated day of meals in Firebase. */
+export async function getGeneratedProgrammaticDietSlugs(): Promise<Set<string>> {
+  try {
+    const ids = (await getDocumentIds("programmaticDiets")) as string[];
+    const normalized = ids.map(normalizeGeneratedId).filter(Boolean);
+    return new Set(normalized);
+  } catch {
+    return new Set();
+  }
 }
 
 /** Convert recipes to blog entries for "Przepisy dietetyczne" category */
@@ -189,6 +234,7 @@ function recipeToPublicBlogEntry(recipe: RecipeEntry): PublicBlogEntry {
       `Składniki: ${ingredientsList}`,
       `Przygotowanie: ${recipe.preparationSteps.join(" ")}`,
     ],
+    imageUrl: recipe.imageUrl,
   };
 }
 
@@ -203,12 +249,13 @@ async function getRecipeEntries(): Promise<PublicBlogEntry[]> {
 
 export const getPublicBlogEntries = async (): Promise<PublicBlogEntry[]> => {
   const merged = new Map<string, PublicBlogEntry>();
+  const generatedSlugs = await getGeneratedProgrammaticDietSlugs();
 
   for (const entry of staticEntries) {
     merged.set(entry.slug, entry);
   }
 
-  for (const entry of getProgrammaticDietEntries()) {
+  for (const entry of getProgrammaticDietEntries(generatedSlugs)) {
     merged.set(entry.slug, entry);
   }
 
@@ -232,3 +279,29 @@ export const getPublicBlogEntries = async (): Promise<PublicBlogEntry[]> => {
 
   return Array.from(merged.values());
 };
+
+const DIET_GOAL_CATEGORIES_FOR_FILTER = [
+  "Dieta na masę",
+  "Dieta na redukcję",
+  "Dieta na utrzymanie wagi",
+] as const;
+
+/**
+ * Filter entries for display on blog (user vs admin).
+ * - User: for diet goal categories, show only entries that have a generated day of meals (or static entries).
+ * - Admin: for diet goal categories, show only entries that do NOT have a generated day (to see what needs generating).
+ */
+export function filterBlogEntriesByGeneratedDiet(
+  entries: PublicBlogEntry[],
+  selectedCategory: string | null,
+  isAdmin: boolean
+): PublicBlogEntry[] {
+  return entries.filter((entry) => {
+    if (!DIET_GOAL_CATEGORIES_FOR_FILTER.includes(entry.category as (typeof DIET_GOAL_CATEGORIES_FOR_FILTER)[number])) {
+      return true;
+    }
+    if (!entry.programmaticDiet) return true;
+    if (isAdmin) return entry.hasGeneratedDietDay === false;
+    return entry.hasGeneratedDietDay === true;
+  });
+}

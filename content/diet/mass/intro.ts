@@ -18,5 +18,7 @@ Nie jest to jednak dieta dla każdego.
 
 Dla przykładu: kobieta ważąca 70 kg przy wzroście 170 cm i umiarkowanej aktywności fizycznej potrzebuje około 1800–2000 kcal dziennie, aby utrzymać masę ciała. ${calorie >= 2500 ? `Spożywanie ${calorie} kcal w takim przypadku prowadziłoby do szybkiego przyrostu tkanki tłuszczowej.` : ""}
 
-Dlatego dieta na masę zawsze powinna być dopasowana indywidualnie do zapotrzebowania energetycznego organizmu.`;
+Dlatego dieta na masę zawsze powinna być dopasowana indywidualnie do zapotrzebowania energetycznego organizmu.
+
+Aby sprawdzić, czy ta kaloryczność jest dla Ciebie odpowiednia, [oblicz swoje zapotrzebowanie kaloryczne w kalkulatorze kcal](/kalkulator-kcal).`;
 }

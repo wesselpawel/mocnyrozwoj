@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { dietParamsToSlug, getDietPagePath, mealCountLabel } from "@/programmatic/diet/generator";
 
 type RelatedDietsProps = {
   currentCalories: number;
@@ -12,22 +13,16 @@ const GOAL_LABELS: Record<string, string> = {
   maintenance: "na utrzymanie wagi",
 };
 
-const GOAL_SLUGS: Record<string, string> = {
-  mass: "na-mase",
-  reduction: "na-redukcje",
-  maintenance: "na-utrzymanie-wagi",
-};
-
-const MEAL_LABELS: Record<number, string> = {
-  3: "3 posiłki",
-  4: "4 posiłki",
-  5: "5 posiłków",
-};
-
-function generateDietSlug(goal: string, calories: number, mealCount: number): string {
-  const goalSlug = GOAL_SLUGS[goal];
-  const mealWord = mealCount === 5 ? "posilkow" : "posilki";
-  return `dieta-${goalSlug}-${calories}-kcal-jadlospis-${mealCount}-${mealWord}`;
+/** SEO-friendly link text: full phrase per meal variant */
+function getMealLinkLabel(
+  goal: "mass" | "reduction" | "maintenance",
+  kcal: number,
+  mealCount: number
+): string {
+  const meals = mealCountLabel(mealCount);
+  if (goal === "mass") return `Dieta na masę ${kcal} kcal jadłospis na ${meals}`;
+  if (goal === "reduction") return `Dieta na redukcję ${kcal} kcal jadłospis na ${meals}`;
+  return `Dieta ${kcal} kcal na utrzymanie wagi jadłospis na ${meals}`;
 }
 
 function getClosestCalories(current: number, count: number = 5): number[] {
@@ -60,41 +55,40 @@ export default function RelatedDiets({ currentCalories, goal, currentMealCount }
       <div className="space-y-6">
         {closestCalories.map((kcal) => (
           <div key={kcal} className="bg-white border border-zinc-200 rounded-xl p-5">
-            <h3 className="font-semibold text-zinc-900 mb-3 flex items-center gap-2">
-              <span className="bg-[#e77503] text-white px-3 py-1 rounded-lg text-sm font-bold">
+            <h3 className="font-semibold text-zinc-900 mb-3">
+              <span className="bg-[#e77503] text-white px-3 py-1 rounded-lg text-sm font-bold mr-2">
                 {kcal} kcal
               </span>
-              <span className="text-zinc-600">Dieta {goalLabel}</span>
+              <span className="text-zinc-800">
+                {goal === "mass" && `Dieta na masę ${kcal} kcal`}
+                {goal === "reduction" && `Dieta na redukcję ${kcal} kcal`}
+                {goal === "maintenance" && `Dieta ${kcal} kcal na utrzymanie wagi`}
+              </span>
             </h3>
             <div className="flex flex-wrap gap-2">
               {mealCounts.map((meals) => {
-                const slug = generateDietSlug(goal, kcal, meals);
+                const params = { calorie: kcal, goal, mealCount: meals };
+                const path = goal === "mass" ? getDietPagePath(params) : dietParamsToSlug(params);
                 const isCurrentVariant = kcal === currentCalories && meals === currentMealCount;
-                
+                const linkLabel = getMealLinkLabel(goal, kcal, meals);
+
                 return (
                   <Link
                     key={meals}
-                    href={`/blog/post/${slug}`}
+                    href={`/dieta/${path}`}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       isCurrentVariant
                         ? "bg-zinc-200 text-zinc-500 cursor-default"
                         : "bg-zinc-100 text-zinc-700 hover:bg-[#e77503] hover:text-white"
                     }`}
                   >
-                    {MEAL_LABELS[meals]}
+                    {linkLabel}
                   </Link>
                 );
               })}
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-6 p-4 bg-gradient-to-r from-[#e77503]/5 to-[#ff9a3c]/5 border border-[#e77503]/20 rounded-xl">
-        <p className="text-sm text-zinc-600">
-          <strong className="text-zinc-800">Aktualna dieta:</strong>{" "}
-          {currentCalories} kcal {goalLabel} ({MEAL_LABELS[currentMealCount]})
-        </p>
       </div>
     </section>
   );

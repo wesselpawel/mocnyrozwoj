@@ -70,14 +70,17 @@ export const MEAL_TYPE_SLUGS: Record<MealType, string> = {
   "Przekąska": "przekaska",
 };
 
+/**
+ * Short recipe URL slug: {name}-{calories}-kcal
+ * e.g. jogurt-naturalny-z-platkami-owsianymi-i-borowkami-246-kcal
+ * Category (na-mase, na-redukcje, na-utrzymanie-wagi) is in the path /przepisy/[category]/[slug].
+ */
 export function generateRecipeSlug(
-  mealType: MealType,
+  _mealType: MealType,
   calories: number,
-  goal: DietGoal,
+  _goal: DietGoal,
   name: string
 ): string {
-  const mealSlug = MEAL_TYPE_SLUGS[mealType];
-  const goalSlug = goal === "mass" ? "na-mase" : goal === "reduction" ? "na-redukcje" : "utrzymanie-wagi";
   const nameSlug = name
     .toLowerCase()
     .replace(/ą/g, "a")
@@ -91,9 +94,9 @@ export function generateRecipeSlug(
     .replace(/ż/g, "z")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
-    .slice(0, 50);
+    .slice(0, 80);
 
-  return `${mealSlug}-${calories}-kcal-${goalSlug}-${nameSlug}`;
+  return `${nameSlug}-${calories}-kcal`;
 }
 
 export function generateRecipeSEO(

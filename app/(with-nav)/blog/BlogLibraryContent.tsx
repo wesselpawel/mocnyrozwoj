@@ -3,6 +3,9 @@ import Link from "next/link";
 import profile from "@/public/donut.jpg";
 import { categorySlugs, categories as defaultCategories } from "./data";
 import { PublicBlogEntry } from "@/lib/publicBlogEntries";
+import { getMassHubPath } from "@/programmatic/diet/generator";
+
+const MASS_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
 
 export default function BlogLibraryContent({
   selectedCategory,
@@ -60,10 +63,10 @@ export default function BlogLibraryContent({
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-10 items-start">
             <div>
               <p className="inline-flex items-center rounded-full bg-[#e77503] px-4 py-1 text-xs font-semibold tracking-wide text-white uppercase">
-                Biblioteka wiedzy
+                DIETA W PIGUŁCE
               </p>
               <h1 className="mt-4 font-montserrat font-extrabold tracking-[0.12rem] text-3xl sm:text-4xl lg:text-5xl text-[#1f1d1d]">
-                {selectedCategory ? selectedCategory : "Blog Dietetyczny"}
+                {selectedCategory ? selectedCategory : "234 plany dietetyczne z przepisami i listą zakupów"}
               </h1>
               <p className="mt-4 max-w-3xl text-zinc-700 leading-relaxed font-montserrat">
                 Miejsce z uporządkowaną wiedzą na temat żywienia: od podstawowych
@@ -72,44 +75,30 @@ export default function BlogLibraryContent({
               </p>
             </div>
 
-            <aside className="rounded-2xl border border-zinc-200 bg-white p-5 min-w-[250px]">
-              <p className="text-xs uppercase tracking-wide text-zinc-500 font-semibold">
-                Autor
-              </p>
-              <div className="flex items-center gap-2">
-                <Image
-                  src={profile}
-                  alt="Paweł Wessel"
-                  width={100}
-                  height={100}
-                  className="h-12 w-12 mt-3 rounded-full"
-                />
-                <div className="flex flex-col">
-                  <p className="mt-2 text-base font-semibold text-[#1f1d1d]">
-                    Paweł Wessel
-                  </p>
-                  <Link
-                    href="https://wesselpawel.com"
-                    target="_blank"
-                    className="text-sm text-zinc-600 hover:text-[#e77503] transition-colors"
-                  >
-                    wesselpawel.com
-                  </Link>
-                </div>
-              </div>
-              <p className="max-w-[300px] mt-1 text-sm text-zinc-600">
-                Twórca pierwszego polskiego{" "}
-                <Link href="/generator-diety-ai">
-                  <b>generatora diety AI za darmo</b>
-                </Link>
-                {" "}dziendiety.pl
-              </p>
-              <p className="mt-3 text-xs text-zinc-500">
-                Aktualizacja biblioteki: 11.03.2026
-              </p>
-            </aside>
+            
           </div>
         </header>
+
+        {selectedCategory === "Dieta na masę" && (
+          <section className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8" aria-labelledby="diety-wedlug-kalorii">
+            <h2 id="diety-wedlug-kalorii" className="font-montserrat font-bold text-xl text-zinc-900 mb-4 flex items-center gap-3">
+              <span className="w-1.5 h-6 bg-[#e77503] rounded-full" />
+              Diety na masę według kalorii
+            </h2>
+            <ul className="flex flex-wrap gap-2 sm:gap-3">
+              {MASS_CALORIES.map((kcal) => (
+                <li key={kcal}>
+                  <Link
+                    href={`/dieta/${getMassHubPath(kcal)}`}
+                    className="inline-flex items-center px-4 py-2 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-medium hover:border-[#e77503] hover:bg-[#e77503]/5 hover:text-[#e77503] transition-colors"
+                  >
+                    {kcal} kcal
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="mt-10 grid grid-cols-1 xl:grid-cols-[260px_1fr] gap-6 lg:gap-8">
           <aside className="xl:sticky xl:top-28 self-start rounded-2xl border border-zinc-200 bg-white p-5 h-fit">
@@ -173,24 +162,40 @@ export default function BlogLibraryContent({
                       <article
                         key={entry.id}
                         id={entry.id}
-                        className="rounded-2xl border border-zinc-200 bg-white p-5 hover:border-[#e77503]/50 transition-colors shadow-sm hover:shadow-md"
+                        className="rounded-2xl border border-zinc-200 bg-white overflow-hidden hover:border-[#e77503]/50 transition-colors shadow-sm hover:shadow-md"
                       >
-                        <div className="flex items-center justify-between gap-3 text-xs text-zinc-500 mb-3">
-                          <span>Aktualizacja: {entry.updatedAt}</span>
-                          <span>{entry.readTime}</span>
+                        {entry.imageUrl ? (
+                          <Link
+                            href={entry.href || `/blog/post/${entry.slug}`}
+                            className="block relative w-full aspect-[16/10] bg-zinc-100"
+                          >
+                            <Image
+                              src={entry.imageUrl}
+                              alt=""
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover"
+                            />
+                          </Link>
+                        ) : null}
+                        <div className="p-5">
+                          <div className="flex items-center justify-between gap-3 text-xs text-zinc-500 mb-3">
+                            <span>Aktualizacja: {entry.updatedAt}</span>
+                            <span>{entry.readTime}</span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-[#1f1d1d] leading-snug">
+                            {entry.title}
+                          </h3>
+                          <p className="mt-3 text-sm text-zinc-600 leading-relaxed">
+                            {entry.description}
+                          </p>
+                          <Link
+                            href={entry.href || `/blog/post/${entry.slug}`}
+                            className="mt-4 inline-flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg text-sm font-semibold hover:bg-[#e77503]/80 transition-colors"
+                          >
+                            Czytaj artykuł
+                          </Link>
                         </div>
-                        <h3 className="text-lg font-semibold text-[#1f1d1d] leading-snug">
-                          {entry.title}
-                        </h3>
-                        <p className="mt-3 text-sm text-zinc-600 leading-relaxed">
-                          {entry.description}
-                        </p>
-                        <Link
-                          href={entry.href || `/blog/post/${entry.slug}`}
-                          className="mt-4 inline-flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg text-sm font-semibold hover:bg-[#e77503]/80 transition-colors"
-                        >
-                          Czytaj artykuł
-                        </Link>
                       </article>
                     ))}
                   </div>

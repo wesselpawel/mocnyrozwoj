@@ -11,6 +11,13 @@ import * as maintenanceContent from "@/content/diet/maintenance";
 import { getMassDietFAQ } from "@/content/diet/mass/faq";
 import { getReductionDietFAQ } from "@/content/diet/reduction/faq";
 
+/** "4 posiłki" -> "4 posiłkami" for description */
+function mealsDative(meals: string): string {
+  if (meals === "5 posiłków") return "5 posiłkami";
+  if (meals === "4 posiłki") return "4 posiłkami";
+  return "3 posiłkami";
+}
+
 /** Zwraca dane strony dla danej kombinacji (params) — do użycia w getStaticProps / page */
 export function getDietTemplateData(params: DietPageParams): DietPageData {
   const { calorie, goal, mealCount } = params;
@@ -26,32 +33,13 @@ export function getDietTemplateData(params: DietPageParams): DietPageData {
 
 function getMassTemplateData(params: DietPageParams): DietPageData {
   const { calorie, mealCount } = params;
-  const isLowCalorie = calorie <= 2200;
-  const lowCalorieDisclaimer = massContent.getLowCalorieDisclaimer(calorie);
-
-  // SEO coverage posts (1500-2200 kcal) have different title
   const meals = mealCountLabel(mealCount);
-  const title = isLowCalorie
-    ? `Dieta na masę ${calorie} kcal – czy to w ogóle ma sens?`
-    : `Dieta na masę ${calorie} kcal z jadłospisem na ${meals}`;
-  const h1 = title;
-  const description = isLowCalorie
-    ? `Czy dieta ${calorie} kcal na masę mięśniową jest możliwa? Sprawdź dla kogo i kiedy ma sens. ${meals} dziennie.`
-    : `Dieta ${calorie} kcal na masę mięśniową z przykładowym jadłospisem. Sprawdź zasady, produkty i ${meals} dziennie.`;
+  // Meta title: SEO phrase with posiłki/posiłków
+  const title = `Dieta na masę ${calorie} kcal jadłospis ${meals}`;
+  const h1 = `Dieta na masę ${calorie} kcal. Jadłospis, przepisy, lista zakupów`;
+  const description = `Przykładowa dieta na masę ${calorie} kcal z ${mealsDative(meals)} dziennie. Zobacz jadłospis, rozkład kalorii oraz propozycje posiłków na budowę masy mięśniowej.`;
 
-  const sections: ArticleSection[] = [];
-
-  // For low calorie diets (1500-2200), add disclaimer as first section
-  if (lowCalorieDisclaimer) {
-    sections.push({
-      id: "czy-ma-sens",
-      title: `Dieta na masę ${calorie} kcal – czy to w ogóle ma sens?`,
-      text: lowCalorieDisclaimer,
-    });
-  }
-
-  // Standard mass diet sections
-  sections.push(
+  const sections: ArticleSection[] = [
     {
       id: "dla-kogo",
       title: `Dieta na masę ${calorie} kcal – dla kogo jest odpowiednia?`,
@@ -114,7 +102,7 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       title: "Tabele produktów wysokokalorycznych",
       text: massContent.getProductTables(),
     },
-  );
+  ];
 
   return { ...params, title, h1, description, sections, faq: getMassDietFAQ(calorie) };
 }
@@ -122,9 +110,9 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
 function getReductionTemplateData(params: DietPageParams): DietPageData {
   const { calorie, mealCount } = params;
   const meals = mealCountLabel(mealCount);
-  const title = `Dieta redukcyjna ${calorie} kcal z jadłospisem na ${meals}`;
-  const h1 = title;
-  const description = `Dieta redukcyjna ${calorie} kcal z przykładowym jadłospisem. Sprawdź zasady, produkty i ${meals} dziennie.`;
+  const title = `Dieta na redukcję ${calorie} kcal jadłospis ${meals}`;
+  const h1 = `Dieta na redukcję ${calorie} kcal. Jadłospis, przepisy, lista zakupów`;
+  const description = `Przykładowa dieta na redukcję ${calorie} kcal z ${mealsDative(meals)} dziennie. Zobacz jadłospis, rozkład kalorii oraz propozycje posiłków na redukcję tkanki tłuszczowej.`;
 
   const sections: ArticleSection[] = [
     {
@@ -192,9 +180,9 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
 function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
   const { calorie, mealCount } = params;
   const meals = mealCountLabel(mealCount);
-  const title = `Dieta ${calorie} kcal na utrzymanie wagi z jadłospisem na ${meals}`;
-  const h1 = title;
-  const description = `Dieta ${calorie} kcal na utrzymanie wagi z przykładowym jadłospisem. Sprawdź zasady, produkty i ${meals} dziennie.`;
+  const title = `Dieta ${calorie} kcal na utrzymanie wagi jadłospis ${meals}`;
+  const h1 = `Dieta ${calorie} kcal na utrzymanie wagi. Jadłospis, przepisy, lista zakupów`;
+  const description = `Przykładowa dieta ${calorie} kcal na utrzymanie wagi z ${mealsDative(meals)} dziennie. Zobacz jadłospis, rozkład kalorii oraz propozycje posiłków.`;
 
   const sections = [
     { title: "Wprowadzenie", text: maintenanceContent.getIntro(calorie) },

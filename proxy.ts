@@ -7,10 +7,22 @@ import {
 
 const ADMIN_LOGIN_PATH = "/admin/login";
 
+/** 301: /blog/post/{programmatic-diet-slug} → /dieta/{slug} */
+const PROGRAMMATIC_DIET_REGEX =
+  /^\/blog\/post\/(dieta-na-mase-\d+-kcal-jadlospis-\d+-posil(?:ki|kow)|dieta-redukcyjna-\d+-kcal-jadlospis-\d+-posil(?:ki|kow)|dieta-\d+-kcal-utrzymanie-wagi-jadlospis-\d+-posil(?:ki|kow))$/;
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const isAdminRoute = pathname.startsWith("/admin");
 
+  const dietMatch = pathname.match(PROGRAMMATIC_DIET_REGEX);
+  if (dietMatch) {
+    const slug = dietMatch[1];
+    const url = request.nextUrl.clone();
+    url.pathname = `/dieta/${slug}`;
+    return NextResponse.redirect(url, 301);
+  }
+
+  const isAdminRoute = pathname.startsWith("/admin");
   if (!isAdminRoute) {
     return NextResponse.next();
   }
@@ -46,5 +58,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/blog/post/dieta-na-mase-:path*",
+    "/blog/post/dieta-redukcyjna-:path*",
+    "/blog/post/dieta-:path*",
+  ],
 };

@@ -6,13 +6,16 @@ interface MarkdownContentProps {
 
 const separatorPattern = new RegExp("^\\|[\\-:\\s\\|]+\\|$");
 const boldPattern = new RegExp("\\*\\*([^*]+)\\*\\*", "g");
+const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
 
 function isSeparatorLine(line: string): boolean {
   return separatorPattern.test(line);
 }
 
 function parseInlineMarkdown(text: string): string {
-  return text.replace(boldPattern, '<strong class="font-semibold text-zinc-800">$1</strong>');
+  return text
+    .replace(linkPattern, '<a href="$2" class="text-[#e77503] font-semibold hover:underline">$1</a>')
+    .replace(boldPattern, '<strong class="font-semibold text-zinc-800">$1</strong>');
 }
 
 function parseMarkdownTables(text: string): string {

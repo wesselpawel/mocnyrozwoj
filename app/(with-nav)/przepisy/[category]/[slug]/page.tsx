@@ -55,12 +55,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const seo = generateRecipeSEO(recipe.mealType, recipe.calories, recipe.goal, recipe.name);
+  const title = `Przepis - ${recipe.name}`;
 
   return {
-    title: seo.title,
+    title: `${title} | DzienDiety`,
     description: seo.description,
     openGraph: {
-      title: seo.title,
+      title: `${title} | DzienDiety`,
       description: seo.description,
     },
   };
@@ -92,6 +93,24 @@ function formatSourceSlug(slug: string): string {
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+/** Human-readable label for "part of meal plan" using recipe context */
+function getJadlospisLabel(recipe: { mealType: string; goal: string; sourceSlug: string }): {
+  title: string;
+  description: string;
+} {
+  const dietLine = formatSourceSlug(recipe.sourceSlug);
+  const goalLabels: Record<string, string> = {
+    mass: "na masę",
+    reduction: "na redukcję",
+    maintenance: "na utrzymanie wagi",
+  };
+  const goalLabel = goalLabels[recipe.goal] || recipe.goal;
+  return {
+    title: `${recipe.mealType} z jadłospisu ${goalLabel}`,
+    description: dietLine,
+  };
 }
 
 function IngredientsTable({ ingredients }: { ingredients: RecipeIngredient[] }) {
@@ -295,7 +314,7 @@ export default async function RecipePage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-white pt-28 pb-16 px-6 lg:px-12">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <nav
           aria-label="Breadcrumb"
           className="mb-6 text-sm text-zinc-500 font-montserrat"
@@ -321,9 +340,7 @@ export default async function RecipePage({ params }: Props) {
           <span className="text-zinc-700 line-clamp-1">{recipe.name}</span>
         </nav>
 
-        <div className="grid lg:grid-cols-[1fr_320px] gap-10">
-          {/* Main Content */}
-          <article>
+        <article>
             <header className="mb-8">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6">
                 <span className="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-700 px-3 py-1.5 rounded-tl-2xl rounded-br-2xl rounded-tr-lg rounded-bl-lg text-sm font-medium">
@@ -355,30 +372,87 @@ export default async function RecipePage({ params }: Props) {
               </div>
             </header>
 
+            <section className="mb-10">
+              <h2 className="font-montserrat font-bold text-2xl text-zinc-900 mb-6 flex items-center gap-3">
+                <span className="w-1.5 h-8 bg-[#e77503] rounded-full" />
+                Przygotowanie krok po kroku
+              </h2>
+              <ol className="space-y-4">
+                {recipe.preparationSteps.map((step, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-4 bg-zinc-50 rounded-xl p-4"
+                  >
+                    <span className="flex-shrink-0 w-8 h-8 bg-[#e77503] text-white rounded-full flex items-center justify-center font-bold">
+                      {i + 1}
+                    </span>
+                    <p className="text-zinc-700 leading-relaxed pt-1">{step}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
             <div className="flex flex-wrap items-center gap-4 mb-8">
-              {recipe.sourceSlug && (
-                <Link
-                  href={`/blog/post/${recipe.sourceSlug}`}
-                  className="flex-1 min-w-[280px] bg-gradient-to-r from-[#e77503]/10 to-[#ff9a3c]/5 border border-[#e77503]/30 rounded-xl p-4 hover:border-[#e77503] hover:shadow-md transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#e77503] rounded-lg flex items-center justify-center text-white shadow-sm">
-                      📋
+              {recipe.sourceSlug && (() => {
+                const { title, description } = getJadlospisLabel(recipe);
+                return (
+                  <Link
+                    href={`/dieta/${recipe.sourceSlug}`}
+                    className="flex-1 min-w-[280px] bg-gradient-to-r from-[#e77503]/10 to-[#ff9a3c]/5 border border-[#e77503]/30 rounded-xl p-4 hover:border-[#e77503] hover:shadow-md transition-all group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#e77503] rounded-lg flex items-center justify-center text-white shadow-sm">
+                        📋
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-zinc-500 uppercase tracking-wide font-medium">{title}</p>
+                        <p className="text-[#e77503] group-hover:text-[#d66a02] font-semibold flex items-center gap-2">
+                          <span>{description}</span>
+                          <span className="transition-transform group-hover:translate-x-1">→</span>
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-0.5">Zobacz cały jadłospis na ten dzień i listę zakupów</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-zinc-500 uppercase tracking-wide font-medium">Część jadłospisu</p>
-                      <p className="text-[#e77503] group-hover:text-[#d66a02] font-semibold flex items-center gap-2">
-                        <span>{formatSourceSlug(recipe.sourceSlug)}</span>
-                        <span className="transition-transform group-hover:translate-x-1">→</span>
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              )}
+                  </Link>
+                );
+              })()}
               <PrintButton />
             </div>
 
-          <div className="grid lg:grid-cols-2 gap-6 mb-10">
+            <div className="mb-10 rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-50 to-orange-50/30 p-5">
+              <h3 className="font-montserrat font-bold text-sm text-zinc-800 mb-3 flex items-center gap-2">
+                <span className="w-1 h-5 bg-[#e77503] rounded-full" />
+                Informacje o przepisie
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                <div className="flex justify-between sm:block">
+                  <span className="text-zinc-500">Kalorie</span>
+                  <span className="font-semibold text-[#e77503] sm:ml-2">{recipe.calories} kcal</span>
+                </div>
+                <div className="flex justify-between sm:block">
+                  <span className="text-zinc-500">Białko</span>
+                  <span className="font-medium text-zinc-700 sm:ml-2">{recipe.proteinG}g</span>
+                </div>
+                <div className="flex justify-between sm:block">
+                  <span className="text-zinc-500">Tłuszcze</span>
+                  <span className="font-medium text-zinc-700 sm:ml-2">{recipe.fatG}g</span>
+                </div>
+                <div className="flex justify-between sm:block">
+                  <span className="text-zinc-500">Węglowodany</span>
+                  <span className="font-medium text-zinc-700 sm:ml-2">{recipe.carbsG}g</span>
+                </div>
+                <div className="flex justify-between sm:block">
+                  <span className="text-zinc-500">Typ posiłku</span>
+                  <span className="font-medium text-zinc-700 sm:ml-2">{recipe.mealType}</span>
+                </div>
+                <div className="flex justify-between sm:block">
+                  <span className="text-zinc-500">Cel diety</span>
+                  <span className="font-medium text-zinc-700 sm:ml-2">{recipe.goalLabel}</span>
+                </div>
+              </div>
+            </div>
+
+          <div className="grid sm:grid-cols-2 gap-6 mb-10">
             <MacroChart
               proteinG={recipe.proteinG}
               fatG={recipe.fatG}
@@ -404,26 +478,6 @@ export default async function RecipePage({ params }: Props) {
             </div>
           </section>
 
-          <section className="mb-10">
-            <h2 className="font-montserrat font-bold text-2xl text-zinc-900 mb-6 flex items-center gap-3">
-              <span className="w-1.5 h-8 bg-[#e77503] rounded-full" />
-              Przygotowanie krok po kroku
-            </h2>
-            <ol className="space-y-4">
-              {recipe.preparationSteps.map((step, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-4 bg-zinc-50 rounded-xl p-4"
-                >
-                  <span className="flex-shrink-0 w-8 h-8 bg-[#e77503] text-white rounded-full flex items-center justify-center font-bold">
-                    {i + 1}
-                  </span>
-                  <p className="text-zinc-700 leading-relaxed pt-1">{step}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-
           <DietOnlineCTA goal={recipe.goal} variant="compact" />
 
           <section className="mb-10 mt-10">
@@ -434,6 +488,16 @@ export default async function RecipePage({ params }: Props) {
             <div className="rounded-xl border border-zinc-200 p-6 bg-white">
               <ShoppingList ingredients={recipe.shoppingList} />
             </div>
+          </section>
+
+          <section className="mb-10">
+            <RelatedRecipes
+              recipesFromSameDiet={recipesFromSameDiet}
+              similarRecipes={similarRecipes}
+              sourceSlug={recipe.sourceSlug}
+              currentMealType={recipe.mealType}
+              goal={recipe.goal}
+            />
           </section>
 
           <section className="mb-10">
@@ -458,61 +522,12 @@ export default async function RecipePage({ params }: Props) {
             />
           </section>
 
-          <section className="mb-10">
-            <RelatedRecipes
-              recipesFromSameDiet={recipesFromSameDiet}
-              similarRecipes={similarRecipes}
-              sourceSlug={recipe.sourceSlug}
-              currentMealType={recipe.mealType}
-              goal={recipe.goal}
-            />
-          </section>
-
           <DietOnlineCTA goal={recipe.goal} />
         </article>
 
-          {/* Sidebar */}
-          <aside className="lg:block">
-            <div className="lg:sticky lg:top-28 space-y-6">
-              <AuthorCard ctaText="Stwórz swoją dietę" />
-              
-              <div className="hidden lg:block bg-gradient-to-br from-zinc-50 to-orange-50/30 rounded-2xl border border-zinc-200 p-5">
-                <h3 className="font-montserrat font-bold text-sm text-zinc-800 mb-3 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-[#e77503] rounded-full" />
-                  Informacje o przepisie
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Kalorie</span>
-                    <span className="font-semibold text-[#e77503]">{recipe.calories} kcal</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Białko</span>
-                    <span className="font-medium text-zinc-700">{recipe.proteinG}g</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Tłuszcze</span>
-                    <span className="font-medium text-zinc-700">{recipe.fatG}g</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Węglowodany</span>
-                    <span className="font-medium text-zinc-700">{recipe.carbsG}g</span>
-                  </div>
-                  <div className="pt-2 border-t border-zinc-200">
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Typ posiłku</span>
-                      <span className="font-medium text-zinc-700">{recipe.mealType}</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Cel diety</span>
-                    <span className="font-medium text-zinc-700">{recipe.goalLabel}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+        <section className="max-w-7xl mx-auto mt-16 pt-10 border-t border-zinc-200">
+          <AuthorCard ctaText="Stwórz swoją dietę" />
+        </section>
       </div>
 
       <script

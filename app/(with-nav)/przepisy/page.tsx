@@ -22,7 +22,7 @@ const categoryIcons: Record<string, string> = {
 export default function PrzepisyPage() {
   return (
     <main className="min-h-screen bg-white pt-28 pb-16 px-6 lg:px-12">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <nav
           aria-label="Breadcrumb"
           className="mb-6 text-sm text-zinc-500 font-montserrat"

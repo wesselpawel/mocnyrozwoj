@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { RecipeEntry, DietGoal } from "@/types/recipe";
 import { getCategoryByGoal } from "@/lib/recipeService";
 
@@ -10,15 +11,6 @@ type RelatedRecipesProps = {
   goal: DietGoal;
 };
 
-const mealTypeIcons: Record<string, string> = {
-  "Śniadanie": "🌅",
-  "Drugie śniadanie": "🥪",
-  "Obiad": "🍝",
-  "Podwieczorek": "🍎",
-  "Kolacja": "🌙",
-  "Przekąska": "🥜",
-};
-
 function RecipeCard({ recipe, goal }: { recipe: RecipeEntry; goal: DietGoal }) {
   const category = getCategoryByGoal(goal);
   const href = `/przepisy/${category?.slug || "na-mase"}/${recipe.slug}`;
@@ -26,20 +18,59 @@ function RecipeCard({ recipe, goal }: { recipe: RecipeEntry; goal: DietGoal }) {
   return (
     <Link
       href={href}
-      className="block bg-white rounded-xl border border-zinc-200 p-4 hover:border-[#e77503] hover:shadow-md transition-all"
+      className="group block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm hover:shadow-lg hover:border-[#e77503]/30 transition-all"
     >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">{mealTypeIcons[recipe.mealType] || "🍽️"}</span>
-        <span className="text-xs text-zinc-500">{recipe.mealType}</span>
-        <span className="ml-auto text-xs font-semibold text-[#e77503]">{recipe.calories} kcal</span>
+      <div className="bg-gradient-to-r from-zinc-50 to-zinc-100 px-5 py-4 border-b border-zinc-100">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm text-zinc-600 font-medium">{recipe.mealType}</span>
+          <span className="bg-[#e77503] text-white text-xs font-bold px-2 py-1 rounded-md">
+            {recipe.calories} kcal
+          </span>
+        </div>
       </div>
-      <h4 className="font-medium text-zinc-800 text-sm leading-snug line-clamp-2">
-        {recipe.name}
-      </h4>
-      <div className="flex gap-3 mt-2 text-xs text-zinc-500">
-        <span>B: {recipe.proteinG}g</span>
-        <span>T: {recipe.fatG}g</span>
-        <span>W: {recipe.carbsG}g</span>
+      <div className="p-5 flex gap-4">
+        {recipe.imageUrl && (
+          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-100 aspect-square">
+            <Image
+              src={recipe.imageUrl}
+              alt={recipe.name}
+              fill
+              className="object-cover"
+              sizes="80px"
+            />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-zinc-900 text-lg mb-2 group-hover:text-[#e77503] transition-colors line-clamp-2">
+            {recipe.name}
+          </h3>
+          <div className="flex flex-wrap gap-3 text-xs text-zinc-500 mb-4">
+            <span>B: {recipe.proteinG}g</span>
+            <span>T: {recipe.fatG}g</span>
+            <span>W: {recipe.carbsG}g</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-zinc-400">
+              {recipe.ingredients.length} składników
+            </span>
+            <span className="text-[#e77503] font-semibold text-sm flex items-center gap-1">
+              Zobacz przepis
+              <svg
+                className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
       </div>
     </Link>
   );
