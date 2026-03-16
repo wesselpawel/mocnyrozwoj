@@ -18,11 +18,19 @@ const getPrompt = ({ topic, title, category, shortDesc }: GenerateInput) => {
     .join("\n");
 
   return `Pisz jak profesjonalista w dziedzinie rozwoju osobistego i dietetyki.
-Generujesz SEO dla posta na bloga na temat: ${topic}.
-Generuj tylko: tytuł, krótki opis, SEO dane, URL i tagi.
+Generujesz SEO i treść dla posta na bloga na temat: ${topic}.
 Jeśli podano dodatkowy kontekst, uwzględnij go:
-${optionalContext || "- Brak dodatkowego kontekstu."}`;
+${optionalContext || "- Brak dodatkowego kontekstu."}
+Odpowiedz wyłącznie poprawnym JSON-em (bez markdown, bez \`\`\`json), z polskimi wartościami.`;
 };
+
+const BLOG_POST_KEYS = [
+  "title", "shortDesc", "googleTitle", "googleDescription", "googleKeywords",
+  "url", "urlLabel", "category", "tags",
+  "text1Title", "text1Desc", "text2Title", "text2Desc", "text3Title", "text3Desc",
+  "text4Title", "text4Desc", "text5Title", "text5Desc", "text6Title", "text6Desc",
+  "text7Title", "text7Desc",
+] as const;
 
 const runGeneration = async ({ topic, title, category, shortDesc }: GenerateInput) => {
   if (!topic) {
@@ -42,13 +50,26 @@ const runGeneration = async ({ topic, title, category, shortDesc }: GenerateInpu
   });
 
   try {
-    await chat.sendMessage("Ping");
-
     const response = await chat.sendMessage(
-      getPrompt({ topic, title, category, shortDesc })
+      getPrompt({ topic, title, category, shortDesc }),
+      {
+        expect: {
+          examples: [
+            Object.fromEntries(BLOG_POST_KEYS.map((k) => [k, "przykładowa wartość"])),
+          ],
+          schema: {
+            additionalProperties: true,
+            type: "object",
+            properties: Object.fromEntries(
+              BLOG_POST_KEYS.map((k) => [k, { type: "string" as const }])
+            ),
+            required: [...BLOG_POST_KEYS],
+          },
+        },
+      }
     );
 
-    let jsonContent: string = String(response.content);
+    let jsonContent: string = String(response.content ?? "");
 
     // If the model already returned a structured object, just forward it
     if (typeof response.content === "object" && response.content !== null) {
@@ -60,7 +81,7 @@ const runGeneration = async ({ topic, title, category, shortDesc }: GenerateInpu
         {
           error: "Invalid response format from AI",
           details: "Response content is not a string",
-          rawContent: String(response.content).substring(0, 500) + "...",
+          rawContent: jsonContent.substring(0, 500) + "...",
         },
         { status: 500 }
       );
@@ -84,21 +105,24 @@ const runGeneration = async ({ topic, title, category, shortDesc }: GenerateInpu
     try {
       const data = JSON.parse(jsonContent);
       return NextResponse.json(data);
-    } catch {
+    } catch (parseErr) {
       return NextResponse.json(
         {
           error: "Failed to generate blog post",
           details: "Failed to parse JSON response from AI",
-          rawContent: String(response.content).substring(0, 500) + "...",
+          rawContent: jsonContent.substring(0, 500) + "...",
         },
         { status: 500 }
       );
     }
   } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error("[generateBlogPost]", message, stack);
     return NextResponse.json(
       {
         error: "Failed to generate blog post",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: message,
       },
       { status: 500 }
     );

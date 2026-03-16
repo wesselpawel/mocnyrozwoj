@@ -21,5 +21,15 @@ Przy diecie ${calorie} kcal oznacza to, że zapotrzebowanie bazowe osoby stosuj�
 • utraty masy mięśniowej,
 • obniżenia energii i nastroju,
 • problemów hormonalnych,
-• trudności z utrzymaniem diety.`;
+• trudności z utrzymaniem diety.
+
+**Jak działa deficyt kaloryczny w praktyce?**
+
+1️⃣ Spożywasz mniej kalorii niż potrzebuje organizm (np. jesz 1500 kcal przy zapotrzebowaniu 2000 kcal).
+
+2️⃣ Organizm musi uzupełnić brakującą energię, więc zaczyna korzystać z zapasów zgromadzonych w tkance tłuszczowej.
+
+3️⃣ Przy regularnym deficycie masa ciała stopniowo spada — tempo zależy od wielkości deficytu i Twojej aktywności.
+
+Dlatego kluczowym elementem każdej diety redukcyjnej jest właśnie **deficyt kaloryczny**, a nie pojedynczy „zakazany” produkt.`;
 }

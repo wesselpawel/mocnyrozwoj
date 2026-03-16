@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FaCheck } from "react-icons/fa";
 import profile from "@/public/donut.jpg";
 import MarkdownContent from "@/components/MarkdownContent";
 import TableOfContents from "@/components/TableOfContents";
@@ -7,6 +8,7 @@ import SectionLinkButton from "@/components/SectionLinkButton";
 import FAQ from "@/components/FAQ";
 import ProgrammaticDietWrapper from "@/components/ProgrammaticDietWrapper";
 import RelatedDiets from "@/components/RelatedDiets";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import type { PublicBlogEntry } from "@/lib/publicBlogEntries";
 
 const author = {
@@ -337,6 +339,35 @@ export default function DietBlogArticleContent({
               goal={entry.programmaticDiet.goal}
               currentMealCount={entry.programmaticDiet.mealCount}
             />
+          )}
+
+          {entry.programmaticDiet && (
+            <section className="mt-12 py-10 px-6 rounded-2xl border border-[#e77503]/20 bg-[#fff9f3]" aria-labelledby="newsletter-article">
+              <div className="max-w-2xl mx-auto text-center">
+                <h2 id="newsletter-article" className="font-montserrat font-extrabold tracking-[0.12rem] text-xl sm:text-2xl text-[#1f1d1d] mb-4">
+                  Bądź na bieżąco
+                  {entry.programmaticDiet.goal === "mass" && " – dieta na masę"}
+                  {entry.programmaticDiet.goal === "reduction" && " – dieta na redukcję"}
+                  {entry.programmaticDiet.goal === "maintenance" && " – dieta na utrzymanie wagi"}
+                </h2>
+                <p className="text-base text-zinc-600 mb-8 leading-relaxed">
+                  Zapisz się do newslettera i otrzymuj informacje o najnowszych
+                  planach dietetycznych, promocjach i wskazówkach żywieniowych
+                  prosto na swoją skrzynkę email.
+                </p>
+                <NewsletterSignup />
+                <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4 flex-wrap">
+                  {["Bezpłatne informacje", "Możliwość rezygnacji w każdej chwili", "Bez spamu"].map((item) => (
+                    <div key={item} className="w-max max-w-full flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                      <div className="p-1 w-5 h-5 rounded-full bg-[#fcaa30] flex items-center justify-center mr-2">
+                        <FaCheck className="text-white text-xs" />
+                      </div>
+                      <span className="text-sm">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
           )}
 
           <div className="mt-10">

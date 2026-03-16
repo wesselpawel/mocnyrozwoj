@@ -150,10 +150,8 @@ const DIET_GOAL_CATEGORIES: Record<string, string> = {
  */
 function getPossibleGeneratedIdsForDiet(slug: string, params: DietPageParams): string[] {
   const ids: string[] = [slug];
-  if (params.goal === "mass") {
-    const path = getDietPagePath(params);
-    ids.push(path.replace(/\//g, "-"));
-  }
+  const path = getDietPagePath(params);
+  ids.push(path.replace(/\//g, "-"));
   return ids;
 }
 
@@ -167,11 +165,12 @@ function getProgrammaticDietEntries(slugsWithGeneratedContent: Set<string>): Pub
     const category = DIET_GOAL_CATEGORIES[params.goal] || "Diety";
     const possibleIds = getPossibleGeneratedIdsForDiet(slug, params);
     const hasGeneratedDietDay = possibleIds.some((id) => slugsWithGeneratedContent.has(id));
+    const hrefPath = getDietPagePath(params);
 
     return {
       id: `programmatic-diet-${slug}`,
-      slug,
-      href: `/dieta/${slug}`,
+      slug: hrefPath,
+      href: `/dieta/${hrefPath}`,
       title: data.title,
       h1: data.h1,
       description: data.description,

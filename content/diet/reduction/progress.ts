@@ -36,6 +36,8 @@ Zbyt szybka redukcja może prowadzić do:
 | 3 miesiące | 6–12 kg |
 | 6 miesięcy | 12–24 kg |
 
+Jeśli zastanawiasz się, **jak schudnąć 5 kg**, przy deficycie około 500 kcal dziennie oznacza to zwykle 5–10 tygodni spokojnej, zdrowej redukcji.
+
 Pamiętaj, że w pierwszych tygodniach diety redukcja może być szybsza ze względu na utratę wody. To normalne zjawisko, które nie oznacza utraty tkanki tłuszczowej.
 
 **Najważniejsza zasada:** Lepiej tracić 0,5 kg tygodniowo przez pół roku, niż 3 kg w tydzień, a potem wrócić do poprzedniej wagi.`;

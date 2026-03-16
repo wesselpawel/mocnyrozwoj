@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import ImageWithPreview from "./ImageWithPreview";
+import StaticTest from "@/components/Products/StaticTest";
 import type { ProgrammaticDietContent as DietContent, MealIngredient, ProgrammaticMeal } from "@/types/programmaticDiet";
 import type { MealType, DietGoal } from "@/types/recipe";
+import type { IProduct } from "@/types";
 
 type Props = {
   content: DietContent;
@@ -38,6 +41,17 @@ const GOAL_CATEGORY_SLUGS: Record<DietGoal, string> = {
   maintenance: "na-utrzymanie-wagi",
 };
 
+const GOAL_ALT_LABELS: Record<DietGoal, string> = {
+  mass: "dieta na masę",
+  reduction: "dieta na redukcję",
+  maintenance: "dieta na utrzymanie wagi",
+};
+
+function getMealImageAlt(mealName: string, goal: DietGoal, totalCalories: number): string {
+  const goalLabel = GOAL_ALT_LABELS[goal];
+  return `${mealName}, ${goalLabel} ${totalCalories} kcal`;
+}
+
 function generateRecipeUrl(meal: ProgrammaticMeal, _mealCount: number, goal: DietGoal): string {
   const nameSlug = meal.mealName
     .toLowerCase()
@@ -60,9 +74,64 @@ function generateRecipeUrl(meal: ProgrammaticMeal, _mealCount: number, goal: Die
   return `/przepisy/${categorySlug}/${recipeSlug}`;
 }
 
+const UNLOCK_CTA_BY_GOAL: Record<
+  "mass" | "reduction" | "maintenance",
+  { title: string; body: string }
+> = {
+  reduction:
+    {
+      title: "Pełny jadłospis na redukcję — nie tylko jeden dzień",
+      body: "W tym artykule widzisz jeden przykładowy dzień diety redukcyjnej. Wielu osób szuka odpowiedzi na pytania: ile kalorii żeby schudnąć, jak schudnąć 5 kg czy co jeść żeby schudnąć — pełny plan na 7, 14 lub 30 dni z przepisami i listą zakupów możesz kupić poniżej i od razu zacząć redukcję.",
+    },
+  mass:
+    {
+      title: "Pełny jadłospis na masę — nie tylko jeden dzień",
+      body: "Tutaj masz jeden przykładowy dzień diety na masę. Jeśli szukasz gotowego planu pod budowę mięśni, ile kalorii na masę jeść albo jak rozłożyć posiłki — poniżej znajdziesz jadłospisy na 7, 14 lub 30 dni z przepisami i listą zakupów, dopasowane do Twojej kaloryczności.",
+    },
+  maintenance:
+    {
+      title: "Pełny jadłospis na utrzymanie wagi — nie tylko jeden dzień",
+      body: "W tym artykule widzisz jeden przykładowy dzień diety na utrzymanie wagi. Pełny plan na 7, 14 lub 30 dni z przepisami i listą zakupów możesz kupić poniżej i utrzymać formę bez liczenia kalorii na własną rękę.",
+    },
+};
+
+const PRICING_OPTIONS = [
+  { days: 7, price: 9, label: "7-dniowy jadłospis z przepisami za 9 zł" },
+  { days: 14, price: 19, label: "14-dniowy jadłospis z przepisami za 19 zł" },
+  { days: 30, price: 29, label: "30-dniowy jadłospis z przepisami za 29 zł" },
+] as const;
+
 export default function ProgrammaticDietContent({ content }: Props) {
   const [activeTab, setActiveTab] = useState<"meals" | "shopping">("meals");
-  const { dietDay, shoppingList } = content;
+  const [showTest, setShowTest] = useState(false);
+  const { dietDay, shoppingList, goal } = content;
+  const ctaCopy = UNLOCK_CTA_BY_GOAL[goal] ?? UNLOCK_CTA_BY_GOAL.reduction;
+
+  const landingTest: IProduct = {
+    id: "landing-static-test",
+    // Ważne: dashboard rozpoznaje dzień po fragmencie "Dzień 1" w nazwie testu
+    title:
+      goal === "mass"
+        ? "Dzień 1 — dieta na masę"
+        : goal === "reduction"
+        ? "Dzień 1 — dieta na redukcję"
+        : "Dzień 1 — dieta na utrzymanie wagi",
+    description: "Szybki test dietetyczny",
+    images: [],
+    mainImage: "",
+    price: 0,
+    tags: [], 
+    questions: [],
+  };
+
+  useEffect(() => {
+    if (!showTest) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showTest]);
 
   const groupedShopping = shoppingList.reduce(
     (acc, item) => {
@@ -131,7 +200,7 @@ export default function ProgrammaticDietContent({ content }: Props) {
                   {meal.imageUrl && (
                     <ImageWithPreview
                       src={meal.imageUrl}
-                      alt={meal.mealName}
+                      alt={getMealImageAlt(meal.mealName, content.goal, content.dietDay.totalCalories)}
                       className="flex-shrink-0 shadow-md"
                       size={64}
                       previewSize={256}
@@ -246,6 +315,50 @@ export default function ProgrammaticDietContent({ content }: Props) {
               </ul>
             </div>
           )}
+
+          <div className="mt-6 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl overflow-hidden">
+            <div className="flex flex-col lg:flex-row">
+              {/* Left: 7 / 14 / 30 dni visual (responsive) */}
+              <div className="flex lg:flex-col lg:w-32 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-zinc-200 bg-white/60">
+                <div className="flex flex-1 lg:flex-col">
+                  {PRICING_OPTIONS.map(({ days }, i) => (
+                    <div
+                      key={days}
+                      className={`flex-1 min-w-[4rem] lg:min-w-0 flex flex-col items-center justify-center py-4 px-3 border-zinc-200 ${i < PRICING_OPTIONS.length - 1 ? "border-r lg:border-r-0 lg:border-b" : ""}`}
+                    >
+                      <span className="text-2xl sm:text-3xl font-extrabold text-[#e77503] tabular-nums">
+                        {days}
+                      </span>
+                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide mt-0.5">
+                        dni
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Right: copy + pricing CTAs */}
+              <div className="flex-1 p-4 sm:p-5">
+                <p className="text-sm font-semibold text-zinc-900">
+                  {ctaCopy.title}
+                </p>
+                <p className="text-xs text-zinc-600 mt-2 leading-relaxed">
+                  {ctaCopy.body}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {PRICING_OPTIONS.map(({ days, price, label }) => (
+                    <button
+                      key={days}
+                      type="button"
+                      onClick={() => setShowTest(true)}
+                      className="inline-flex items-center justify-center px-4 py-2.5 bg-[#e77503] text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-[#d66a02] transition-colors"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -286,6 +399,28 @@ export default function ProgrammaticDietContent({ content }: Props) {
           </div>
         </div>
       )}
+
+      {showTest &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowTest(false)}
+            />
+            <div className="relative w-full h-[calc(100dvh-1rem)] sm:h-[90vh] sm:max-w-4xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white">
+              <StaticTest
+                setTest={() => setShowTest(false)}
+                test={landingTest}
+                hideCloseButton={false}
+                embeddedMode={false}
+                autoSaveOnResult={false}
+                redirectOnSaveSuccess={true}
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }

@@ -10,6 +10,7 @@ import * as reductionContent from "@/content/diet/reduction";
 import * as maintenanceContent from "@/content/diet/maintenance";
 import { getMassDietFAQ } from "@/content/diet/mass/faq";
 import { getReductionDietFAQ } from "@/content/diet/reduction/faq";
+import { getMaintenanceDietFAQ } from "@/content/diet/maintenance/faq";
 
 /** "4 posiłki" -> "4 posiłkami" for description */
 function mealsDative(meals: string): string {
@@ -35,9 +36,11 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
   const { calorie, mealCount } = params;
   const meals = mealCountLabel(mealCount);
   // Meta title: SEO phrase with posiłki/posiłków
-  const title = `Dieta na masę ${calorie} kcal jadłospis ${meals}`;
-  const h1 = `Dieta na masę ${calorie} kcal. Jadłospis, przepisy, lista zakupów`;
-  const description = `Przykładowa dieta na masę ${calorie} kcal z ${mealsDative(meals)} dziennie. Zobacz jadłospis, rozkład kalorii oraz propozycje posiłków na budowę masy mięśniowej.`;
+  const title = `Dieta na masę ${calorie} kcal — jadłospis na 7 dni z przepisami`;
+  const h1 = `Dieta na masę ${calorie} kcal — jadłospis na 7 dni, przepisy i lista zakupów`;
+  const description = `Przykładowa dieta na masę ${calorie} kcal z ${mealsDative(
+    meals
+  )} dziennie. Zobacz kompletny przykładowy dzień z przepisami i listą zakupów oraz poznaj zasady budowania jadłospisu na 7 dni.`;
 
   const sections: ArticleSection[] = [
     {
@@ -57,7 +60,7 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       title: "Zapotrzebowanie kaloryczne a dieta na masę",
       text: massContent.getCaloricNeeds(),
       ctaLink: "/kalkulator-kcal",
-      ctaText: "Oblicz zapotrzebowanie kaloryczne →",
+      ctaText: "Oblicz zapotrzebowanie kaloryczne w kalkulatorze kalorii →",
     },
     {
       id: "nadwyzka",
@@ -69,7 +72,7 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       title: `Zasady diety na masę ${calorie} kcal`,
       text: massContent.getPrinciples(calorie, mealCount),
       ctaLink: "/generator-diety-ai",
-      ctaText: "Stwórz dietę na masę za darmo →",
+      ctaText: "Stwórz dietę na masę w generatorze diety AI →",
     },
     {
       id: "co-jesc",
@@ -79,7 +82,7 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
         src: "/generator-diety-ai-video.mp4",
         title: "DIETA NA MASĘ ZA DARMO",
         ctaLink: "/generator-diety-ai",
-        ctaText: "Stwórz swoją dietę teraz →",
+        ctaText: "Stwórz swoją dietę w generatorze diety AI →",
       },
     },
     {
@@ -96,6 +99,18 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       id: "podsumowanie",
       title: "Podsumowanie",
       text: massContent.getSummary(calorie),
+    },
+    {
+      id: "powiazane-artykuly",
+      title: "Powiązane artykuły",
+      text: `Jeśli chcesz pogłębić wiedzę o żywieniu i treningu, sprawdź też te materiały:
+
+- [Dieta na masę – kompletny przewodnik](/blog/dieta-na-mase)
+- [Dieta na redukcję – jak schudnąć zdrowo](/blog/dieta-na-redukcje)
+- [Dieta na utrzymanie wagi – jak utrzymać formę](/blog/dieta-na-utrzymanie-wagi)
+- [Przykładowe dni diety – gotowe jadłospisy](/blog/przykladowe-dni-diety)
+
+Więcej porad dietetycznych znajdziesz na naszym [blogu dietetycznym](/blog).`,
     },
     {
       id: "tabele-produktow",
@@ -125,7 +140,7 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
       title: "Zapotrzebowanie kaloryczne a redukcja",
       text: reductionContent.getCaloricNeeds(),
       ctaLink: "/kalkulator-kcal",
-      ctaText: "Oblicz zapotrzebowanie kaloryczne →",
+      ctaText: "Sprawdź swoje zapotrzebowanie w kalkulatorze kalorii →",
     },
     {
       id: "deficyt",
@@ -137,7 +152,7 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
       title: `Zasady diety redukcyjnej ${calorie} kcal`,
       text: reductionContent.getPrinciples(calorie, mealCount),
       ctaLink: "/generator-diety-ai",
-      ctaText: "Stwórz dietę redukcyjną za darmo →",
+      ctaText: "Stwórz dietę redukcyjną w generatorze diety AI →",
     },
     {
       id: "co-jesc",
@@ -147,7 +162,7 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
         src: "/generator-diety-ai-video.mp4",
         title: "DIETA REDUKCYJNA ZA DARMO",
         ctaLink: "/generator-diety-ai",
-        ctaText: "Stwórz swoją dietę teraz →",
+        ctaText: "Stwórz swoją dietę w generatorze diety AI →",
       },
     },
     {
@@ -159,6 +174,19 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
       id: "tempo-redukcji",
       title: `Jak szybko można schudnąć na diecie ${calorie} kcal?`,
       text: reductionContent.getProgress(),
+    },
+    {
+      id: "porownanie-kalorycznosci",
+      title: `Dieta ${calorie} kcal a inne kaloryczności`,
+      text: `Wybór odpowiedniej kaloryczności diety zależy od Twojej masy ciała, poziomu aktywności i celu.
+
+| Dieta | Dla kogo najczęściej |
+|-------|----------------------|
+| 1500 kcal | osoby o małej masie ciała i niskiej aktywności |
+| 1600–1800 kcal | umiarkowana aktywność i chęć spokojnej redukcji |
+| 2000 kcal | wyższe zapotrzebowanie lub większa aktywność |
+
+Jeśli po czasie uznasz, że potrzebujesz innej kaloryczności, możesz sprawdzić także inne przykładowe jadłospisy, np. [dieta 1800 kcal](/blog/przykladowy-dzien-diety-1800-kcal) lub [dieta 2200 kcal](/blog/przykladowy-dzien-diety-2200-kcal).`,
     },
     {
       id: "podsumowanie",
@@ -180,16 +208,76 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
 function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
   const { calorie, mealCount } = params;
   const meals = mealCountLabel(mealCount);
-  const title = `Dieta ${calorie} kcal na utrzymanie wagi jadłospis ${meals}`;
-  const h1 = `Dieta ${calorie} kcal na utrzymanie wagi. Jadłospis, przepisy, lista zakupów`;
-  const description = `Przykładowa dieta ${calorie} kcal na utrzymanie wagi z ${mealsDative(meals)} dziennie. Zobacz jadłospis, rozkład kalorii oraz propozycje posiłków.`;
+  const mealWord = mealCount === 3 || mealCount === 4 ? "posiłki" : "posiłków";
+  const title = `Dieta na utrzymanie wagi ${calorie} kcal – jadłospis na ${mealCount} ${mealWord} + lista zakupów`;
+  const h1 = `Dieta na utrzymanie wagi ${calorie} kcal – jadłospis, przepisy i lista zakupów`;
+  const description = `Przykładowa dieta na utrzymanie wagi ${calorie} kcal z ${mealsDative(meals)} dziennie. Zobacz jadłospis, rozkład kalorii oraz propozycje posiłków pomagających utrzymać stabilną masę ciała.`;
 
-  const sections = [
-    { title: "Wprowadzenie", text: maintenanceContent.getIntro(calorie) },
-    { title: "Ile posiłków dziennie?", text: `W tej diecie zalecamy ${meals} dziennie.` },
-    { title: "Produkty polecane na utrzymanie wagi", text: maintenanceContent.getProducts() },
-    { title: "Częste błędy przy utrzymaniu wagi", text: maintenanceContent.getMistakes() },
+  const sections: ArticleSection[] = [
+    {
+      id: "dla-kogo",
+      title: `Dieta na utrzymanie wagi ${calorie} kcal – dla kogo jest?`,
+      text: maintenanceContent.getIntro(calorie),
+    },
+    {
+      id: "zapotrzebowanie",
+      title: "Zapotrzebowanie kaloryczne a utrzymanie wagi",
+      text: `Aby dobrać odpowiednią kaloryczność diety na utrzymanie wagi, warto znać swoje dzienne zapotrzebowanie energetyczne. [Oblicz je w kalkulatorze kalorii](/kalkulator-kcal) — na tej podstawie ustalisz, ile kalorii dziennie spożywać, aby masa ciała pozostawała stabilna.`,
+      ctaLink: "/kalkulator-kcal",
+      ctaText: "Oblicz zapotrzebowanie kaloryczne w kalkulatorze kalorii →",
+    },
+    {
+      id: "bilans",
+      title: "Bilans kaloryczny przy utrzymaniu wagi",
+      text: maintenanceContent.getCaloricBalance(calorie),
+    },
+    {
+      id: "zasady",
+      title: `Zasady diety na utrzymanie wagi ${calorie} kcal`,
+      text: maintenanceContent.getPrinciples(calorie, mealCount),
+      ctaLink: "/generator-diety-ai",
+      ctaText: "Stwórz dietę w generatorze diety AI →",
+    },
+    {
+      id: "co-jesc",
+      title: `Dieta ${calorie} kcal – co jeść przy utrzymaniu wagi?`,
+      text: maintenanceContent.getProducts(),
+      video: {
+        src: "/generator-diety-ai-video.mp4",
+        title: "DIETA NA UTRZYMANIE WAGI ZA DARMO",
+        ctaLink: "/generator-diety-ai",
+        ctaText: "Stwórz swoją dietę w generatorze diety AI →",
+      },
+    },
+    {
+      id: "jak-utrzymac-wage",
+      title: "Jak utrzymać wagę bez ciągłego liczenia kalorii?",
+      text: maintenanceContent.getCaloricHacks(),
+    },
+    {
+      id: "czego-unikac",
+      title: "Czego unikać przy utrzymaniu wagi?",
+      text: maintenanceContent.getMistakes(),
+    },
+    {
+      id: "podsumowanie",
+      title: "Podsumowanie",
+      text: maintenanceContent.getSummary(calorie),
+    },
+    {
+      id: "powiazane-artykuly",
+      title: "Powiązane artykuły",
+      text: `Jeśli chcesz pogłębić wiedzę o żywieniu i treningu, sprawdź też te materiały:
+
+- [Dieta na utrzymanie wagi – jak utrzymać formę](/blog/dieta-na-utrzymanie-wagi)
+- [Dieta na masę – kompletny przewodnik](/blog/dieta-na-mase)
+- [Dieta na redukcję – jak schudnąć zdrowo](/blog/dieta-na-redukcje)
+- [Przykładowe dni diety – gotowe jadłospisy](/blog/przykladowe-dni-diety)
+- [Kalkulator kalorii – oblicz zapotrzebowanie](/kalkulator-kcal)
+
+Więcej porad dietetycznych znajdziesz na naszym [blogu dietetycznym](/blog).`,
+    },
   ];
 
-  return { ...params, title, h1, description, sections };
+  return { ...params, title, h1, description, sections, faq: getMaintenanceDietFAQ(calorie) };
 }

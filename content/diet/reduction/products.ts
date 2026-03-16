@@ -5,6 +5,8 @@
 export function getProducts(): string {
   return `Na diecie redukcyjnej warto wybierać produkty o wysokiej wartości odżywczej i niskiej kaloryczności.
 
+**Co jeść, żeby schudnąć?**
+
 **Źródła białka**
 • pierś z kurczaka,
 • indyk,
@@ -52,5 +54,7 @@ export function getProducts(): string {
 • arbuz,
 • pomarańcze.
 
-Te produkty dostarczają niezbędnych składników odżywczych, pomagają utrzymać sytość i wspierają zdrową redukcję masy ciała.`;
+Te produkty dostarczają niezbędnych składników odżywczych, pomagają utrzymać sytość i wspierają zdrową redukcję masy ciała.
+
+Konkretnie zaplanowane posiłki i przepisy na redukcję znajdziesz w sekcji [przepisy dietetyczne](/przepisy) oraz w naszym [generatorze diety](/generator-diety-ai).`;
 }

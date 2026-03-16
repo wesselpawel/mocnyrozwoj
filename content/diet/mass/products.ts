@@ -30,5 +30,7 @@ Warzywa i owoce:
 • warzywa liściaste, pomidory, papryka, brokuły, marchew
 • banany, jagody, jabłka
 
-Warzywa i owoce dostarczają błonnika, witamin i składników mineralnych, które wspierają regenerację organizmu.`;
+Warzywa i owoce dostarczają błonnika, witamin i składników mineralnych, które wspierają regenerację organizmu.
+
+Najlepsze źródła węglowodanów to ryż, makaron, kasza, ziemniaki czy płatki owsiane — pomysły na konkretne posiłki znajdziesz w sekcji [przepisy dietetyczne](/przepisy).`;
 }

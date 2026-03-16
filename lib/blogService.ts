@@ -162,6 +162,14 @@ export const blogService = {
 
       const generatedData = await response.json();
 
+      if (!response.ok) {
+        const message =
+          typeof generatedData?.details === "string"
+            ? generatedData.details
+            : generatedData?.error ?? `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+
       // Return generated data without adding to database
       return {
         title: generatedData.title || "",

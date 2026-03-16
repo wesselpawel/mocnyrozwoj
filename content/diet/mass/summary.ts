@@ -14,10 +14,18 @@ Jeśli Twoje zapotrzebowanie jest na tyle niskie, że ${calorie} kcal stanowi na
 • zdrowych tłuszczach,
 • regularnym treningu siłowym.
 
-Skorzystaj z naszego kalkulatora kcal, aby poznać swoje indywidualne zapotrzebowanie.`;
+Jeśli chcesz zwiększyć masę mięśniową, sama liczba kalorii nie wystarczy. Równie ważna jest jakość produktów, odpowiednia ilość białka oraz regularny trening siłowy. Więcej o tym, jak powinna wyglądać dieta na masę, przeczytasz w naszym poradniku: [dieta na masę – zasady i przykłady jadłospisu](/blog/dieta-na-mase).
+
+Skorzystaj z naszego [kalkulatora zapotrzebowania energetycznego](/kalkulator-kcal), aby poznać swoje indywidualne zapotrzebowanie.`;
   }
 
-  return `Dieta ${calorie} kcal to ${calorie >= 3500 ? "wysokokaloryczny" : "umiarkowanie kaloryczny"} model żywienia przeznaczony ${calorie >= 3000 ? "głównie dla osób o bardzo dużym zapotrzebowaniu energetycznym" : "dla osób chcących budować masę mięśniową przy odpowiedniej aktywności fizycznej"}.
+  return `Dieta ${calorie} kcal to ${
+    calorie >= 3500 ? "wysokokaloryczny" : "umiarkowanie kaloryczny"
+  } model żywienia przeznaczony ${
+    calorie >= 3000
+      ? "głównie dla osób o bardzo dużym zapotrzebowaniu energetycznym"
+      : "dla osób chcących budować masę mięśniową przy odpowiedniej aktywności fizycznej"
+  }.
 
 Aby skutecznie budować masę mięśniową, dieta powinna:
 • zapewniać nadwyżkę kalorii,
@@ -26,5 +34,7 @@ Aby skutecznie budować masę mięśniową, dieta powinna:
 • uwzględniać zdrowe tłuszcze,
 • być połączona z regularnym treningiem siłowym.
 
-Pamiętaj, że dieta na masę powinna być dopasowana indywidualnie. Jeśli nie znasz swojego zapotrzebowania kalorycznego, skorzystaj z naszego kalkulatora kcal.`;
+Pamiętaj, że dieta na masę powinna być dopasowana indywidualnie. Jeśli nie znasz swojego zapotrzebowania kalorycznego, skorzystaj z naszego [kalkulatora kalorii](/kalkulator-kcal).
+
+Jeśli potrzebujesz większej nadwyżki kalorii, sprawdź również inne przykładowe jadłospisy na masę, np. [dieta na masę 2500 kcal](/dieta/na-mase/2500-kcal), [dieta na masę 2800 kcal](/dieta/na-mase/2800-kcal) czy [dieta na masę 3000 kcal](/dieta/na-mase/3000-kcal).`;
 }

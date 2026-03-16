@@ -14,5 +14,7 @@ Najczęściej zaleca się nadwyżkę:
 
 Zbyt duża nadwyżka (np. 1000 kcal) zwykle prowadzi głównie do odkładania tkanki tłuszczowej, a nie szybszego przyrostu mięśni.
 
-Dlatego dieta ${calorie} kcal ma sens przede wszystkim u osób, których zapotrzebowanie wynosi około ${maintenanceRange} kcal.`;
+Dlatego dieta ${calorie} kcal ma sens przede wszystkim u osób, których zapotrzebowanie wynosi około ${maintenanceRange} kcal.
+
+Więcej o tym, jak działa nadwyżka kaloryczna, przeczytasz w artykule [dieta na masę – podstawy budowania mięśni](/blog/dieta-na-mase).`;
 }

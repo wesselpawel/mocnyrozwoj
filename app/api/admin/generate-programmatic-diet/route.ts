@@ -368,7 +368,56 @@ export async function GET(request: NextRequest) {
 
   try {
     const { getDocument } = await import("@/firebase");
-    const content = await getDocument("programmaticDiets", slug);
+    let content = await getDocument("programmaticDiets", slug);
+
+    // Backward compatibility: support legacy document IDs created before hub URLs.
+    // Old IDs used slug format like "dieta-na-mase-1500-kcal-jadlospis-3-posilki",
+    // while new pages use "na-mase/1500-kcal/3-posilki".
+    if (!content && slug.startsWith("na-mase/")) {
+      const match = slug.match(/^na-mase\/(\d+)-kcal\/(3-posilki|4-posilki|5-posilkow)$/);
+      if (match) {
+        const calorie = parseInt(match[1], 10);
+        const mealSegment = match[2];
+        const mealCount = mealSegment.startsWith("3")
+          ? 3
+          : mealSegment.startsWith("4")
+          ? 4
+          : 5;
+        const { dietParamsToSlug } = await import("@/programmatic/diet/generator");
+        const legacySlug = dietParamsToSlug({ calorie, goal: "mass", mealCount });
+        content = await getDocument("programmaticDiets", legacySlug);
+      }
+    }
+    if (!content && slug.startsWith("na-redukcje/")) {
+      const match = slug.match(/^na-redukcje\/(\d+)-kcal\/(3-posilki|4-posilki|5-posilkow)$/);
+      if (match) {
+        const calorie = parseInt(match[1], 10);
+        const mealSegment = match[2];
+        const mealCount = mealSegment.startsWith("3")
+          ? 3
+          : mealSegment.startsWith("4")
+          ? 4
+          : 5;
+        const { dietParamsToSlug } = await import("@/programmatic/diet/generator");
+        const legacySlug = dietParamsToSlug({ calorie, goal: "reduction", mealCount });
+        content = await getDocument("programmaticDiets", legacySlug);
+      }
+    }
+    if (!content && slug.startsWith("na-utrzymanie-wagi/")) {
+      const match = slug.match(/^na-utrzymanie-wagi\/(\d+)-kcal\/(3-posilki|4-posilki|5-posilkow)$/);
+      if (match) {
+        const calorie = parseInt(match[1], 10);
+        const mealSegment = match[2];
+        const mealCount = mealSegment.startsWith("3")
+          ? 3
+          : mealSegment.startsWith("4")
+          ? 4
+          : 5;
+        const { dietParamsToSlug } = await import("@/programmatic/diet/generator");
+        const legacySlug = dietParamsToSlug({ calorie, goal: "maintenance", mealCount });
+        content = await getDocument("programmaticDiets", legacySlug);
+      }
+    }
 
     if (!content) {
       return NextResponse.json({ content: null });

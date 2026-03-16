@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaCheck } from "react-icons/fa";
 import { calories } from "@/programmatic/diet/data";
-import { getMassHubPath, mealCountToSegment, mealCountLabel } from "@/programmatic/diet/generator";
+import {
+  getReductionHubPath,
+  mealCountToSegment,
+  mealCountLabel,
+} from "@/programmatic/diet/generator";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
@@ -29,12 +33,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { calorie: calorieSegment } = await params;
   const calorie = parseCalorieSegment(calorieSegment);
   if (calorie === null) {
-    return { title: "Dieta na masę | DzienDiety" };
+    return { title: "Dieta na redukcję | DzienDiety" };
   }
 
-  const title = `Dieta na masę ${calorie} kcal – przykładowe jadłospisy`;
-  const description = `Przykładowe diety na masę ${calorie} kcal. Wybierz jadłospis na 3, 4 lub 5 posiłków – przepisy, rozkład kalorii i lista zakupów na budowę masy mięśniowej.`;
-  const url = `${siteUrl}/dieta/na-mase/${calorie}-kcal`;
+  const title = `Dieta na redukcję ${calorie} kcal – przykładowe jadłospisy`;
+  const description = `Przykładowe diety na redukcję ${calorie} kcal. Wybierz jadłospis na 3, 4 lub 5 posiłków – przepisy, rozkład kalorii i lista zakupów na zdrową redukcję masy ciała.`;
+  const url = `${siteUrl}/dieta/na-redukcje/${calorie}-kcal`;
 
   return {
     title: `${title} | DzienDiety`,
@@ -45,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function DietMassHubPage({ params }: Props) {
+export default async function DietReductionHubPage({ params }: Props) {
   const { calorie: calorieSegment } = await params;
   const calorie = parseCalorieSegment(calorieSegment);
   if (calorie === null) notFound();
@@ -71,8 +75,11 @@ export default async function DietMassHubPage({ params }: Props) {
             Diety
           </Link>{" "}
           /{" "}
-          <Link href="/blog/dieta-na-mase" className="hover:text-[#e77503] transition-colors">
-            Dieta na masę
+          <Link
+            href="/blog/dieta-na-redukcje"
+            className="hover:text-[#e77503] transition-colors"
+          >
+            Dieta na redukcję
           </Link>{" "}
           /{" "}
           <span className="text-zinc-700">{calorie} kcal</span>
@@ -80,16 +87,23 @@ export default async function DietMassHubPage({ params }: Props) {
 
         <header className="rounded-3xl border border-[#e77503]/20 bg-[#fff9f3] p-6 sm:p-8 lg:p-10 mb-10">
           <h1 className="font-montserrat font-extrabold tracking-[0.05rem] text-3xl sm:text-4xl text-[#1f1d1d]">
-            Dieta na masę {calorie} kcal
+            Dieta na redukcję {calorie} kcal
           </h1>
           <p className="mt-4 max-w-3xl text-zinc-700 leading-relaxed">
-            Wybierz jadłospis według liczby posiłków. Każdy wariant zawiera przykładowy dzień,
-            rozkład makroskładników, przepisy i listę zakupów.
+            Wybierz jadłospis według liczby posiłków. Każdy wariant zawiera
+            przykładowy dzień, rozkład makroskładników, przepisy i listę zakupów
+            na zdrową redukcję.
           </p>
         </header>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8" aria-labelledby="jadlospisy-wedlug-posilkow">
-          <h2 id="jadlospisy-wedlug-posilkow" className="font-montserrat font-bold text-xl text-zinc-900 mb-6 flex items-center gap-3">
+        <section
+          className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8"
+          aria-labelledby="jadlospisy-wedlug-posilkow"
+        >
+          <h2
+            id="jadlospisy-wedlug-posilkow"
+            className="font-montserrat font-bold text-xl text-zinc-900 mb-6 flex items-center gap-3"
+          >
             <span className="w-1.5 h-6 bg-[#e77503] rounded-full" />
             Jadłospisy na {calorie} kcal
           </h2>
@@ -97,13 +111,15 @@ export default async function DietMassHubPage({ params }: Props) {
             {mealVariants.map(({ segment, label }) => (
               <li key={segment}>
                 <Link
-                  href={`/dieta/na-mase/${calorie}-kcal/${segment}`}
+                  href={`/dieta/na-redukcje/${calorie}-kcal/${segment}`}
                   className="flex items-center justify-between rounded-xl border border-zinc-200 p-5 hover:border-[#e77503] hover:bg-[#e77503]/5 transition-colors group"
                 >
                   <span className="font-semibold text-zinc-900 group-hover:text-[#e77503]">
                     Jadłospis na {label}
                   </span>
-                  <span className="text-zinc-400 group-hover:translate-x-1 transition-transform">→</span>
+                  <span className="text-zinc-400 group-hover:translate-x-1 transition-transform">
+                    →
+                  </span>
                 </Link>
               </li>
             ))}
@@ -112,15 +128,15 @@ export default async function DietMassHubPage({ params }: Props) {
 
         <div className="mt-10 flex flex-col gap-2">
           <Link
-            href="/blog/dieta-na-mase"
+            href="/blog/dieta-na-redukcje"
             className="text-[#e77503] font-semibold hover:underline"
           >
-            ← Wszystkie diety na masę (1500–4000 kcal)
+            ← Wszystkie diety na redukcję (1500–4000 kcal)
           </Link>
           <p className="text-sm text-zinc-500">
             Zobacz też:{" "}
-            <Link href="/blog/dieta-na-redukcje" className="text-[#e77503] hover:underline">
-              dieta na redukcję
+            <Link href="/blog/dieta-na-mase" className="text-[#e77503] hover:underline">
+              dieta na masę
             </Link>
             ,{" "}
             <Link href="/blog/dieta-na-utrzymanie-wagi" className="text-[#e77503] hover:underline">
@@ -130,14 +146,14 @@ export default async function DietMassHubPage({ params }: Props) {
           </p>
         </div>
 
-        <section className="mt-16 py-16 px-6 rounded-3xl border border-[#e77503]/20 bg-[#fff9f3]" aria-labelledby="newsletter-mase">
+        <section className="mt-16 py-16 px-6 rounded-3xl border border-[#e77503]/20 bg-[#fff9f3]" aria-labelledby="newsletter-redukcje">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 id="newsletter-mase" className="font-montserrat font-extrabold tracking-[0.12rem] text-2xl sm:text-3xl text-[#1f1d1d] mb-4">
-              Bądź na bieżąco – dieta na masę
+            <h2 id="newsletter-redukcje" className="font-montserrat font-extrabold tracking-[0.12rem] text-2xl sm:text-3xl text-[#1f1d1d] mb-4">
+              Bądź na bieżąco – dieta na redukcję
             </h2>
             <p className="text-base text-zinc-600 mb-8 leading-relaxed">
               Zapisz się do newslettera i otrzymuj informacje o najnowszych
-              planach dietetycznych na masę, promocjach i wskazówkach żywieniowych
+              planach dietetycznych na redukcję, promocjach i wskazówkach żywieniowych
               prosto na swoją skrzynkę email.
             </p>
             <NewsletterSignup />

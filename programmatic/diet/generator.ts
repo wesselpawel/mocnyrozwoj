@@ -27,11 +27,17 @@ export function parseMealsSegment(segment: string): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
-/** Path for diet page (no leading /dieta). Mass: hub-and-spoke; others: legacy slug. */
+/** Path for diet page (no leading /dieta). All goals use hub-and-spoke. */
 export function getDietPagePath(params: DietPageParams): string {
   const { calorie, goal, mealCount } = params;
   if (goal === "mass") {
     return `na-mase/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+  }
+  if (goal === "reduction") {
+    return `na-redukcje/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+  }
+  if (goal === "maintenance") {
+    return `na-utrzymanie-wagi/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
   }
   return dietParamsToSlug(params);
 }
@@ -39,6 +45,16 @@ export function getDietPagePath(params: DietPageParams): string {
 /** Path for mass hub page (no leading /dieta): e.g. "na-mase/1800-kcal" */
 export function getMassHubPath(calorie: number): string {
   return `na-mase/${calorie}-kcal`;
+}
+
+/** Path for reduction hub page (no leading /dieta): e.g. "na-redukcje/1800-kcal" */
+export function getReductionHubPath(calorie: number): string {
+  return `na-redukcje/${calorie}-kcal`;
+}
+
+/** Path for maintenance hub page (no leading /dieta): e.g. "na-utrzymanie-wagi/2400-kcal" */
+export function getMaintenanceHubPath(calorie: number): string {
+  return `na-utrzymanie-wagi/${calorie}-kcal`;
 }
 
 /**

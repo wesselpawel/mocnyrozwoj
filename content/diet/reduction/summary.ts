@@ -16,6 +16,8 @@ export function getSummary(calorie: number): string {
 ✓ Połączenie diety z aktywnością fizyczną
 ✓ Cierpliwość — zdrowa redukcja to 0,5–1 kg tygodniowo
 
+Jeśli zastanawiasz się, **ile można schudnąć na diecie ${calorie} kcal**, przy typowym deficycie około 500 kcal dziennie oznacza to zwykle 0,5 kg tygodniowo — czyli około 2–4 kg w miesiąc.
+
 **Czego unikać:**
 
 ✗ Zbyt drastycznego ograniczania kalorii
@@ -24,5 +26,9 @@ export function getSummary(calorie: number): string {
 ✗ Słodzonych napojów
 ✗ Niecierpliwości i oczekiwania szybkich efektów
 
-Dieta ${calorie} kcal jest szczególnie odpowiednia dla osób o mniejszej masie ciała lub niższej aktywności fizycznej. Przed rozpoczęciem diety warto skonsultować się z dietetykiem lub lekarzem, aby upewnić się, że jest ona odpowiednia dla Twoich indywidualnych potrzeb.`;
+Dieta ${calorie} kcal jest szczególnie odpowiednia dla osób o mniejszej masie ciała lub niższej aktywności fizycznej. Przed rozpoczęciem diety warto skonsultować się z dietetykiem lub lekarzem, aby upewnić się, że jest ona odpowiednia dla Twoich indywidualnych potrzeb.
+
+Jeśli Twoje zapotrzebowanie wynosi około ${calorie + 400}–${calorie + 500} kcal, dieta ${calorie} kcal może pomóc schudnąć w tempie około 0,5 kg tygodniowo.
+
+Więcej praktycznych porad o redukcji znajdziesz w artykułach: [dieta na redukcję](/blog/dieta-na-redukcje), [dieta na masę](/blog/dieta-na-mase) oraz [dieta na utrzymanie wagi](/blog/dieta-na-utrzymanie-wagi).`;
 }

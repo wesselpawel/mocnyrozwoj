@@ -89,8 +89,9 @@ export default function NewBlogPostPage() {
       });
       setPost((prev) => ({ ...prev, ...generatedPost }));
       setTopic("");
-    } catch {
-      alert("Błąd podczas generowania posta");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Błąd podczas generowania posta";
+      alert(message);
     } finally {
       setGenerating(false);
     }

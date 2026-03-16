@@ -1,7 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getPublicBlogEntries } from "@/lib/publicBlogEntries";
 import { categories, categorySlugs } from "@/app/(with-nav)/blog/data";
-import { getDietPagePath, getMassHubPath } from "@/programmatic/diet/generator";
+import {
+  getDietPagePath,
+  getMassHubPath,
+  getReductionHubPath,
+  getMaintenanceHubPath,
+} from "@/programmatic/diet/generator";
 import { calories } from "@/programmatic/diet/data";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
@@ -39,20 +44,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     });
+    entries.push({
+      url: `${baseUrl}/dieta/${getReductionHubPath(calorie)}`,
+      lastModified: today,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    });
+    entries.push({
+      url: `${baseUrl}/dieta/${getMaintenanceHubPath(calorie)}`,
+      lastModified: today,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    });
   }
 
   const allEntries = await getPublicBlogEntries();
 
   for (const entry of allEntries) {
     if (entry.programmaticDiet) {
-      const path =
-        entry.programmaticDiet.goal === "mass"
-          ? getDietPagePath({
-              calorie: entry.programmaticDiet.calories,
-              goal: entry.programmaticDiet.goal,
-              mealCount: entry.programmaticDiet.mealCount,
-            })
-          : entry.slug;
+      const path = getDietPagePath({
+        calorie: entry.programmaticDiet.calories,
+        goal: entry.programmaticDiet.goal,
+        mealCount: entry.programmaticDiet.mealCount,
+      });
       entries.push({
         url: `${baseUrl}/dieta/${path}`,
         lastModified: today,

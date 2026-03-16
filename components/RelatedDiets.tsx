@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { dietParamsToSlug, getDietPagePath, mealCountLabel } from "@/programmatic/diet/generator";
+import { getDietPagePath, mealCountLabel } from "@/programmatic/diet/generator";
 
 type RelatedDietsProps = {
   currentCalories: number;
@@ -68,7 +68,7 @@ export default function RelatedDiets({ currentCalories, goal, currentMealCount }
             <div className="flex flex-wrap gap-2">
               {mealCounts.map((meals) => {
                 const params = { calorie: kcal, goal, mealCount: meals };
-                const path = goal === "mass" ? getDietPagePath(params) : dietParamsToSlug(params);
+                const path = getDietPagePath(params);
                 const isCurrentVariant = kcal === currentCalories && meals === currentMealCount;
                 const linkLabel = getMealLinkLabel(goal, kcal, meals);
 

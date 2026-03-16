@@ -17,9 +17,9 @@ export async function generateMetadata({
   await searchParams;
 
   return {
-    title: "234 plany dietetyczne z przepisami i listą zakupów",
+    title: "Plany dietetyczne z przepisami i listą zakupów",
     description:
-      "Blog planów dietetycznych z przepisami i listą zakupów. Diety na masę, redukcję i utrzymanie wagi.",
+      "Planowanie diety online za darmo. Diety na masę, redukcję i utrzymanie wagi. Spersonalizowane jadłospisy z listą zakupów. Darmowe przepisy na dania. Wszystkie diety są dostępne online. Darmowa dieta online.",
   };
 }
 
