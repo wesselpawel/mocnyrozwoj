@@ -182,7 +182,7 @@ export default function BlogListPage() {
                           Zaktualizowano:{" "}
                           {new Date(post.updatedAt).toLocaleDateString("pl-PL")}
                         </span>
-                        <span>URL: /blog/{post.url}</span>
+                        <span>URL: /dieta/post/{post.url}</span>
                       </div>
                       {post.tags && (
                         <div className="mt-3">
@@ -200,7 +200,7 @@ export default function BlogListPage() {
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
                       <Link
-                        href={`/blog/${post.url}`}
+                        href={`/dieta/post/${post.url}`}
                         target="_blank"
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="Zobacz post"

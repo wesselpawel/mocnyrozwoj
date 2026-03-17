@@ -16,5 +16,5 @@ Zbyt duża nadwyżka (np. 1000 kcal) zwykle prowadzi głównie do odkładania tk
 
 Dlatego dieta ${calorie} kcal ma sens przede wszystkim u osób, których zapotrzebowanie wynosi około ${maintenanceRange} kcal.
 
-Więcej o tym, jak działa nadwyżka kaloryczna, przeczytasz w artykule [dieta na masę – podstawy budowania mięśni](/blog/dieta-na-mase).`;
+Więcej o tym, jak działa nadwyżka kaloryczna, przeczytasz w artykule [dieta na masę – podstawy budowania mięśni](/dieta/na-mase).`;
 }

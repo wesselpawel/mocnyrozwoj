@@ -14,5 +14,5 @@ Zbyt szybki przyrost masy ciała zwykle oznacza odkładanie tkanki tłuszczowej.
 
 Dlatego warto regularnie kontrolować nie tylko wagę, ale też obwody ciała i sylwetkę w lustrze.
 
-Jeśli Twoim celem jest zmniejszenie tkanki tłuszczowej zamiast budowania masy, sprawdź również [dietę na redukcję](/blog/dieta-na-redukcje).`;
+Jeśli Twoim celem jest zmniejszenie tkanki tłuszczowej zamiast budowania masy, sprawdź również [dietę na redukcję](/dieta/na-redukcje).`;
 }

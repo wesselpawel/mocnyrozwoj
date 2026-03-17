@@ -1,7 +1,7 @@
 {
-  "name": "MocnyRozwój.pl - Rozwój osobisty",
-  "short_name": "MocnyRozwój",
-  "description": "Rozwój osobisty, diety i kursy online. Kliknij. Jedz. Osiągnij cel.",
+  "name": "Dzień diety",
+  "short_name": "Dzień diety",
+  "description": "Planowanie diety online za darmo. Diety na masę, redukcję i utrzymanie wagi. Spersonalizowane jadłospisy z listą zakupów. Darmowe przepisy na dania. Wszystkie diety są dostępne online. Darmowa dieta online.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1f1d1d",

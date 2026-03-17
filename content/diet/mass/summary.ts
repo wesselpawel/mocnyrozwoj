@@ -14,7 +14,7 @@ Jeśli Twoje zapotrzebowanie jest na tyle niskie, że ${calorie} kcal stanowi na
 • zdrowych tłuszczach,
 • regularnym treningu siłowym.
 
-Jeśli chcesz zwiększyć masę mięśniową, sama liczba kalorii nie wystarczy. Równie ważna jest jakość produktów, odpowiednia ilość białka oraz regularny trening siłowy. Więcej o tym, jak powinna wyglądać dieta na masę, przeczytasz w naszym poradniku: [dieta na masę – zasady i przykłady jadłospisu](/blog/dieta-na-mase).
+Jeśli chcesz zwiększyć masę mięśniową, sama liczba kalorii nie wystarczy. Równie ważna jest jakość produktów, odpowiednia ilość białka oraz regularny trening siłowy. Więcej o tym, jak powinna wyglądać dieta na masę, przeczytasz w naszym poradniku: [dieta na masę – zasady i przykłady jadłospisu](/dieta/na-mase).
 
 Skorzystaj z naszego [kalkulatora zapotrzebowania energetycznego](/kalkulator-kcal), aby poznać swoje indywidualne zapotrzebowanie.`;
   }

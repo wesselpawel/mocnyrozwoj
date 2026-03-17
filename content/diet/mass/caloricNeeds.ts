@@ -17,5 +17,5 @@ Na zapotrzebowanie energetyczne wpływają między innymi:
 • rodzaj wykonywanej pracy,
 • tempo metabolizmu.
 
-Jeśli chcesz dokładnie zrozumieć, jak działa bilans energetyczny i utrzymanie masy ciała, przeczytaj również artykuł o [diecie na utrzymanie wagi](/blog/dieta-na-utrzymanie-wagi).`;
+Jeśli chcesz dokładnie zrozumieć, jak działa bilans energetyczny i utrzymanie masy ciała, przeczytaj również artykuł o [diecie na utrzymanie wagi](/dieta/na-utrzymanie-wagi).`;
 }

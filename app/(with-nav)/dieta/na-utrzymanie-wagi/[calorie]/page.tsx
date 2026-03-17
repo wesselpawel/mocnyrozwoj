@@ -71,12 +71,12 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
             Strona główna
           </Link>{" "}
           /{" "}
-          <Link href="/blog" className="hover:text-[#e77503] transition-colors">
+          <Link href="/dieta" className="hover:text-[#e77503] transition-colors">
             Diety
           </Link>{" "}
           /{" "}
           <Link
-            href="/blog/dieta-na-utrzymanie-wagi"
+            href="/dieta/na-utrzymanie-wagi"
             className="hover:text-[#e77503] transition-colors"
           >
             Dieta na utrzymanie wagi
@@ -128,18 +128,18 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
 
         <div className="mt-10 flex flex-col gap-2">
           <Link
-            href="/blog/dieta-na-utrzymanie-wagi"
+            href="/dieta/na-utrzymanie-wagi"
             className="text-[#e77503] font-semibold hover:underline"
           >
             ← Wszystkie diety na utrzymanie wagi (1500–4000 kcal)
           </Link>
           <p className="text-sm text-zinc-500">
             Zobacz też:{" "}
-            <Link href="/blog/dieta-na-mase" className="text-[#e77503] hover:underline">
+            <Link href="/dieta/na-mase" className="text-[#e77503] hover:underline">
               dieta na masę
             </Link>
             ,{" "}
-            <Link href="/blog/dieta-na-redukcje" className="text-[#e77503] hover:underline">
+            <Link href="/dieta/na-redukcje" className="text-[#e77503] hover:underline">
               dieta na redukcję
             </Link>
             .

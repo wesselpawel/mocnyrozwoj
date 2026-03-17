@@ -11,6 +11,13 @@ import { calories } from "@/programmatic/diet/data";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
 
+const DIETA_SECTION_SLUGS: Record<string, string> = {
+  "dieta-na-mase": "na-mase",
+  "dieta-na-redukcje": "na-redukcje",
+  "dieta-na-utrzymanie-wagi": "na-utrzymanie-wagi",
+  "przepisy-dietetyczne": "przepisy",
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
@@ -18,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   entries.push(
     { url: baseUrl, lastModified: today, changeFrequency: "weekly", priority: 1 },
-    { url: `${baseUrl}/blog`, lastModified: today, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${baseUrl}/dieta`, lastModified: today, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/generator-diety-ai`, lastModified: today, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/kalkulator-kcal`, lastModified: today, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/przepisy`, lastModified: today, changeFrequency: "weekly", priority: 0.8 },
@@ -28,8 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const category of categories) {
     const slug = categorySlugs[category as keyof typeof categorySlugs];
     if (slug) {
+      const section = DIETA_SECTION_SLUGS[slug] ?? slug;
       entries.push({
-        url: `${baseUrl}/blog/${slug}`,
+        url: `${baseUrl}/dieta/${section}`,
         lastModified: today,
         changeFrequency: "weekly" as const,
         priority: 0.8,
@@ -82,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     } else {
       entries.push({
-        url: `${baseUrl}/blog/post/${entry.slug}`,
+        url: `${baseUrl}/dieta/post/${entry.slug}`,
         lastModified: today,
         changeFrequency: "monthly" as const,
         priority: 0.7,

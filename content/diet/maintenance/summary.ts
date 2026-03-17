@@ -16,5 +16,5 @@ export function getSummary(calorie: number): string {
 
 Jeśli Twoje zapotrzebowanie wynosi około ${calorie} kcal dziennie, ten jadłospis może być dla Ciebie dobrą bazą. W razie wątpliwości [oblicz zapotrzebowanie w kalkulatorze kalorii](/kalkulator-kcal) lub skonsultuj się z dietetykiem.
 
-Więcej porad znajdziesz w artykułach: [dieta na utrzymanie wagi](/blog/dieta-na-utrzymanie-wagi), [dieta na masę](/blog/dieta-na-mase) oraz [dieta na redukcję](/blog/dieta-na-redukcje).`;
+Więcej porad znajdziesz w artykułach: [dieta na utrzymanie wagi](/dieta/na-utrzymanie-wagi), [dieta na masę](/dieta/na-mase) oraz [dieta na redukcję](/dieta/na-redukcje).`;
 }

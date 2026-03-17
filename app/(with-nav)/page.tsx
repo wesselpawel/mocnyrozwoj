@@ -126,7 +126,7 @@ export default async function Home() {
                   Stwórz dietę za darmo
                 </Link>
                 <Link
-                  href="/blog"
+                  href="/dieta"
                   className="inline-flex items-center px-6 py-3 border-2 border-[#e77503] text-[#e77503] font-semibold rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg hover:bg-[#e77503]/10 transition-colors"
                 >
                   Plany i artykuły
@@ -293,7 +293,7 @@ export default async function Home() {
               return (
                 <Link
                   key={cat}
-                  href={`/blog/${slug}`}
+                  href={`/dieta/${slug === "dieta-na-mase" ? "na-mase" : slug === "dieta-na-redukcje" ? "na-redukcje" : slug === "dieta-na-utrzymanie-wagi" ? "na-utrzymanie-wagi" : slug === "przepisy-dietetyczne" ? "przepisy" : slug}`}
                   className="inline-flex px-4 py-2 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-medium hover:border-[#e77503] hover:bg-[#e77503]/5 hover:text-[#e77503] transition-colors"
                 >
                   {cat}
@@ -301,7 +301,7 @@ export default async function Home() {
               );
             })}
             <Link
-              href="/blog"
+              href="/dieta"
               className="inline-flex px-4 py-2 rounded-xl bg-[#e77503] text-white text-sm font-semibold hover:bg-[#d96a02] transition-colors"
             >
               Wszystkie
@@ -311,7 +311,7 @@ export default async function Home() {
             {featuredEntries.map((entry) => (
               <Link
                 key={entry.id}
-                href={entry.href ?? `/blog/post/${entry.slug}`}
+                href={entry.href ?? `/dieta/post/${entry.slug}`}
                 className="rounded-2xl border border-zinc-200 bg-white overflow-hidden hover:border-[#e77503]/50 transition-colors shadow-sm hover:shadow-md flex flex-col"
               >
                 {entry.imageUrl ? (
@@ -342,7 +342,7 @@ export default async function Home() {
           </div>
           <div className="mt-8 text-center">
             <Link
-              href="/blog"
+              href="/dieta"
               className="inline-flex items-center px-6 py-3 border-2 border-[#e77503] text-[#e77503] font-semibold rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg hover:bg-[#e77503]/10 transition-colors"
             >
               Zobacz wszystkie plany i artykuły

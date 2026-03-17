@@ -34,8 +34,8 @@ function slugify(text: string): string {
 
 type Props = {
   entry: PublicBlogEntry;
-  /** "dieta" = canonical /dieta/slug, "blog" = canonical /blog/post/slug */
-  canonicalBasePath: "dieta" | "blog";
+  /** "dieta" = canonical /dieta/{entry.slug} (programmatic diets). "dieta-post" = canonical /dieta/post/{entry.slug} (articles). */
+  canonicalBasePath: "dieta" | "dieta-post" | "blog";
   siteUrl: string;
 };
 
@@ -47,7 +47,9 @@ export default function DietBlogArticleContent({
   const canonicalUrl =
     canonicalBasePath === "dieta"
       ? `${siteUrl}/dieta/${entry.slug}`
-      : `${siteUrl}/blog/post/${entry.slug}`;
+      : canonicalBasePath === "dieta-post"
+        ? `${siteUrl}/dieta/post/${entry.slug}`
+        : `${siteUrl}/blog/post/${entry.slug}`;
   const publishedDate = entry.updatedAt.split(".").reverse().join("-");
 
   const articleSchema = {
@@ -74,16 +76,27 @@ export default function DietBlogArticleContent({
     },
   };
 
-  const breadcrumbSecond =
-    canonicalBasePath === "dieta" ? (
-      <Link href="/blog" className="hover:text-[#e77503] transition-colors">
-        Diety
-      </Link>
-    ) : (
-      <Link href="/blog" className="hover:text-[#e77503] transition-colors">
-        Blog
-      </Link>
-    );
+  const faqSchema =
+    entry.faq && entry.faq.length
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: entry.faq.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.answer,
+            },
+          })),
+        }
+      : null;
+
+  const breadcrumbSecond = (
+    <Link href="/dieta" className="hover:text-[#e77503] transition-colors">
+      Diety
+    </Link>
+  );
 
   return (
     <main className="min-h-screen bg-white pt-28 pb-16 px-6 lg:px-12">
@@ -385,6 +398,12 @@ export default function DietBlogArticleContent({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      ) : null}
     </main>
   );
 }

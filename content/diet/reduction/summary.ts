@@ -30,5 +30,5 @@ Dieta ${calorie} kcal jest szczególnie odpowiednia dla osób o mniejszej masie 
 
 Jeśli Twoje zapotrzebowanie wynosi około ${calorie + 400}–${calorie + 500} kcal, dieta ${calorie} kcal może pomóc schudnąć w tempie około 0,5 kg tygodniowo.
 
-Więcej praktycznych porad o redukcji znajdziesz w artykułach: [dieta na redukcję](/blog/dieta-na-redukcje), [dieta na masę](/blog/dieta-na-mase) oraz [dieta na utrzymanie wagi](/blog/dieta-na-utrzymanie-wagi).`;
+Więcej praktycznych porad o redukcji znajdziesz w artykułach: [dieta na redukcję](/dieta/na-redukcje), [dieta na masę](/dieta/na-mase) oraz [dieta na utrzymanie wagi](/dieta/na-utrzymanie-wagi).`;
 }

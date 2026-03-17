@@ -12,6 +12,50 @@ import BlogCardAdminGenerateButton from "@/components/BlogCardAdminGenerateButto
 const MASS_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
 const REDUCTION_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
 
+const CATEGORY_SLUG_TO_DIETA_SECTION: Record<string, string> = {
+  "dieta-na-mase": "na-mase",
+  "dieta-na-redukcje": "na-redukcje",
+  "dieta-na-utrzymanie-wagi": "na-utrzymanie-wagi",
+  "przepisy-dietetyczne": "przepisy",
+};
+
+/** Programmatic SEO content for the hero header per section (category or index). */
+const SECTION_SEO: Record<
+  string,
+  { badge: string; title: string; description: string }
+> = {
+  __index: {
+    badge: "DIETA W PIGUŁCE",
+    title: "Plany dietetyczne z przepisami i listą zakupów",
+    description:
+      "Miejsce z uporządkowaną wiedzą na temat żywienia: od podstawowych typów diet, przez przykładowe dni jadłospisu, po gotowe przepisy i strategie pod konkretny cel.",
+  },
+  "Dieta na masę": {
+    badge: "DIETA NA MASĘ",
+    title: "Dieta na masę – przykładowe jadłospisy 1500–4000 kcal",
+    description:
+      "Gotowe plany na masę mięśniową: jadłospisy od 1500 do 4000 kcal, rozkład posiłków, przepisy i lista zakupów. Wybierz kaloryczność i liczbę posiłków.",
+  },
+  "Dieta na redukcję": {
+    badge: "DIETA NA REDUKCJĘ",
+    title: "Dieta na redukcję – jadłospisy od 1500 do 4000 kcal",
+    description:
+      "Przykładowe diety redukcyjne z deficytem kalorycznym: gotowe jadłospisy, przepisy i lista zakupów. Bezpieczna redukcja masy ciała.",
+  },
+  "Dieta na utrzymanie wagi": {
+    badge: "DIETA NA UTRZYMANIE WAGI",
+    title: "Dieta na utrzymanie wagi – jadłospisy i plany żywieniowe",
+    description:
+      "Plany żywieniowe na utrzymanie masy ciała: zbilansowane jadłospisy, przepisy i lista zakupów. Stabilna waga bez efektu jo-jo.",
+  },
+  "Przepisy dietetyczne": {
+    badge: "PRZEPISY DIETETYCZNE",
+    title: "Przepisy dietetyczne – śniadania, obiady, kolacje",
+    description:
+      "Gotowe przepisy na dania dopasowane do celu: na masę, redukcję i utrzymanie wagi. Kalorie i makro przy każdym przepisie.",
+  },
+};
+
 export default function BlogLibraryContent({
   selectedCategory,
   entries,
@@ -22,16 +66,11 @@ export default function BlogLibraryContent({
   /** When true, programmatic diet cards show "Generuj jadłospis" button */
   isAdmin?: boolean;
 }) {
-  // Deterministic order to avoid hydration mismatch: default order first, then any extra categories sorted.
+  // Only show categories that (1) are in the default list and (2) have at least one entry.
+  // Legacy categories (e.g. "Konkretny cel dietetyczny") are never shown even if some entry has them.
   const fromEntries = entries.map((entry) => entry.category).filter(Boolean);
-  const categorySet = new Set<string>([...defaultCategories, ...fromEntries]);
-  const defaultSet = new Set<string>(defaultCategories);
-  const categories = [
-    ...defaultCategories.filter((c) => categorySet.has(c)),
-    ...Array.from(categorySet)
-      .filter((c) => !defaultSet.has(c))
-      .sort((a, b) => a.localeCompare(b)),
-  ];
+  const fromEntriesSet = new Set<string>(fromEntries);
+  const categories = defaultCategories.filter((c) => fromEntriesSet.has(c));
 
   const categorySlugByName = categories.reduce<Record<string, string>>(
     (acc, category) => {
@@ -53,6 +92,7 @@ export default function BlogLibraryContent({
     : entries;
 
   const visibleCategories = selectedCategory ? [selectedCategory] : categories;
+  const seo = SECTION_SEO[selectedCategory ?? "__index"] ?? SECTION_SEO.__index;
 
   return (
     <main className="min-h-screen bg-white pt-28 pb-16 px-6 lg:px-12">
@@ -65,8 +105,8 @@ export default function BlogLibraryContent({
             Strona główna
           </Link>{" "}
           /{" "}
-          <Link href="/blog" className="hover:text-[#e77503] transition-colors">
-            Blog
+          <Link href="/dieta" className="hover:text-[#e77503] transition-colors">
+            Diety
           </Link>
           {selectedCategory ? ` / ${selectedCategory}` : ""}
         </nav>
@@ -75,19 +115,15 @@ export default function BlogLibraryContent({
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-10 items-start">
             <div>
               <p className="inline-flex items-center rounded-full bg-[#e77503] px-4 py-1 text-xs font-semibold tracking-wide text-white uppercase">
-                DIETA W PIGUŁCE
+                {seo.badge}
               </p>
               <h1 className="mt-4 font-montserrat font-extrabold tracking-[0.12rem] text-3xl sm:text-4xl lg:text-5xl text-[#1f1d1d]">
-                {selectedCategory ? selectedCategory : "234 plany dietetyczne z przepisami i listą zakupów"}
+                {seo.title}
               </h1>
               <p className="mt-4 max-w-3xl text-zinc-700 leading-relaxed font-montserrat">
-                Miejsce z uporządkowaną wiedzą na temat żywienia: od podstawowych
-                typów diet, przez przykładowe dni jadłospisu, po gotowe przepisy
-                i strategie pod konkretny cel.
+                {seo.description}
               </p>
             </div>
-
-            
           </div>
         </header>
 
@@ -149,7 +185,7 @@ export default function BlogLibraryContent({
               </li>
               <li>
                 <Link
-                  href="/blog"
+                  href="/dieta"
                   className={`block rounded-lg border px-3 py-2 text-sm transition-colors ${
                     !selectedCategory
                       ? "border-[#e77503]/60 bg-[#fff3e0] text-[#b45b00] font-semibold"
@@ -159,10 +195,13 @@ export default function BlogLibraryContent({
                   Wszystkie kategorie
                 </Link>
               </li>
-              {categories.map((category) => (
+              {categories.map((category) => {
+                const slug = categorySlugByName[category];
+                const section = CATEGORY_SLUG_TO_DIETA_SECTION[slug] ?? slug;
+                return (
                 <li key={category}>
                   <Link
-                    href={`/blog/${categorySlugByName[category]}`}
+                    href={`/dieta/${section}`}
                     className={`block rounded-lg border px-3 py-2 text-sm transition-colors ${
                       selectedCategory === category
                         ? "border-[#e77503]/60 bg-[#fff3e0] text-[#b45b00] font-semibold"
@@ -172,7 +211,8 @@ export default function BlogLibraryContent({
                     {category}
                   </Link>
                 </li>
-              ))}
+              );
+              })}
             </ul>
           </aside>
 
@@ -199,7 +239,7 @@ export default function BlogLibraryContent({
                       >
                         {entry.imageUrl ? (
                           <Link
-                            href={entry.href || `/blog/post/${entry.slug}`}
+                            href={entry.href || `/dieta/post/${entry.slug}`}
                             className="block relative w-full aspect-[16/10] bg-zinc-100"
                           >
                             <Image
@@ -224,7 +264,7 @@ export default function BlogLibraryContent({
                           </p>
                           <div className="mt-4 flex flex-wrap items-center gap-3">
                             <Link
-                              href={entry.href || `/blog/post/${entry.slug}`}
+                              href={entry.href || `/dieta/post/${entry.slug}`}
                               className="inline-flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg text-sm font-semibold hover:bg-[#e77503]/80 transition-colors"
                             >
                               Czytaj artykuł

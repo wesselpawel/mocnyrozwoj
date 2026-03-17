@@ -21,5 +21,5 @@ Jeżeli kalorie są:
 
 Dlatego dieta ${calorie} kcal będzie odpowiednia dla osób, których zapotrzebowanie energetyczne wynosi około ${calorie} kcal dziennie.
 
-Więcej o tym, jak obliczyć swoje zapotrzebowanie, przeczytasz w artykule [dieta na utrzymanie wagi – jak utrzymać formę](/blog/dieta-na-utrzymanie-wagi) oraz w [kalkulatorze kalorii](/kalkulator-kcal).`;
+Więcej o tym, jak obliczyć swoje zapotrzebowanie, przeczytasz w artykule [dieta na utrzymanie wagi – jak utrzymać formę](/dieta/na-utrzymanie-wagi) oraz w [kalkulatorze kalorii](/kalkulator-kcal).`;
 }

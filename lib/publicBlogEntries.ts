@@ -1,5 +1,4 @@
 import { getDocuments, getDocumentIds } from "@/firebase";
-import { entries as staticEntries } from "@/app/(with-nav)/blog/data";
 import { generateDietPages, getDietPagePath } from "@/programmatic/diet/generator";
 import { getDietTemplateData } from "@/programmatic/diet/template";
 import type { DietPageParams } from "@/programmatic/types";
@@ -256,10 +255,6 @@ async function getRecipeEntries(): Promise<PublicBlogEntry[]> {
 export const getPublicBlogEntries = async (): Promise<PublicBlogEntry[]> => {
   const merged = new Map<string, PublicBlogEntry>();
   const generatedSlugs = await getGeneratedProgrammaticDietSlugs();
-
-  for (const entry of staticEntries) {
-    merged.set(entry.slug, entry);
-  }
 
   for (const entry of getProgrammaticDietEntries(generatedSlugs)) {
     merged.set(entry.slug, entry);

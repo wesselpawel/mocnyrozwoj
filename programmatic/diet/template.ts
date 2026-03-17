@@ -118,12 +118,11 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       title: "Powiązane artykuły",
       text: `Jeśli chcesz pogłębić wiedzę o żywieniu i treningu, sprawdź też te materiały:
 
-- [Dieta na masę – kompletny przewodnik](/blog/dieta-na-mase)
-- [Dieta na redukcję – jak schudnąć zdrowo](/blog/dieta-na-redukcje)
-- [Dieta na utrzymanie wagi – jak utrzymać formę](/blog/dieta-na-utrzymanie-wagi)
-- [Przykładowe dni diety – gotowe jadłospisy](/blog/przykladowe-dni-diety)
+- [Dieta na masę – kompletny przewodnik](/dieta/na-mase)
+- [Dieta na redukcję – jak schudnąć zdrowo](/dieta/na-redukcje)
+- [Dieta na utrzymanie wagi – jak utrzymać formę](/dieta/na-utrzymanie-wagi)
 
-Więcej porad dietetycznych znajdziesz na naszym [blogu dietetycznym](/blog).`,
+Więcej porad dietetycznych znajdziesz w sekcji [Diety](/dieta).`,
     },
     {
       id: "tabele-produktow",
@@ -206,7 +205,7 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
 | 1600–1800 kcal | umiarkowana aktywność i chęć spokojnej redukcji |
 | 2000 kcal | wyższe zapotrzebowanie lub większa aktywność |
 
-Jeśli po czasie uznasz, że potrzebujesz innej kaloryczności, możesz sprawdzić także inne przykładowe jadłospisy, np. [dieta 1800 kcal](/blog/przykladowy-dzien-diety-1800-kcal) lub [dieta 2200 kcal](/blog/przykladowy-dzien-diety-2200-kcal).`,
+Jeśli po czasie uznasz, że potrzebujesz innej kaloryczności, możesz sprawdzić także inne przykładowe jadłospisy, np. [dieta 1800 kcal](/dieta/na-redukcje/1800-kcal) lub [dieta 2200 kcal](/dieta/na-redukcje/2200-kcal).`,
     },
     {
       id: "podsumowanie",
@@ -296,13 +295,12 @@ function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
       title: "Powiązane artykuły",
       text: `Jeśli chcesz pogłębić wiedzę o żywieniu i treningu, sprawdź też te materiały:
 
-- [Dieta na utrzymanie wagi – jak utrzymać formę](/blog/dieta-na-utrzymanie-wagi)
-- [Dieta na masę – kompletny przewodnik](/blog/dieta-na-mase)
-- [Dieta na redukcję – jak schudnąć zdrowo](/blog/dieta-na-redukcje)
-- [Przykładowe dni diety – gotowe jadłospisy](/blog/przykladowe-dni-diety)
+- [Dieta na utrzymanie wagi – jak utrzymać formę](/dieta/na-utrzymanie-wagi)
+- [Dieta na masę – kompletny przewodnik](/dieta/na-mase)
+- [Dieta na redukcję – jak schudnąć zdrowo](/dieta/na-redukcje)
 - [Kalkulator kalorii – oblicz zapotrzebowanie](/kalkulator-kcal)
 
-Więcej porad dietetycznych znajdziesz na naszym [blogu dietetycznym](/blog).`,
+Więcej porad dietetycznych znajdziesz w sekcji [Diety](/dieta).`,
     },
   ];
 
