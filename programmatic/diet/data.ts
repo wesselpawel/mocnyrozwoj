@@ -16,5 +16,24 @@ export type Goal = (typeof goals)[number];
 export const meals = [3, 4, 5] as const;
 export type MealCount = (typeof meals)[number];
 
+/**
+ * Typy diet jako 4. wymiar URL:
+ * /dieta/{cel}/{kcal}/{posilki}/{typ}
+ *
+ * Trzymamy je jako obiekty (slug + label), żeby:
+ * - slug był stabilny w URL
+ * - label był naturalny w title/H1
+ */
+export const dietTypes = [
+  { slug: "standardowa", label: "standardowa" },
+  { slug: "wegetarianska", label: "wegetariańska" },
+  { slug: "weganska", label: "wegańska" },
+  { slug: "bezglutenowa", label: "bezglutenowa" },
+  { slug: "bezlaktozowa", label: "bezlaktozowa" },
+  { slug: "tania", label: "tania" },
+] as const;
+
+export type DietTypeSlug = (typeof dietTypes)[number]["slug"];
+
 /** Opcjonalnie: dni jadłospisu (rozszerzenie) */
 export const days = [7, 14, 28] as const;

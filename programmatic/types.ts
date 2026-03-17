@@ -8,6 +8,8 @@ export type DietPageParams = {
   calorie: number;
   goal: "reduction" | "mass" | "maintenance";
   mealCount: number;
+  /** Opcjonalnie: 4. wymiar strony (/.../[type]) */
+  dietType?: import("./diet/data").DietTypeSlug;
   /** Opcjonalnie: liczba dni jadłospisu */
   days?: number;
 };

@@ -73,5 +73,11 @@ export default async function BlogCategoryPage({
   const token = cookieStore.get(getAdminSessionCookieName())?.value;
   const isAdmin = await isValidAdminSessionToken(token);
   const filteredEntries = filterBlogEntriesByGeneratedDiet(entries, category, isAdmin);
-  return <BlogLibraryContent selectedCategory={category} entries={filteredEntries} />;
+  return (
+    <BlogLibraryContent
+      selectedCategory={category}
+      entries={filteredEntries}
+      isAdmin={isAdmin}
+    />
+  );
 }

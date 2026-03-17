@@ -150,7 +150,7 @@ export default function DietBlogArticleContent({
                 </div>
                 <div className="mt-4 pt-4 border-t border-zinc-200">
                   <p className="text-sm text-zinc-600 leading-relaxed">
-                    Twórca pierwszego polskiego{" "}
+                    Twórca najlepszego{" "}
                     <Link
                       href="/generator-diety-ai"
                       className="text-[#e77503] font-semibold hover:underline"
@@ -313,7 +313,7 @@ export default function DietBlogArticleContent({
                     wesselpawel.com ↗
                   </Link>
                   <p className="mt-3 text-sm text-zinc-600 leading-relaxed">
-                    Twórca pierwszego polskiego{" "}
+                    Twórca najlepszego{" "}
                     <Link
                       href="/generator-diety-ai"
                       className="text-[#e77503] font-semibold hover:underline"

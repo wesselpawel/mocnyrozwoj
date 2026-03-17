@@ -145,14 +145,20 @@ const DIET_GOAL_CATEGORIES: Record<string, string> = {
 };
 
 /**
- * All possible Firebase document IDs for this diet (Firestore IDs cannot contain "/").
+ * All possible Firebase document IDs for this diet.
  * Used to match generated content regardless of which format was used when saving.
  */
 function getPossibleGeneratedIdsForDiet(slug: string, params: DietPageParams): string[] {
-  const ids: string[] = [slug];
   const path = getDietPagePath(params);
-  ids.push(path.replace(/\//g, "-"));
-  return ids;
+  const goalSegment = path.split("/")[0] ?? ""; // e.g. "na-redukcje", "na-mase", "na-utrzymanie-wagi"
+  const ids: string[] = [
+    slug,
+    path,
+    path.replace(/\//g, "-"),
+    `${goalSegment}/${params.calorie}kcal`, // e.g. na-redukcje/1500kcal (format w Twojej kolekcji)
+  ].map((id) => id.trim());
+  const unique = [...new Set(ids)];
+  return unique;
 }
 
 /** Programmatic SEO: diet pages as blog entries. hasGeneratedDietDay set by caller from Firebase. */
@@ -190,20 +196,21 @@ function getProgrammaticDietEntries(slugsWithGeneratedContent: Set<string>): Pub
   });
 }
 
-/** Normalize a Firebase document ID for lookup (bare slug, no collection path). */
-function normalizeGeneratedId(id: unknown): string {
-  const s = typeof id === "string" ? id.trim() : String(id ?? "");
-  if (!s) return "";
-  const bareId = s.includes("/") ? s.replace(/^.*\//, "").trim() : s;
-  return bareId;
-}
-
-/** Fetch all programmatic diet slugs that have a generated day of meals in Firebase. */
+/** Fetch all programmatic diet document IDs from Firebase. Returns set of slugs (trimmed; with and without collection prefix). */
 export async function getGeneratedProgrammaticDietSlugs(): Promise<Set<string>> {
   try {
     const ids = (await getDocumentIds("programmaticDiets")) as string[];
-    const normalized = ids.map(normalizeGeneratedId).filter(Boolean);
-    return new Set(normalized);
+    const set = new Set<string>();
+    for (const id of ids) {
+      if (typeof id !== "string" || !id.length) continue;
+      const trimmed = id.trim();
+      set.add(trimmed);
+      // If Firebase or wrapper returned full path "programmaticDiets/na-redukcje/...", also add slug part
+      if (trimmed.startsWith("programmaticDiets/")) {
+        set.add(trimmed.slice("programmaticDiets/".length));
+      }
+    }
+    return set;
   } catch {
     return new Set();
   }
@@ -287,7 +294,7 @@ const DIET_GOAL_CATEGORIES_FOR_FILTER = [
 
 /**
  * Filter entries for display on blog (user vs admin).
- * - User: for diet goal categories, show only entries that have a generated day of meals (or static entries).
+ * - User: show all entries (including diet goal categories without generated jadłospis).
  * - Admin: for diet goal categories, show only entries that do NOT have a generated day (to see what needs generating).
  */
 export function filterBlogEntriesByGeneratedDiet(
@@ -301,6 +308,6 @@ export function filterBlogEntriesByGeneratedDiet(
     }
     if (!entry.programmaticDiet) return true;
     if (isAdmin) return entry.hasGeneratedDietDay === false;
-    return entry.hasGeneratedDietDay === true;
+    return true; // user sees all posts (with or without generated diet)
   });
 }

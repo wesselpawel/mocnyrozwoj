@@ -1,7 +1,10 @@
 /**
  * Blok intro — dieta redukcyjna
  * Sekcja: Dla kogo jest odpowiednia?
+ * Sekcja „Dla przykładu…” generowana dynamicznie (kcal → waga) — programmatic SEO.
  */
+
+import { getExampleParagraphReduction } from "../exampleByCalorie";
 
 export function getIntro(calorie: number): string {
   const isVeryLow = calorie <= 1600;
@@ -22,11 +25,7 @@ Warto pamiętać, że zapotrzebowanie kaloryczne zależy od wielu czynników:
 • poziomu aktywności fizycznej,
 • celu dietetycznego.
 
-Dla przykładu: mężczyzna ważący 85 kg przy wzroście 180 cm i umiarkowanej aktywności fizycznej potrzebuje około 2400–2700 kcal dziennie, aby utrzymać masę ciała. ${
-    isLow
-      ? `Dieta ${calorie} kcal stworzy dla niego znaczny deficyt kaloryczny.`
-      : `Dieta ${calorie} kcal będzie dla niego umiarkowanym deficytem kalorycznym.`
-  }
+${getExampleParagraphReduction(calorie)}
 
 Dlatego dieta redukcyjna zawsze powinna być dopasowana indywidualnie do zapotrzebowania energetycznego organizmu.
 

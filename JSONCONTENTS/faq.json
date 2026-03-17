@@ -1,46 +1,46 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-11",
+  "lastUpdated": "2026-03-17",
   "categories": [
     {
       "id": "start",
       "title": "Start",
       "items": [
         {
-          "question": "Jak mogę rozpocząć swoją podróż rozwojową?",
-          "answer": "Rozpoczęcie jest proste. Wystarczy utworzyć konto na platformie, podając imię, nazwisko, email i hasło. Po zalogowaniu otrzymasz dostęp do testów oraz narzędzi rozwojowych."
+          "question": "Jak mogę dostać dietę dopasowaną do mojego celu?",
+          "answer": "Wystarczy wejść na stronę i skorzystać z generatora diety. W około 60 sekund podajesz swój cel (redukcja, masa, utrzymanie wagi), kalorie i liczbę posiłków – system generuje gotowy jadłospis z listą zakupów i przepisami. Nie musisz nic liczyć ani układać samodzielnie."
         },
         {
-          "question": "Jakie testy są dostępne po zalogowaniu?",
-          "answer": "Po zalogowaniu otrzymasz dostęp do testu osobowości MBTI, testu inteligencji emocjonalnej oraz testu motywacji. Każdy test pomaga lepiej zrozumieć Twoje mocne strony."
+          "question": "Czy dieta z generatora jest naprawdę za darmo?",
+          "answer": "Tak. Generowanie diety online, lista zakupów i przepisy są dostępne za darmo. Możesz od razu korzystać z gotowego planu bez rejestracji."
         }
       ]
     },
     {
-      "id": "account",
-      "title": "Konto i bezpieczeństwo",
+      "id": "dieta",
+      "title": "Dieta i jadłospis",
       "items": [
         {
-          "question": "Jakie dane są wymagane do utworzenia konta?",
-          "answer": "Do utworzenia konta potrzebujesz imienia i nazwiska, adresu email oraz hasła. Dane są chronione zgodnie z aktualnymi standardami bezpieczeństwa."
+          "question": "Jakie cele dietetyczne są dostępne?",
+          "answer": "Możesz wybrać dietę na redukcję (schudnięcie), na masę (budowa sylwetki) lub na utrzymanie wagi. Każdy plan jest dopasowany do wybranego celu i liczby kalorii."
         },
         {
-          "question": "Czy mogę zresetować swoje hasło?",
-          "answer": "Tak. Kliknij opcję Zapomniałem hasła na stronie logowania i postępuj zgodnie z instrukcjami wysłanymi na podany adres email."
+          "question": "Czy dostanę listę zakupów i przepisy?",
+          "answer": "Tak. Do każdego jadłospisu dołączona jest lista zakupów oraz przepisy na dania. Kalorie są policzone – nie musisz nic liczyć samodzielnie."
+        },
+        {
+          "question": "Nie znam się na dietach – czy to dla mnie?",
+          "answer": "Tak. Narzędzie tworzy dietę za Ciebie. Wystarczy wybrać cel i parametry – otrzymasz konkretny plan działania z posiłkami, gramaturami i przepisami."
         }
       ]
     },
     {
-      "id": "usage",
-      "title": "Korzystanie z platformy",
+      "id": "kontakt",
+      "title": "Kontakt i wsparcie",
       "items": [
         {
-          "question": "Czy mogę śledzić swoje postępy?",
-          "answer": "Tak. Platforma oferuje narzędzia do monitorowania postępów i celów, dzięki czemu możesz obserwować zmiany w czasie."
-        },
-        {
-          "question": "Jak mogę skontaktować się z obsługą klienta?",
-          "answer": "Możesz skorzystać z formularza kontaktowego na stronie Kontakt lub napisać wiadomość email. Zespół odpowiada możliwie szybko."
+          "question": "Jak mogę skontaktować się z obsługą?",
+          "answer": "Możesz skorzystać z formularza kontaktowego na stronie Kontakt lub napisać wiadomość e-mail. Zespół odpowiada możliwie szybko."
         }
       ]
     }

@@ -30,5 +30,11 @@ export default async function BlogPage({ searchParams }: Props) {
   const token = cookieStore.get(getAdminSessionCookieName())?.value;
   const isAdmin = await isValidAdminSessionToken(token);
   const filteredEntries = filterBlogEntriesByGeneratedDiet(entries, null, isAdmin);
-  return <BlogLibraryContent selectedCategory={null} entries={filteredEntries} />;
+  return (
+    <BlogLibraryContent
+      selectedCategory={null}
+      entries={filteredEntries}
+      isAdmin={isAdmin}
+    />
+  );
 }

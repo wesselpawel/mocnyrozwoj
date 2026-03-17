@@ -5,6 +5,7 @@
 
 import { calories, goals, meals } from "./data";
 import type { DietPageParams } from "../types";
+import { dietTypes, type DietTypeSlug } from "./data";
 
 /**
  * Polish declension for "posiłki/posiłków" in slugs
@@ -27,17 +28,24 @@ export function parseMealsSegment(segment: string): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
+/** Diet type segment: "wegetarianska" | "tania" | ... */
+export function parseDietTypeSegment(segment: string): DietTypeSlug | null {
+  const hit = dietTypes.find((t) => t.slug === segment);
+  return hit ? hit.slug : null;
+}
+
 /** Path for diet page (no leading /dieta). All goals use hub-and-spoke. */
 export function getDietPagePath(params: DietPageParams): string {
-  const { calorie, goal, mealCount } = params;
+  const { calorie, goal, mealCount, dietType } = params;
+  const typePart = dietType ? `/${dietType}` : "";
   if (goal === "mass") {
-    return `na-mase/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+    return `na-mase/${calorie}-kcal/${mealCountToSegment(mealCount)}${typePart}`;
   }
   if (goal === "reduction") {
-    return `na-redukcje/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+    return `na-redukcje/${calorie}-kcal/${mealCountToSegment(mealCount)}${typePart}`;
   }
   if (goal === "maintenance") {
-    return `na-utrzymanie-wagi/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+    return `na-utrzymanie-wagi/${calorie}-kcal/${mealCountToSegment(mealCount)}${typePart}`;
   }
   return dietParamsToSlug(params);
 }

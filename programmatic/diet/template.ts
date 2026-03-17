@@ -11,6 +11,7 @@ import * as maintenanceContent from "@/content/diet/maintenance";
 import { getMassDietFAQ } from "@/content/diet/mass/faq";
 import { getReductionDietFAQ } from "@/content/diet/reduction/faq";
 import { getMaintenanceDietFAQ } from "@/content/diet/maintenance/faq";
+import { dietTypes } from "./data";
 
 /** "4 posiłki" -> "4 posiłkami" for description */
 function mealsDative(meals: string): string {
@@ -30,6 +31,18 @@ export function getDietTemplateData(params: DietPageParams): DietPageData {
     return getReductionTemplateData(params);
   }
   return getMaintenanceTemplateData(params);
+}
+
+function withDietTypeVariant(base: DietPageData): DietPageData {
+  if (!base.dietType) return base;
+  const label = dietTypes.find((t) => t.slug === base.dietType)?.label ?? base.dietType;
+  const suffix = ` (${label})`;
+  return {
+    ...base,
+    title: `${base.title}${suffix}`,
+    h1: `${base.h1}${suffix}`,
+    description: `${base.description} Wariant: ${label}.`,
+  };
 }
 
 function getMassTemplateData(params: DietPageParams): DietPageData {
@@ -119,7 +132,14 @@ Więcej porad dietetycznych znajdziesz na naszym [blogu dietetycznym](/blog).`,
     },
   ];
 
-  return { ...params, title, h1, description, sections, faq: getMassDietFAQ(calorie) };
+  return withDietTypeVariant({
+    ...params,
+    title,
+    h1,
+    description,
+    sections,
+    faq: getMassDietFAQ(calorie),
+  });
 }
 
 function getReductionTemplateData(params: DietPageParams): DietPageData {
@@ -202,7 +222,14 @@ Jeśli po czasie uznasz, że potrzebujesz innej kaloryczności, możesz sprawdzi
     },
   ];
 
-  return { ...params, title, h1, description, sections, faq: getReductionDietFAQ(calorie) };
+  return withDietTypeVariant({
+    ...params,
+    title,
+    h1,
+    description,
+    sections,
+    faq: getReductionDietFAQ(calorie),
+  });
 }
 
 function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
@@ -279,5 +306,12 @@ Więcej porad dietetycznych znajdziesz na naszym [blogu dietetycznym](/blog).`,
     },
   ];
 
-  return { ...params, title, h1, description, sections, faq: getMaintenanceDietFAQ(calorie) };
+  return withDietTypeVariant({
+    ...params,
+    title,
+    h1,
+    description,
+    sections,
+    faq: getMaintenanceDietFAQ(calorie),
+  });
 }

@@ -16,7 +16,11 @@ import Courses from "@/components/Courses";
 import FAQ from "@/components/FAQ";
 import CounterAnimation from "@/components/CounterAnimation";
 import { getProducts } from "@/lib/getProducts";
-import { blogService } from "@/lib/blogService";
+import {
+  getPublicBlogEntries,
+  filterBlogEntriesByGeneratedDiet,
+} from "@/lib/publicBlogEntries";
+import { categorySlugs } from "@/app/(with-nav)/blog/data";
 import { Metadata } from "next";
 import Script from "next/script";
 import accent1 from "@/public/accent1.png";
@@ -46,10 +50,20 @@ import { Diet } from "@/types";
 
 export const dynamic = "force-dynamic";
 
+const FEATURED_BLOG_CATEGORIES = [
+  "Diety",
+  "Dieta na masę",
+  "Dieta na redukcję",
+  "Przepisy dietetyczne",
+] as const;
+
 export default async function Home() {
   const products: Diet[] = await getProducts();
-  const recentPosts = await blogService.getAllBlogPosts();
-  const latestPosts = recentPosts.slice(0, 3); // Get the 3 most recent posts
+  const allEntries = await getPublicBlogEntries();
+  const publicEntries = filterBlogEntriesByGeneratedDiet(allEntries, null, false);
+  const featuredEntries = FEATURED_BLOG_CATEGORIES.flatMap((cat) =>
+    publicEntries.filter((e) => e.category === cat).slice(0, 2)
+  ).slice(0, 6);
 
   return (
     <div className="relative min-h-screen">
@@ -103,6 +117,20 @@ export default async function Home() {
                   </div>
                   <p className="text-white text-sm">Kalorie policzone</p>
                 </div>
+              </div>
+              <div className="flex flex-wrap flex-row justify-center gap-4 mt-8">
+                <Link
+                  href="/generator-diety-ai"
+                  className="inline-flex items-center px-6 py-3 bg-[#e77503] text-white font-semibold rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg hover:bg-[#d96a02] transition-colors shadow-md"
+                >
+                  Stwórz dietę za darmo
+                </Link>
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center px-6 py-3 border-2 border-[#e77503] text-[#e77503] font-semibold rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg hover:bg-[#e77503]/10 transition-colors"
+                >
+                  Plany i artykuły
+                </Link>
               </div>
             </div>
           </div>
@@ -249,6 +277,79 @@ export default async function Home() {
       </div>
       
       <HomeDietPricingSection />
+
+      {/* Programmatic blog ecosystem: plany dietetyczne i wiedza */}
+      <div className="py-16 px-6 lg:px-12 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-montserrat font-extrabold tracking-[0.6rem] text-left text-3xl sm:text-4xl lg:text-5xl text-black mb-4">
+            PLANY DIETETYCZNE I WIEDZA
+          </h2>
+          <p className="mb-8 font-montserrat text-zinc-700 max-w-3xl">
+            Gotowe plany na masę, redukcję i utrzymanie wagi, przepisy oraz artykuły – wszystko w jednym miejscu. Wybierz kategorię lub przeczytaj wyróżnione materiały.
+          </p>
+          <div className="flex flex-wrap gap-2 sm:gap-3 mb-10">
+            {FEATURED_BLOG_CATEGORIES.map((cat) => {
+              const slug = categorySlugs[cat as keyof typeof categorySlugs] ?? cat.toLowerCase().replace(/\s+/g, "-");
+              return (
+                <Link
+                  key={cat}
+                  href={`/blog/${slug}`}
+                  className="inline-flex px-4 py-2 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-medium hover:border-[#e77503] hover:bg-[#e77503]/5 hover:text-[#e77503] transition-colors"
+                >
+                  {cat}
+                </Link>
+              );
+            })}
+            <Link
+              href="/blog"
+              className="inline-flex px-4 py-2 rounded-xl bg-[#e77503] text-white text-sm font-semibold hover:bg-[#d96a02] transition-colors"
+            >
+              Wszystkie
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredEntries.map((entry) => (
+              <Link
+                key={entry.id}
+                href={entry.href ?? `/blog/post/${entry.slug}`}
+                className="rounded-2xl border border-zinc-200 bg-white overflow-hidden hover:border-[#e77503]/50 transition-colors shadow-sm hover:shadow-md flex flex-col"
+              >
+                {entry.imageUrl ? (
+                  <div className="relative w-full aspect-[16/10] bg-zinc-100">
+                    <Image
+                      src={entry.imageUrl}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : null}
+                <div className="p-5 flex-1 flex flex-col">
+                  <span className="text-xs text-zinc-500 mb-1">{entry.category}</span>
+                  <h3 className="text-lg font-semibold text-[#1f1d1d] leading-snug">
+                    {entry.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-600 leading-relaxed line-clamp-2 flex-1">
+                    {entry.description}
+                  </p>
+                  <span className="mt-3 inline-flex items-center text-[#e77503] font-semibold text-sm hover:underline">
+                    Czytaj więcej →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link
+              href="/blog"
+              className="inline-flex items-center px-6 py-3 border-2 border-[#e77503] text-[#e77503] font-semibold rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg hover:bg-[#e77503]/10 transition-colors"
+            >
+              Zobacz wszystkie plany i artykuły
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <div className="py-16 px-6 lg:px-12">
         <div className="max-w-6xl mx-auto">

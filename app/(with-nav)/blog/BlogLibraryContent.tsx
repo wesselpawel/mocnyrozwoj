@@ -7,6 +7,7 @@ import {
   getMassHubPath,
   getReductionHubPath,
 } from "@/programmatic/diet/generator";
+import BlogCardAdminGenerateButton from "@/components/BlogCardAdminGenerateButton";
 
 const MASS_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
 const REDUCTION_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
@@ -14,16 +15,23 @@ const REDUCTION_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000
 export default function BlogLibraryContent({
   selectedCategory,
   entries,
+  isAdmin = false,
 }: {
   selectedCategory: string | null;
   entries: PublicBlogEntry[];
+  /** When true, programmatic diet cards show "Generuj jadłospis" button */
+  isAdmin?: boolean;
 }) {
-  const categories = Array.from(
-    new Set([
-      ...defaultCategories,
-      ...entries.map((entry) => entry.category).filter(Boolean),
-    ]),
-  );
+  // Deterministic order to avoid hydration mismatch: default order first, then any extra categories sorted.
+  const fromEntries = entries.map((entry) => entry.category).filter(Boolean);
+  const categorySet = new Set<string>([...defaultCategories, ...fromEntries]);
+  const defaultSet = new Set<string>(defaultCategories);
+  const categories = [
+    ...defaultCategories.filter((c) => categorySet.has(c)),
+    ...Array.from(categorySet)
+      .filter((c) => !defaultSet.has(c))
+      .sort((a, b) => a.localeCompare(b)),
+  ];
 
   const categorySlugByName = categories.reduce<Record<string, string>>(
     (acc, category) => {
@@ -170,9 +178,9 @@ export default function BlogLibraryContent({
 
           <div className="space-y-8">
             {visibleCategories.map((category) => {
-              const categoryEntries = fullyFilteredEntries.filter(
-                (entry) => entry.category === category,
-              );
+              const categoryEntries = fullyFilteredEntries
+                .filter((entry) => entry.category === category)
+                .sort((a, b) => a.id.localeCompare(b.id));
               if (categoryEntries.length === 0) return null;
               return (
                 <section key={category}>
@@ -214,12 +222,23 @@ export default function BlogLibraryContent({
                           <p className="mt-3 text-sm text-zinc-600 leading-relaxed">
                             {entry.description}
                           </p>
-                          <Link
-                            href={entry.href || `/blog/post/${entry.slug}`}
-                            className="mt-4 inline-flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg text-sm font-semibold hover:bg-[#e77503]/80 transition-colors"
-                          >
-                            Czytaj artykuł
-                          </Link>
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <Link
+                              href={entry.href || `/blog/post/${entry.slug}`}
+                              className="inline-flex items-center px-4 py-1.5 bg-[#e77503] text-white rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg text-sm font-semibold hover:bg-[#e77503]/80 transition-colors"
+                            >
+                              Czytaj artykuł
+                            </Link>
+                            {isAdmin && entry.programmaticDiet && (
+                              <BlogCardAdminGenerateButton
+                                slug={entry.slug}
+                                calories={entry.programmaticDiet.calories}
+                                goal={entry.programmaticDiet.goal}
+                                mealCount={entry.programmaticDiet.mealCount}
+                                compact
+                              />
+                            )}
+                          </div>
                         </div>
                       </article>
                     ))}

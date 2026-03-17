@@ -1,7 +1,10 @@
 /**
  * Blok intro — dieta na masę
  * Sekcja: Dla kogo jest odpowiednia?
+ * Sekcja „Dla przykładu…” generowana dynamicznie (kcal → waga) — programmatic SEO.
  */
+
+import { getExampleParagraphMass } from "../exampleByCalorie";
 
 export function getIntro(calorie: number): string {
   return `${calorie} kcal dziennie to ${
@@ -20,11 +23,7 @@ W większości przypadków dieta ${calorie} kcal służy do budowania masy mię�
 
 Nie jest to jednak dieta dla każdego.
 
-Dla przykładu: kobieta ważąca 70 kg przy wzroście 170 cm i umiarkowanej aktywności fizycznej potrzebuje około 1800–2000 kcal dziennie, aby utrzymać masę ciała. ${
-    calorie >= 2500
-      ? `Spożywanie ${calorie} kcal w takim przypadku prowadziłoby do szybkiego przyrostu tkanki tłuszczowej.`
-      : ""
-  }
+${getExampleParagraphMass(calorie)}
 
 Dlatego dieta na masę zawsze powinna być dopasowana indywidualnie do zapotrzebowania kalorycznego organizmu, które możesz obliczyć w [kalkulatorze zapotrzebowania kalorycznego](/kalkulator-kcal).
 
