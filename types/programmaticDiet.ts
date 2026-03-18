@@ -31,6 +31,8 @@ export type ProgrammaticMeal = {
   preparationSteps: string[];
   /** AI-generated image URL showing serving suggestion */
   imageUrl?: string;
+  /** Recipe slug saved in /recipes (e.g. "...-392-kcal") */
+  recipeSlug?: string;
 };
 
 export type ProgrammaticDietDay = {

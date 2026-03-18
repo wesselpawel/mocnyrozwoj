@@ -11,6 +11,7 @@ import { getReductionDietPreviews } from "@/lib/getReductionDietPreviews";
 import { getReductionHubFaq } from "@/content/diet/reduction/hubFaq";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import FAQ from "@/components/FAQ";
+import KalkulatorStyleHero from "@/components/KalkulatorStyleHero";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
 
@@ -101,14 +102,29 @@ export default async function DietReductionHubPage({ params }: Props) {
           <span className="text-zinc-700">{calorie} kcal</span>
         </nav>
 
-        <header className="rounded-3xl border border-[#e77503]/20 bg-[#fff9f3] p-6 sm:p-8 lg:p-10 mb-10">
-          <h1 className="font-montserrat font-extrabold tracking-[0.05rem] text-3xl sm:text-4xl text-[#1f1d1d]">
-            Dieta na redukcję {calorie} kcal – czy na pewno schudniesz?
-          </h1>
-          <p className="mt-4 max-w-3xl text-zinc-700 leading-relaxed">
-            Dieta na redukcję {calorie} kcal to jedna z najczęściej wyszukiwanych fraz wśród osób, które chcą schudnąć bez drastycznych wyrzeczeń. I nie bez powodu — dla wielu osób to właśnie ten poziom kalorii okazuje się punktem przełomowym między „ciągle tyję” a „w końcu zaczynam chudnąć”. Poniżej wyjaśniamy, dla kogo ma to sens, ile można schudnąć i gdzie znaleźć gotowe jadłospisy.
-          </p>
-        </header>
+        <KalkulatorStyleHero
+          className="mt-10 mb-10"
+          title={
+            <>
+              DIETA <br /> NA REDUKCJĘ
+            </>
+          }
+          tagline={
+            <>
+              {calorie} KCAL <span className="hidden sm:inline">—</span> SPRAWDŹ
+              WARIANTY
+            </>
+          }
+          description={
+            <p>
+              Jadłospisy redukcyjne {calorie} kcal: wybierz liczbę posiłków i
+              przejdź do planu dnia z przepisami oraz listą zakupów.
+            </p>
+          }
+          bullets={["Jadłospisy 3–5 posiłków", "Lista zakupów", "Przepisy"]}
+          ariaLabel="Wygeneruj dietę AI (na redukcję) po kliknięciu w wideo"
+          ctaLabel="Rozpocznij"
+        />
 
         {/* Intro: 2000 kcal samo w sobie nie odchudza */}
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8 mb-8" aria-labelledby="czy-schudne">
@@ -207,16 +223,24 @@ export default async function DietReductionHubPage({ params }: Props) {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-zinc-50 border-b border-zinc-200">
-                            <th className="text-left py-3 px-4 font-semibold text-zinc-700">Posiłek</th>
-                            <th className="text-left py-3 px-4 font-semibold text-zinc-700">Produkty</th>
+                            <th className="text-left py-3 px-4 font-semibold text-zinc-700">
+                              Posiłek
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {mealsData.map((meal, i) => (
                             <tr key={i} className="border-b border-zinc-100 last:border-0">
-                              <td className="py-3 px-4 font-medium text-zinc-800 align-top">{meal.mealName}</td>
-                              <td className="py-3 px-4 text-zinc-600 align-top">
-                                {meal.productNames.join(", ")}
+                              <td className="py-3 px-4 font-medium text-zinc-800 align-top">
+                                <Link
+                                  href={meal.recipePath}
+                                  className="hover:text-[#e77503] hover:underline transition-colors"
+                                >
+                                  {meal.mealName}{" "}
+                                  <span className="text-zinc-500 font-normal">
+                                    ({meal.calories} kcal)
+                                  </span>
+                                </Link>
                               </td>
                             </tr>
                           ))}

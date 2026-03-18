@@ -296,15 +296,15 @@ Wymagania:
       generatedBy: "admin",
     };
 
-    await addDocument("programmaticDiets", slug, content);
-
     // Save each meal as a separate recipe for programmatic SEO
     const savedRecipes: RecipeEntry[] = [];
+    const mealRecipeSlugByNumber = new Map<number, string>();
 
     for (const meal of mealsWithImages) {
       const mealType = mealTypeMap[meal.mealNumber] || "Przekąska";
       const recipeSlug = generateRecipeSlug(mealType, meal.calories, goal, meal.mealName);
       const seo = generateRecipeSEO(mealType, meal.calories, goal, meal.mealName);
+      mealRecipeSlugByNumber.set(meal.mealNumber, recipeSlug);
 
       const nameForms: RecipeNameForms | undefined = meal.mealNameForms ? {
         base: meal.mealNameForms.base,
@@ -343,9 +343,24 @@ Wymagania:
       }
     }
 
+    // Persist recipeSlug on each meal inside programmatic diet content (best-effort)
+    // This makes hub pages link to the exact stored recipe slug without recomputing.
+    const contentWithRecipeSlugs: ProgrammaticDietContent = {
+      ...content,
+      dietDay: {
+        ...content.dietDay,
+        meals: content.dietDay.meals.map((meal) => ({
+          ...meal,
+          recipeSlug: mealRecipeSlugByNumber.get(meal.mealNumber),
+        })),
+      },
+    };
+
+    await addDocument("programmaticDiets", slug, contentWithRecipeSlugs);
+
     return NextResponse.json({ 
       success: true, 
-      content,
+      content: contentWithRecipeSlugs,
       recipes: savedRecipes,
       recipesCount: savedRecipes.length,
     });

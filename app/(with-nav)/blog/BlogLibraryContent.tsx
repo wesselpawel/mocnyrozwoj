@@ -6,11 +6,13 @@ import { PublicBlogEntry } from "@/lib/publicBlogEntries";
 import {
   getMassHubPath,
   getReductionHubPath,
+  getMaintenanceHubPath,
 } from "@/programmatic/diet/generator";
 import BlogCardAdminGenerateButton from "@/components/BlogCardAdminGenerateButton";
 
 const MASS_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
 const REDUCTION_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
+const MAINTENANCE_CALORIES = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000];
 
 const CATEGORY_SLUG_TO_DIETA_SECTION: Record<string, string> = {
   "dieta-na-mase": "na-mase",
@@ -159,6 +161,27 @@ export default function BlogLibraryContent({
                 <li key={kcal}>
                   <Link
                     href={`/dieta/${getReductionHubPath(kcal)}`}
+                    className="inline-flex items-center px-4 py-2 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-medium hover:border-[#e77503] hover:bg-[#e77503]/5 hover:text-[#e77503] transition-colors"
+                  >
+                    {kcal} kcal
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {selectedCategory === "Dieta na utrzymanie wagi" && (
+          <section className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8" aria-labelledby="diety-utrzymanie-wedlug-kalorii">
+            <h2 id="diety-utrzymanie-wedlug-kalorii" className="font-montserrat font-bold text-xl text-zinc-900 mb-4 flex items-center gap-3">
+              <span className="w-1.5 h-6 bg-[#e77503] rounded-full" />
+              Diety na utrzymanie wagi według kalorii
+            </h2>
+            <ul className="flex flex-wrap gap-2 sm:gap-3">
+              {MAINTENANCE_CALORIES.map((kcal) => (
+                <li key={kcal}>
+                  <Link
+                    href={`/dieta/${getMaintenanceHubPath(kcal)}`}
                     className="inline-flex items-center px-4 py-2 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-medium hover:border-[#e77503] hover:bg-[#e77503]/5 hover:text-[#e77503] transition-colors"
                   >
                     {kcal} kcal

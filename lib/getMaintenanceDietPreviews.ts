@@ -1,6 +1,7 @@
 /**
- * Pobiera podgląd jadłospisów na redukcję (tylko nazwy posiłków i produktów) dla 3, 4 i 5 posiłków.
- * Używane na stronie hub /dieta/na-redukcje/[calorie] do tabel z produktami.
+ * Pobiera podgląd jadłospisów na utrzymanie wagi (nazwy posiłków + kcal + link do przepisu)
+ * dla 3, 4 i 5 posiłków.
+ * Używane na stronie hub /dieta/na-utrzymanie-wagi/[calorie].
  */
 
 import { getDocument } from "@/firebase";
@@ -15,7 +16,7 @@ export type MealPreview = {
   recipePath: string;
 };
 
-export type ReductionDietPreviews = {
+export type MaintenanceDietPreviews = {
   3: MealPreview[] | null;
   4: MealPreview[] | null;
   5: MealPreview[] | null;
@@ -30,7 +31,13 @@ const GOAL_TO_CATEGORY: Record<DietGoal, string> = {
 const MEAL_TYPE_MAP: Record<number, Record<number, MealType>> = {
   3: { 1: "Śniadanie", 2: "Obiad", 3: "Kolacja" },
   4: { 1: "Śniadanie", 2: "Drugie śniadanie", 3: "Obiad", 4: "Kolacja" },
-  5: { 1: "Śniadanie", 2: "Drugie śniadanie", 3: "Obiad", 4: "Podwieczorek", 5: "Kolacja" },
+  5: {
+    1: "Śniadanie",
+    2: "Drugie śniadanie",
+    3: "Obiad",
+    4: "Podwieczorek",
+    5: "Kolacja",
+  },
 };
 
 function toMealPreviews(content: ProgrammaticDietContent): MealPreview[] {
@@ -53,12 +60,14 @@ function toMealPreviews(content: ProgrammaticDietContent): MealPreview[] {
   }));
 }
 
-export async function getReductionDietPreviews(calorie: number): Promise<ReductionDietPreviews> {
-  const result: ReductionDietPreviews = { 3: null, 4: null, 5: null };
+export async function getMaintenanceDietPreviews(
+  calorie: number,
+): Promise<MaintenanceDietPreviews> {
+  const result: MaintenanceDietPreviews = { 3: null, 4: null, 5: null };
 
   for (const mealCount of [3, 4, 5] as const) {
-    const newSlug = `na-redukcje/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
-    const legacySlug = dietParamsToSlug({ calorie, goal: "reduction", mealCount });
+    const newSlug = `na-utrzymanie-wagi/${calorie}-kcal/${mealCountToSegment(mealCount)}`;
+    const legacySlug = dietParamsToSlug({ calorie, goal: "maintenance", mealCount });
     const content =
       (await getDocument("programmaticDiets", newSlug)) ??
       (await getDocument("programmaticDiets", legacySlug));
@@ -69,3 +78,4 @@ export async function getReductionDietPreviews(calorie: number): Promise<Reducti
 
   return result;
 }
+

@@ -6,10 +6,13 @@
 import { getDocument } from "@/firebase";
 import { dietParamsToSlug, mealCountToSegment } from "@/programmatic/diet/generator";
 import type { ProgrammaticDietContent } from "@/types/programmaticDiet";
+import type { DietGoal, MealType } from "@/types/recipe";
+import { generateRecipeSlug } from "@/types/recipe";
 
 export type MealPreview = {
   mealName: string;
-  productNames: string[];
+  calories: number;
+  recipePath: string;
 };
 
 export type MassDietPreviews = {
@@ -18,10 +21,35 @@ export type MassDietPreviews = {
   5: MealPreview[] | null;
 };
 
+const GOAL_TO_CATEGORY: Record<DietGoal, string> = {
+  mass: "na-mase",
+  reduction: "na-redukcje",
+  maintenance: "na-utrzymanie-wagi",
+};
+
+const MEAL_TYPE_MAP: Record<number, Record<number, MealType>> = {
+  3: { 1: "Śniadanie", 2: "Obiad", 3: "Kolacja" },
+  4: { 1: "Śniadanie", 2: "Drugie śniadanie", 3: "Obiad", 4: "Kolacja" },
+  5: { 1: "Śniadanie", 2: "Drugie śniadanie", 3: "Obiad", 4: "Podwieczorek", 5: "Kolacja" },
+};
+
 function toMealPreviews(content: ProgrammaticDietContent): MealPreview[] {
+  const goal = content.goal;
+  const mealTypeMap = MEAL_TYPE_MAP[content.mealCount] || MEAL_TYPE_MAP[4];
+  const category = GOAL_TO_CATEGORY[goal];
+
   return content.dietDay.meals.map((meal) => ({
     mealName: meal.mealName,
-    productNames: meal.ingredients.map((ing) => ing.name),
+    calories: meal.calories,
+    recipePath: `/przepisy/${category}/${
+      meal.recipeSlug ??
+      generateRecipeSlug(
+        mealTypeMap[meal.mealNumber] || "Przekąska",
+        meal.calories,
+        goal,
+        meal.mealName,
+      )
+    }`,
   }));
 }
 
