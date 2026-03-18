@@ -12,6 +12,8 @@ import { getReductionHubFaq } from "@/content/diet/reduction/hubFaq";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import FAQ from "@/components/FAQ";
 import KalkulatorStyleHero from "@/components/KalkulatorStyleHero";
+import AuthorCard from "@/components/AuthorCard";
+import CitationBlock from "@/components/CitationBlock";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
 
@@ -138,6 +140,14 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             To dlatego dwie osoby na tej samej diecie mogą mieć zupełnie inne rezultaty.
           </p>
+          <div className="mt-4 pl-4 border-l-2 border-zinc-100">
+            <CitationBlock
+              goal="reduction"
+              theme="deficit"
+              sentenceFragment="umiarkowany deficyt 300–500 kcal jest najbardziej zrównoważony, a zbyt agresyjne tempo zwiększa ryzyko niepożądanych adaptacji i utrudnia utrzymanie diety"
+              className="mt-0"
+            />
+          </div>
         </section>
 
         {/* Ile można schudnąć */}
@@ -155,6 +165,14 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             To nie idealny dzień diety daje efekt, tylko powtarzalność przez tygodnie.
           </p>
+          <div className="mt-4 pl-4 border-l-2 border-zinc-100">
+            <CitationBlock
+              goal="reduction"
+              theme="rate"
+              sentenceFragment="szybsza redukcja nie musi oznaczać lepszych efektów — praktycznie celuje się w tempo ok. 0,5–1 kg/tydz. dla lepszej jakości składu ciała"
+              className="mt-0"
+            />
+          </div>
         </section>
 
         {/* Dla kogo dieta ma sens */}
@@ -172,6 +190,14 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             Z drugiej strony — jeśli po kilku tygodniach waga stoi w miejscu, to nie znak, że „redukcja nie działa”, tylko że {calorie} kcal może być dla Ciebie poziomem utrzymania. W takiej sytuacji konieczna jest korekta.
           </p>
+          <div className="mt-4 pl-4 border-l-2 border-zinc-100">
+            <CitationBlock
+              goal="reduction"
+              theme="adherence"
+              sentenceFragment="najlepsza redukcja to taka, którą jesteś w stanie utrzymać; jeśli plan przestaje działać w praktyce, pierwszym krokiem jest korekta deficytu i nawyków"
+              className="mt-0"
+            />
+          </div>
         </section>
 
         {/* Jadłospisy na redukcję – tabele 3, 4, 5 posiłków */}
@@ -183,6 +209,15 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-600 text-sm mb-6">
             Najczęstszy błąd początkujących? Szukanie „idealnej liczby posiłków”. W rzeczywistości nie ma znaczenia, czy jesz trzy, cztery czy pięć razy dziennie — o ile bilans kalorii się zgadza, efekt będzie ten sam. Różnica polega wyłącznie na wygodzie i kontroli głodu. Poniżej znajdziesz różne warianty diety {calorie} kcal na redukcję — możesz wybrać taki, który najlepiej pasuje do Twojego stylu życia. Każdy zawiera gotowy jadłospis, przepisy oraz listę zakupów.
           </p>
+
+          <div className="mt-4 pl-4 border-l-2 border-zinc-100">
+            <CitationBlock
+              goal="reduction"
+              theme="satiety"
+              sentenceFragment="kontrola głodu w redukcji zależy m.in. od białka i błonnika — wtedy łatwiej trzymać deficyt bez „ciągłego uczucia braku”"
+              className="mt-0"
+            />
+          </div>
 
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {mealVariants.map(({ segment, label }) => (
@@ -272,6 +307,14 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             Paradoksalnie to właśnie zbyt restrykcyjne podejście najczęściej prowadzi do przerwania diety.
           </p>
+          <div className="mt-4 pl-4 border-l-2 border-zinc-100">
+            <CitationBlock
+              goal="reduction"
+              theme="adherence"
+              sentenceFragment="w długim okresie liczy się realna adherencja — skrajnie restrykcyjne podejście zwiększa ryzyko przerwania redukcji i efektu jo-jo"
+              className="mt-0"
+            />
+          </div>
         </section>
 
         {/* Dlaczego nie chudnę */}
@@ -289,6 +332,14 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             Jeśli jednak masz pewność, że wszystko robisz dobrze, odpowiedź jest prosta: dla Twojego organizmu {calorie} kcal to za dużo, by schudnąć. Wtedy rozwiązaniem nie jest rezygnacja, tylko precyzyjna korekta.
           </p>
+          <div className="mt-4 pl-4 border-l-2 border-zinc-100">
+            <CitationBlock
+              goal="reduction"
+              theme="protein"
+              sentenceFragment="odpowiednia podaż białka wspiera sytość i pomaga chronić masę beztłuszczową podczas redukcji"
+              className="mt-0"
+            />
+          </div>
         </section>
 
         {/* Czy X kcal to dużo na redukcji? */}
@@ -303,6 +354,10 @@ export default async function DietReductionHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             Dobra wiadomość jest taka, że {calorie} kcal to bardzo często świetny punkt wyjścia — ani za niski, ani za wysoki. Wystarczająco komfortowy, żeby wytrwać, i wystarczająco skuteczny, żeby zobaczyć efekty.
           </p>
+        </section>
+
+        <section className="mb-8 max-w-xl" aria-label="Autor artykułu">
+          <AuthorCard />
         </section>
 
         {/* FAQ */}

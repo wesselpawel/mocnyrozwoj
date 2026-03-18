@@ -60,6 +60,12 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       id: "dla-kogo",
       title: `Dieta na masę ${calorie} kcal – dla kogo jest odpowiednia?`,
       text: massContent.getIntro(calorie),
+      researchCitation: {
+        goal: "mass",
+        theme: "context",
+        sentenceFragment:
+          "tempo i jakość przyrostu masy zależą m.in. od stażu treningowego, poziomu tkanki tłuszczowej i hormonów — nie każdy reaguje tak samo na tę samą kaloryczność",
+      },
     },
     {
       id: "hacki-kaloryczne",
@@ -67,6 +73,12 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       text: massContent.getCaloricHacks(),
       linkToSection: "tabele-produktow",
       linkText: "Zobacz pełne tabele produktów wysokokalorycznych →",
+      researchCitation: {
+        goal: "mass",
+        theme: "macros",
+        sentenceFragment:
+          "przy zbliżonej kaloryczności diety różnice wynikające wyłącznie z podziału makroskładników bywają mniejsze, niż sugeruje intuicja — kluczowa pozostaje suma energii i odpowiednia podaż białka",
+      },
     },
     {
       id: "zapotrzebowanie",
@@ -86,11 +98,23 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       text: massContent.getPrinciples(calorie, mealCount),
       ctaLink: "/generator-diety-ai",
       ctaText: "Stwórz dietę na masę w generatorze diety AI →",
+      researchCitation: {
+        goal: "mass",
+        theme: "protein",
+        sentenceFragment:
+          "wyższa podaż białka przy treningu oporowym wspiera przyrost masy beztłuszczowej; bardzo wysokie dawki białka przy nadwyżce nie muszą zwiększać tkanki tłuszczowej",
+      },
     },
     {
       id: "co-jesc",
       title: `Dieta ${calorie} kcal – co jeść?`,
       text: massContent.getProducts(),
+      researchCitation: {
+        goal: "mass",
+        theme: "timing",
+        sentenceFragment:
+          "rozkład białka w ciągu dnia (np. kilka umiarkowanych porcji) może korzystnie wpływać na syntezę białek mięśniowych — choć mniej niż całkowita dzienna podaż białka i energii",
+      },
       video: {
         src: "/generator-diety-ai-video.mp4",
         title: "DIETA NA MASĘ ZA DARMO",
@@ -102,11 +126,23 @@ function getMassTemplateData(params: DietPageParams): DietPageData {
       id: "czego-unikac",
       title: `Czego unikać na diecie ${calorie} kcal?`,
       text: massContent.getMistakes(calorie),
+      researchCitation: {
+        goal: "mass",
+        theme: "surplus",
+        sentenceFragment:
+          "nadwyżka kaloryczna prowadzi do przyrostu masy ciała w tym tkanki tłuszczowej i beztłuszczowej — udział białka w diecie zmienia ten bilans",
+      },
     },
     {
       id: "tempo-budowania",
       title: "Jak szybko można budować masę mięśniową?",
       text: massContent.getProgress(),
+      researchCitation: {
+        goal: "mass",
+        theme: "rate",
+        sentenceFragment:
+          "wolniejsze tempo zmian masy ciała bywa korzystniejsze dla składu ciała; w praktyce często zaleca się umiarkowany przyrost (np. ok. 0,25–0,5% masy ciała tygodniowo u trenujących)",
+      },
     },
     {
       id: "podsumowanie",
@@ -165,6 +201,12 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
       id: "deficyt",
       title: "Deficyt kaloryczny przy redukcji",
       text: reductionContent.getCaloricDeficit(calorie),
+      researchCitation: {
+        goal: "reduction",
+        theme: "deficit",
+        sentenceFragment:
+          "umiarkowany deficyt sprzyja redukcji przy mniejszym ryzyku utraty masy beztłuszczowej i łatwiejszej realizacji niż podejścia zbyt agresywne",
+      },
     },
     {
       id: "zasady",
@@ -172,6 +214,12 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
       text: reductionContent.getPrinciples(calorie, mealCount),
       ctaLink: "/generator-diety-ai",
       ctaText: "Stwórz dietę redukcyjną w generatorze diety AI →",
+      researchCitation: {
+        goal: "reduction",
+        theme: "protein",
+        sentenceFragment:
+          "w literaturze podkreśla się, że wyższe spożycie białka podczas ograniczenia energii wspiera sytość i pomaga chronić masę beztłuszczową",
+      },
     },
     {
       id: "co-jesc",
@@ -183,6 +231,12 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
         ctaLink: "/generator-diety-ai",
         ctaText: "Stwórz swoją dietę w generatorze diety AI →",
       },
+      researchCitation: {
+        goal: "reduction",
+        theme: "satiety",
+        sentenceFragment:
+          "białko i błonnik wspierają kontrolę głodu — co ułatwia trzymanie deficytu bez „ciągłego uczucia braku”",
+      },
     },
     {
       id: "czego-unikac",
@@ -193,6 +247,12 @@ function getReductionTemplateData(params: DietPageParams): DietPageData {
       id: "tempo-redukcji",
       title: `Jak szybko można schudnąć na diecie ${calorie} kcal?`,
       text: reductionContent.getProgress(),
+      researchCitation: {
+        goal: "reduction",
+        theme: "rate",
+        sentenceFragment:
+          "zbyt agresywna redukcja wiąże się z większym ryzykiem utraty jakości składu ciała; praktycznie częstym celem jest tempo ok. 0,5–1 kg/tydz.",
+      },
     },
     {
       id: "porownanie-kalorycznosci",
@@ -211,6 +271,12 @@ Jeśli po czasie uznasz, że potrzebujesz innej kaloryczności, możesz sprawdzi
       id: "podsumowanie",
       title: "Podsumowanie",
       text: reductionContent.getSummary(calorie),
+      researchCitation: {
+        goal: "reduction",
+        theme: "adherence",
+        sentenceFragment:
+          "w długim okresie kluczowa jest realna adherencja — najlepsza jest dieta, którą jesteś w stanie utrzymać, a nie plan „idealny” na krótko",
+      },
     },
     {
       id: "tabele-produktow",
@@ -251,11 +317,23 @@ function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
       text: `Aby dobrać odpowiednią kaloryczność diety na utrzymanie wagi, warto znać swoje dzienne zapotrzebowanie energetyczne. [Oblicz je w kalkulatorze kalorii](/kalkulator-kcal) — na tej podstawie ustalisz, ile kalorii dziennie spożywać, aby masa ciała pozostawała stabilna.`,
       ctaLink: "/kalkulator-kcal",
       ctaText: "Oblicz zapotrzebowanie kaloryczne w kalkulatorze kalorii →",
+      researchCitation: {
+        goal: "maintenance",
+        theme: "balance",
+        sentenceFragment:
+          "utrzymanie masy ciała wymaga długoterminowej równowagi między przyjmowaną a wydatkowaną energią",
+      },
     },
     {
       id: "bilans",
       title: "Bilans kaloryczny przy utrzymaniu wagi",
       text: maintenanceContent.getCaloricBalance(calorie),
+      researchCitation: {
+        goal: "maintenance",
+        theme: "balance",
+        sentenceFragment:
+          "zerowy bilans energetyczny oznacza stabilną masę ciała — zmiany masy są determinowane przez różnicę między spożyciem a wydatkowaniem energii",
+      },
     },
     {
       id: "zasady",
@@ -263,6 +341,12 @@ function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
       text: maintenanceContent.getPrinciples(calorie, mealCount),
       ctaLink: "/generator-diety-ai",
       ctaText: "Stwórz dietę w generatorze diety AI →",
+      researchCitation: {
+        goal: "maintenance",
+        theme: "protein",
+        sentenceFragment:
+          "wyższe spożycie białka zwiększa sytość i wspiera utrzymanie masy ciała oraz beztłuszczowej masy ciała — praktyczny zakres to ok. 1,2–1,8 g/kg",
+      },
     },
     {
       id: "co-jesc",
@@ -279,16 +363,34 @@ function getMaintenanceTemplateData(params: DietPageParams): DietPageData {
       id: "jak-utrzymac-wage",
       title: "Jak utrzymać wagę bez ciągłego liczenia kalorii?",
       text: maintenanceContent.getCaloricHacks(),
+      researchCitation: {
+        goal: "maintenance",
+        theme: "weight_stability",
+        sentenceFragment:
+          "regularna aktywność fizyczna, kontrola spożycia energii, regularne posiłki i monitorowanie diety są kluczowe dla utrzymania masy ciała — nawyki liczą się bardziej niż perfekcja",
+      },
     },
     {
       id: "czego-unikac",
       title: "Czego unikać przy utrzymaniu wagi?",
       text: maintenanceContent.getMistakes(),
+      researchCitation: {
+        goal: "maintenance",
+        theme: "ssb",
+        sentenceFragment:
+          "napoje słodzone dostarczają płynnych kalorii i sprzyjają przyrostowi masy — ich ograniczenie pomaga utrzymać wagę",
+      },
     },
     {
       id: "podsumowanie",
       title: "Podsumowanie",
       text: maintenanceContent.getSummary(calorie),
+      researchCitation: {
+        goal: "maintenance",
+        theme: "physical_activity",
+        sentenceFragment:
+          "aktywność fizyczna odgrywa istotną rolę w zapobieganiu ponownemu przyrostowi masy i sprzyja długoterminowemu utrzymaniu wagi, szczególnie po redukcji",
+      },
     },
     {
       id: "powiazane-artykuly",

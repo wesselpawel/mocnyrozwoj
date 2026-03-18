@@ -13,6 +13,8 @@ import { getMaintenanceDietPreviews } from "@/lib/getMaintenanceDietPreviews";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import KalkulatorStyleHero from "@/components/KalkulatorStyleHero";
 import FAQ from "@/components/FAQ";
+import AuthorCard from "@/components/AuthorCard";
+import CitationBlock from "@/components/CitationBlock";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
 
@@ -191,6 +193,12 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
               .
             </p>
           )}
+          <CitationBlock
+            goal="maintenance"
+            theme="balance"
+            sentenceFragment="utrzymanie masy ciała wymaga długoterminowej równowagi między przyjmowaną a wydatkowaną energią"
+            className="mt-4"
+          />
         </section>
 
         {/* Czy na X kcal można utrzymać wagę? */}
@@ -210,9 +218,15 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed mb-2">
             Jeśli {calorie} kcal to dla Ciebie <strong>za mało</strong>, możesz stopniowo tracić na wadze.
           </p>
-          <p className="text-zinc-700 leading-relaxed">
+          <p className="text-zinc-700 leading-relaxed mb-4">
             Jeśli <strong>za dużo</strong>, możesz powoli przybierać na wadze. Dlatego warto regularnie monitorować wagę i samopoczucie.
           </p>
+          <CitationBlock
+            goal="maintenance"
+            theme="balance"
+            sentenceFragment="zmiany masy ciała są determinowane przez różnicę między spożyciem energii a jej wydatkowaniem — zerowy bilans oznacza stabilną wagę"
+            className="mt-2"
+          />
         </section>
 
         {/* Makroskładniki */}
@@ -233,9 +247,15 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
               Węglowodany: 40–60% (ok. {Math.round((calorie * 0.4) / 4)}–{Math.round((calorie * 0.6) / 4)} g)
             </li>
           </ul>
-          <p className="text-zinc-700 leading-relaxed">
+          <p className="text-zinc-700 leading-relaxed mb-4">
             Białko wspiera regenerację organizmu i utrzymanie masy mięśniowej, węglowodany dostarczają energii do codziennych aktywności, a tłuszcze są ważne dla hormonów i zdrowia ogólnego.
           </p>
+          <CitationBlock
+            goal="maintenance"
+            theme="protein"
+            sentenceFragment="wyższe spożycie białka zwiększa sytość i wspiera utrzymanie masy ciała oraz beztłuszczowej masy ciała — praktyczny zakres to ok. 1,2–1,8 g/kg"
+            className="mt-2"
+          />
         </section>
 
         {/* Jadłospisy na X kcal */}
@@ -337,11 +357,17 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
             Liczba posiłków nie wpływa bezpośrednio na utrzymanie wagi — kluczowa jest całkowita kaloryczność diety.
           </p>
           <p className="text-zinc-700 leading-relaxed">Wybierz:</p>
-          <ul className="list-disc pl-6 text-zinc-700 space-y-1 mt-2">
+          <ul className="list-disc pl-6 text-zinc-700 space-y-1 mt-2 mb-4">
             <li>3 posiłki – jeśli preferujesz większe porcje;</li>
             <li>4 posiłki – jeśli chcesz zachować równowagę;</li>
             <li>5 posiłków – jeśli lepiej czujesz się jedząc częściej, ale mniej.</li>
           </ul>
+          <CitationBlock
+            goal="maintenance"
+            theme="weight_stability"
+            sentenceFragment="osoby utrzymujące masę ciała stosują regularne posiłki i monitorują dietę oraz aktywność — nawyki są kluczowe dla utrzymania wagi"
+            className="mt-2"
+          />
         </section>
 
         {/* Jak dostosować dietę? */}
@@ -356,6 +382,16 @@ export default async function DietMaintenanceHubPage({ params }: Props) {
             <li>przyrost masy ciała: zmniejsz kalorie o 100–150 kcal;</li>
             <li>kontroluj wagę co 1–2 tygodnie i obserwuj długoterminowy trend.</li>
           </ul>
+          <CitationBlock
+            goal="maintenance"
+            theme="physical_activity"
+            sentenceFragment="aktywność fizyczna odgrywa istotną rolę w zapobieganiu ponownemu przyrostowi masy i sprzyja długoterminowemu utrzymaniu wagi"
+            className="mt-2"
+          />
+        </section>
+
+        <section className="mb-8 max-w-xl" aria-label="Autor artykułu">
+          <AuthorCard />
         </section>
 
         {/* FAQ */}

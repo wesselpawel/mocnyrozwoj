@@ -24,6 +24,13 @@ export type BlogSection = {
     ctaLink?: string;
     ctaText?: string;
   };
+  /** Blok cytowań pod treścią (programmatic diety) */
+  researchCitation?: {
+    goal: "mass" | "reduction" | "maintenance";
+    theme: string;
+    sentenceFragment: string;
+    intro?: string;
+  };
 };
 
 export type PublicBlogEntry = {

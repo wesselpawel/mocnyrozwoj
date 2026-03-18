@@ -20,6 +20,9 @@ export type FAQItem = {
   answer: string;
 };
 
+/** Cel diety (szablon, cytowania) */
+export type DietGoal = "reduction" | "mass" | "maintenance";
+
 /** Sekcja artykułu */
 export type ArticleSection = {
   id?: string;
@@ -37,6 +40,16 @@ export type ArticleSection = {
     title: string;
     ctaLink?: string;
     ctaText?: string;
+  };
+  /**
+   * Po treści sekcji: akapit z linkami do badań (content/diet/citations).
+   * theme = klucz z massCitations / reductionCitations / maintenanceCitations.
+   */
+  researchCitation?: {
+    goal: DietGoal;
+    theme: string;
+    sentenceFragment: string;
+    intro?: string;
   };
 };
 

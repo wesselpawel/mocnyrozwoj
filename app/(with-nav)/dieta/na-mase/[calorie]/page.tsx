@@ -9,6 +9,8 @@ import { getMassDietPreviews } from "@/lib/getMassDietPreviews";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import FAQ from "@/components/FAQ";
 import KalkulatorStyleHero from "@/components/KalkulatorStyleHero";
+import AuthorCard from "@/components/AuthorCard";
+import CitationBlock from "@/components/CitationBlock";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dziendiety.pl";
 
@@ -198,6 +200,12 @@ export default async function DietMassHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             Dlatego warto monitorować wagę i w razie potrzeby zwiększyć kaloryczność.
           </p>
+          <CitationBlock
+            goal="mass"
+            theme="rate"
+            sentenceFragment="tempo przyrostu masy wpływa na jakość składu ciała — wolniejszy przyrost (np. 0,25–0,5 kg/tydz.) często oznacza mniej tkanki tłuszczowej"
+            className="mt-4"
+          />
         </section>
 
         {/* Makroskładniki */}
@@ -215,6 +223,12 @@ export default async function DietMassHubPage({ params }: Props) {
           <p className="text-zinc-700 leading-relaxed">
             Białko wspiera budowę mięśni, węglowodany dostarczają energii do treningów, a tłuszcze regulują gospodarkę hormonalną.
           </p>
+          <CitationBlock
+            goal="mass"
+            theme="protein"
+            sentenceFragment="wyższa podaż białka (ok. 1,6–2,2 g/kg) przy treningu siłowym wspiera przyrost masy mięśniowej"
+            className="mt-4"
+          />
         </section>
 
         {/* Jadłospisy na X kcal – tabele 3, 4, 5 posiłków */}
@@ -336,6 +350,10 @@ export default async function DietMassHubPage({ params }: Props) {
           <ul className="list-disc pl-6 text-zinc-700 space-y-1">
             <li>zmniejsz kalorie o 100–200 kcal.</li>
           </ul>
+        </section>
+
+        <section className="mb-8 max-w-xl" aria-label="Autor artykułu">
+          <AuthorCard />
         </section>
 
         {/* FAQ */}
