@@ -18,6 +18,12 @@ import { modalStyles } from "./modalStyles";
 interface LoginPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Called when the user closes via backdrop or X without completing auth (not called after successful login/register). */
+  onDismissWithoutAuth?: () => void;
+  /**
+   * When true, do not navigate to /dashboard after auth — let the parent run logic (e.g. save diet) then redirect.
+   */
+  skipDashboardRedirect?: boolean;
   initialMode?: "login" | "register";
   allowModeSwitch?: boolean;
 }
@@ -25,6 +31,8 @@ interface LoginPopupProps {
 export default function LoginPopup({
   isOpen,
   onClose,
+  onDismissWithoutAuth,
+  skipDashboardRedirect = false,
   initialMode = "login",
   allowModeSwitch = true,
 }: LoginPopupProps) {
@@ -48,6 +56,11 @@ export default function LoginPopup({
     setFormData({ email: "", password: "", name: "" });
   }, [isOpen, initialMode]);
 
+  const dismissWithoutAuth = () => {
+    onDismissWithoutAuth?.();
+    onClose();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -59,7 +72,9 @@ export default function LoginPopup({
         if (formData.email && formData.password) {
           await signInWithEmail(formData.email, formData.password);
           onClose();
-          router.push("/dashboard");
+          if (!skipDashboardRedirect) {
+            router.push("/dashboard");
+          }
         } else {
           setError("Proszę wypełnić wszystkie pola");
         }
@@ -87,7 +102,9 @@ export default function LoginPopup({
 
           login(userData);
           onClose();
-          router.push("/dashboard");
+          if (!skipDashboardRedirect) {
+            router.push("/dashboard");
+          }
         } else {
           setError("Proszę wypełnić wszystkie pola");
         }
@@ -139,7 +156,9 @@ export default function LoginPopup({
 
         login(userData);
         onClose();
-        router.push("/dashboard");
+        if (!skipDashboardRedirect) {
+          router.push("/dashboard");
+        }
       }
     } catch (error: unknown) {
       const err = error as { code?: string };
@@ -174,7 +193,7 @@ export default function LoginPopup({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-slate-950/55 backdrop-blur-[2px] z-50"
-            onClick={onClose}
+            onClick={dismissWithoutAuth}
           />
 
           {/* Popup */}
@@ -191,7 +210,8 @@ export default function LoginPopup({
               {/* Header */}
               <div className={`${modalStyles.gradientHeader} p-6`}>
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={dismissWithoutAuth}
                   className={`absolute top-4 right-4 ${modalStyles.closeButton}`}
                 >
                   <FaTimes className="text-sm" />

@@ -28,6 +28,7 @@ export default function DietPlan({
   const [results, setResults] = useState<Record<string, unknown> | null>(null);
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const [pendingSaveAfterLogin, setPendingSaveAfterLogin] = useState(false);
   const [saveStatus, setSaveStatus] = useState<
     null | "success" | "error" | "saving"
   >(null);
@@ -112,14 +113,21 @@ export default function DietPlan({
     }
   };
 
-  // If user logs in after diet plan, auto-save
+  // After register/login from "Zapisz plan", save once user exists (do not depend on showLogin — popup clears it before user state updates).
   useEffect(() => {
-    if (user && showLogin && results && saveStatus !== "success") {
+    if (
+      user &&
+      pendingSaveAfterLogin &&
+      results &&
+      saveStatus !== "success" &&
+      saveStatus !== "saving"
+    ) {
       handleSaveResult();
+      setPendingSaveAfterLogin(false);
       setShowLogin(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, showLogin, results]);
+  }, [user, pendingSaveAfterLogin, results, saveStatus]);
 
   // Redirect to dashboard after successful save if logged in
   useEffect(() => {
@@ -389,7 +397,10 @@ export default function DietPlan({
                       <>
                         <button
                           className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
-                          onClick={() => setShowLogin(true)}
+                          onClick={() => {
+                            setPendingSaveAfterLogin(true);
+                            setShowLogin(true);
+                          }}
                           disabled={saveStatus === "saving"}
                         >
                           Zarejestruj się i zapisz plan
@@ -397,6 +408,10 @@ export default function DietPlan({
                         <LoginPopup
                           isOpen={showLogin}
                           onClose={() => setShowLogin(false)}
+                          onDismissWithoutAuth={() =>
+                            setPendingSaveAfterLogin(false)
+                          }
+                          skipDashboardRedirect
                           initialMode="register"
                           allowModeSwitch={false}
                         />

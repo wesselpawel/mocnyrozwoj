@@ -677,12 +677,11 @@ export default function StaticTest({
                 <div className="mt-6 flex flex-col items-center gap-4">
                   <LoginPopup
                     isOpen={showLogin}
-                    onClose={() => {
-                      setShowLogin(false);
-                      if (!user) {
-                        setPendingSaveAfterLogin(false);
-                      }
-                    }}
+                    onClose={() => setShowLogin(false)}
+                    onDismissWithoutAuth={() =>
+                      setPendingSaveAfterLogin(false)
+                    }
+                    skipDashboardRedirect
                     initialMode="register"
                     allowModeSwitch={false}
                   />
