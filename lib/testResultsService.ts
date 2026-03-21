@@ -11,6 +11,16 @@ export interface TestResult {
 
 const COLLECTION_NAME = "test_results";
 
+/**
+ * Dashboard "Moja dieta" assigns rows by parsing `testName` with /dzień\s*(\d+)/i.
+ * Saves without that fragment are stored in Firestore but never appear in the UI.
+ */
+export function ensureTestNameMapsToDietDay(testName: string): string {
+  const t = (testName || "").trim() || "Plan dietetyczny";
+  if (/dzień\s*\d+/i.test(t)) return t;
+  return `Dzień 1 — ${t}`;
+}
+
 export const testResultsService = {
   async saveTestResult({
     userId,
@@ -20,10 +30,11 @@ export const testResultsService = {
   }: Omit<TestResult, "id" | "createdAt">): Promise<string> {
     const id = Date.now().toString();
     const createdAt = new Date().toISOString();
+    const resolvedName = ensureTestNameMapsToDietDay(testName);
     const result: TestResult = {
       id,
       userId: userId || null,
-      testName,
+      testName: resolvedName,
       answers,
       report,
       createdAt,
